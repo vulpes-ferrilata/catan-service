@@ -1,0 +1,22 @@
+[
+    {
+        "locale": "en",
+        "key": "invalid-header-format",
+        "trans": "authorization header format must be Bearer 'token'"
+    },
+    {
+        "locale": "en",
+        "key": "full-player",
+        "trans": "the game you are trying to join is full"
+    },
+    {
+        "locale": "en",
+        "key": "joined-player",
+        "trans": "you are already joined"
+    },
+    {
+        "locale": "en",
+        "key": "other-player-turn",
+        "trans": "you are unable to perform this action in other player turn"
+    }
+]
