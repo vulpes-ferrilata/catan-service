@@ -1,27 +1,27 @@
 [
     {
         "locale": "en",
-        "key": "validation-error-title",
-        "trans": "one or more validation errors occured"
+        "key": "validation-error",
+        "trans": "the request contains invalid parameters, more information can be found in the errors"
     },
     {
         "locale": "en",
-        "key": "validation-error-detail",
-        "trans": "the request contains invalid parameter, more information can be found in the errors"
-    },
-    {
-        "locale": "en",
-        "key": "business-error-title",
-        "trans": "one or more business rule violation occured"
-    },
-    {
-        "locale": "en",
-        "key": "business-error-detail",
+        "key": "business-error",
         "trans": "the request cannot be proceeded, more information can be found in the errors"
     },
     {
         "locale": "en",
-        "key": "authentication-error-title",
-        "trans": "authentication failed"
-    } 
+        "key": "authentication-error",
+        "trans": "the request has invalid credential, more information can be found in the errors"
+    },
+    {
+        "locale": "en",
+        "key": "not-found-error",
+        "trans": "{0} not found"
+    },
+    {
+        "locale": "en",
+        "key": "stale-object-error",
+        "trans": "attempted to update or delete a stale {0}"
+    }
 ]

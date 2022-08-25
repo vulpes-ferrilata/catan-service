@@ -1,55 +1,55 @@
 package infrastructure
 
 import (
-	command_handlers "github.com/VulpesFerrilata/catan-service/application/commands/handlers"
-	query_handlers "github.com/VulpesFerrilata/catan-service/application/queries/handlers"
-	"github.com/VulpesFerrilata/catan-service/domain/mappers"
-	"github.com/VulpesFerrilata/catan-service/domain/services"
-	"github.com/VulpesFerrilata/catan-service/infrastructure/middlewares"
-	"github.com/VulpesFerrilata/catan-service/infrastructure/persistence/repositories"
+	command_handlers "github.com/vulpes-ferrilata/catan-service/application/commands/handlers"
+	query_handlers "github.com/vulpes-ferrilata/catan-service/application/queries/handlers"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/repositories"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/grpc/interceptors"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/projectors"
+	"github.com/vulpes-ferrilata/catan-service/presentation"
+	"github.com/vulpes-ferrilata/catan-service/presentation/v1/servers"
 	"go.uber.org/dig"
 )
 
 func NewContainer() *dig.Container {
 	container := dig.New()
 
-	//3rd party libraries
+	//Infrastructure layer
 	container.Provide(NewConfig)
-	container.Provide(NewGorm)
-	container.Provide(NewValidate)
-	container.Provide(NewCommandBus)
-	container.Provide(NewQueryBus)
-	container.Provide(NewSagaBus)
+	container.Provide(NewMongo)
+	container.Provide(NewValidator)
+	container.Provide(NewLogrus)
 	container.Provide(NewUniversalTranslator)
-
-	//middlewares
-	container.Provide(middlewares.NewErrorHandlerMiddleware)
-	container.Provide(middlewares.NewValidationMiddleware)
-	container.Provide(middlewares.NewTransactionMiddleware)
-	container.Provide(middlewares.NewAuthenticationMiddleware)
-	container.Provide(middlewares.NewTranslatorMiddleware)
-
-	//Persistence layer
-	container.Provide(repositories.NewGameRepository)
-	container.Provide(repositories.NewPlayerRepository)
-	container.Provide(repositories.NewDiceRepository)
+	//--Grpc interceptors
+	container.Provide(interceptors.NewErrorHandlerInterceptor)
+	container.Provide(interceptors.NewLocaleInterceptor)
 
 	//Domain layer
-	//--Services
-	container.Provide(services.NewAuthenticationService)
-	container.Provide(services.NewGameService)
-	container.Provide(services.NewPlayerService)
-	container.Provide(services.NewDiceService)
-	//--Mappers
-	container.Provide(mappers.NewGameMapper)
-	container.Provide(mappers.NewPlayerMapper)
-	container.Provide(mappers.NewDiceMapper)
+	//--Repositories
+	container.Provide(repositories.NewGameRepository)
+
+	//View layer
+	//--Projectors
+	container.Provide(projectors.NewGameProjector)
 
 	//Application layer
-	container.Provide(query_handlers.NewGetClaimByAccessTokenQueryHandler)
+	//--Queries
+	container.Provide(query_handlers.NewFindGamesByUserIDQueryHandler)
+	container.Provide(query_handlers.NewGetGameByIDByUserIDQueryHandler)
+	//--Commands
 	container.Provide(command_handlers.NewCreateGameCommandHandler)
 	container.Provide(command_handlers.NewJoinGameCommandHandler)
 	container.Provide(command_handlers.NewStartGameCommandHandler)
+	container.Provide(command_handlers.NewBuildSettlementAndRoadHandler)
+	container.Provide(command_handlers.NewRollDicesCommandHandler)
+	container.Provide(command_handlers.NewMoveRobberCommandHandler)
+	container.Provide(command_handlers.NewEndTurnCommandHandler)
+
+	//Presentation layer
+	//--Server
+	container.Provide(presentation.NewServer)
+	//--Controllers
+	container.Provide(servers.NewCatanServer)
 
 	return container
 }

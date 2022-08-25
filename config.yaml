@@ -1,0 +1,7 @@
+server:
+  address: 127.0.0.1:9000
+database:
+  address: 127.0.0.1:27017
+  name: catan
+  username: catan
+  password: 123456

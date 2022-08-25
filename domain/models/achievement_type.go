@@ -1,21 +1,23 @@
 package models
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
-func NewAchievementType(value string) (AchievementType, error) {
-	achievementType := AchievementType(value)
+func NewAchievementType(value string) (achievementType, error) {
+	achievementType := achievementType(value)
 
 	switch achievementType {
 	case LongestRoad, LargestArmy:
 		return achievementType, nil
 	default:
-		return achievementType, errors.Wrap(ErrEnumIsInvalid, value)
+		return achievementType, errors.New("achievement type is invalid")
 	}
 }
 
-type AchievementType string
+type achievementType string
 
 const (
-	LongestRoad AchievementType = "LongestRoad"
-	LargestArmy AchievementType = "LargestArmy"
+	LongestRoad achievementType = "LONGEST_ROAD"
+	LargestArmy achievementType = "LARGEST_ARMY"
 )

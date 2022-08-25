@@ -3,46 +3,42 @@ package handlers
 import (
 	"context"
 
-	"github.com/VulpesFerrilata/catan-service/application/commands"
-	"github.com/VulpesFerrilata/catan-service/domain/services"
-	"github.com/VulpesFerrilata/catan-service/infrastructure/dig/results"
-	"github.com/google/uuid"
+	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/catan-service/application/commands"
+	"github.com/vulpes-ferrilata/catan-service/domain/repositories"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command/wrappers"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewStartGameCommandHandler(gameService services.GameService,
-	playerService services.PlayerService) results.CommandHandlerResult {
-	commandHandler := &startGameCommandHandler{
-		gameService: gameService,
+func NewStartGameCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.StartGameCommand] {
+	handler := &startGameCommandHandler{
+		gameRepository: gameRepository,
 	}
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.StartGameCommand](db, handler)
+	validationWrapper := wrappers.NewValidationWrapper[*commands.StartGameCommand](validate, transactionWrapper)
 
-	return results.CommandHandlerResult{
-		CommandHandler: commandHandler,
-	}
+	return validationWrapper
 }
 
 type startGameCommandHandler struct {
-	gameService services.GameService
+	gameRepository repositories.GameRepository
 }
 
-func (c startGameCommandHandler) GetCommand() interface{} {
-	return new(commands.StartGameCommand)
-}
-
-func (c startGameCommandHandler) Handle(ctx context.Context, command interface{}) error {
-	startGameCommand := command.(*commands.StartGameCommand)
-
-	gameID, err := uuid.Parse(startGameCommand.GameID)
+func (s startGameCommandHandler) Handle(ctx context.Context, startGameCommand *commands.StartGameCommand) error {
+	gameID, err := primitive.ObjectIDFromHex(startGameCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := uuid.Parse(startGameCommand.UserID)
+	userID, err := primitive.ObjectIDFromHex(startGameCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	game, err := c.gameService.GetByID(ctx, gameID)
+	game, err := s.gameRepository.GetByID(ctx, gameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -51,7 +47,7 @@ func (c startGameCommandHandler) Handle(ctx context.Context, command interface{}
 		return errors.WithStack(err)
 	}
 
-	if err := c.gameService.Save(ctx, game); err != nil {
+	if err := s.gameRepository.Update(ctx, game); err != nil {
 		return errors.WithStack(err)
 	}
 

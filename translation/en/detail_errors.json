@@ -1,22 +1,133 @@
 [
     {
         "locale": "en",
-        "key": "invalid-header-format",
+        "key": "header-format-is-invalid",
         "trans": "authorization header format must be Bearer 'token'"
     },
     {
         "locale": "en",
-        "key": "full-player",
+        "key": "game-has-full-players",
         "trans": "the game you are trying to join is full"
     },
     {
         "locale": "en",
-        "key": "joined-player",
-        "trans": "you are already joined"
+        "key": "you-already-joined",
+        "trans": "you already joined"
     },
     {
         "locale": "en",
-        "key": "other-player-turn",
-        "trans": "you are unable to perform this action in other player turn"
+        "key": "you-are-not-in-turn",
+        "trans": "you are not in turn"
+    },
+    {
+        "locale": "en",
+        "key": "game-has-not-started-yet",
+        "trans": "game has not started yet"
+    },
+    {
+        "locale": "en",
+        "key": "game-already-started",
+        "trans": "game already started"
+    },
+    {
+        "locale": "en",
+        "key": "game-already-finished",
+        "trans": "game already finished"
+    },
+    {
+        "locale": "en",
+        "key": "you-are-unable-to-perform-this-action-in-current-phase",
+        "trans": "you are unable to perform this action in current phase"
+    },
+    {
+        "locale": "en",
+        "key": "selected-land-has-been-occupied",
+        "trans": "selected land has been occupied"
+    },
+    {
+        "locale": "en",
+        "key": "selected-path-has-been-occupied",
+        "trans": "selected path has been occupied"
+    },
+    {
+        "locale": "en",
+        "key": "nearby-lands-must-be-vacant",
+        "trans": "nearby lands must be vacant"
+    },
+    {
+        "locale": "en",
+        "key": "selected-land-and-path-must-be-adjacent",
+        "trans": "selected land and path must be adjacent"
+    },
+    {
+        "locale": "en",
+        "key": "you-have-run-out-of-roads",
+        "trans": "you have run out of roads"
+    },
+    {
+        "locale": "en",
+        "key": "you-have-run-out-of-settlements",
+        "trans": "you have run out of settlements"
+    },
+    {
+        "locale": "en",
+        "key": "you-have-run-out-of-cities",
+        "trans": "you have run out of cities"
+    },
+    {
+        "locale": "en",
+        "key": "you-have-insufficient-resource-cards",
+        "trans": "you have insufficient resource cards"
+    },
+    {
+        "locale": "en",
+        "key": "you-already-rolled-dices",
+        "trans": "you already rolled dices"
+    },
+    {
+        "locale": "en",
+        "key": "robber-must-be-moved-to-other-terrain",
+        "trans": "robber must be moved to other terrain"
+    },
+    {
+        "locale": "en",
+        "key": "robber-is-not-available-to-move",
+        "trans": "robber is not available to move"
+    },
+    {
+        "locale": "en",
+        "key": "you-cannot-rob-yourself",
+        "trans": "you cannot rob yourself"
+    },
+    {
+        "locale": "en",
+        "key": "selected-player-must-have-construction-next-to-robber",
+        "trans": "selected player must have construction next to robber"
+    },
+    {
+        "locale": "en",
+        "key": "you-must-rob-player-who-have-construction-next-to-robber",
+        "trans": "you must rob player who have construction next to robber"
+    },
+    {
+        "locale": "en",
+        "key": "you-must-roll-dices",
+        "trans": "you must roll dices"
+    },
+    {
+        "locale": "en",
+        "key": "selected-construction-already-upgraded",
+        "trans": "selected construction already upgradd"
+    },
+    {
+        "locale": "en",
+        "key": "selected-construction-does-not-belong-to-any-land",
+        "trans": "selected construction does not belong to any land"
+    },
+    {
+        "locale": "en",
+        "key": "game-has-run-out-of-development-cards",
+        "trans": "game has run out of development cards"
     }
+    
 ]

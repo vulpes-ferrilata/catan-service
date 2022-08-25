@@ -1,24 +1,26 @@
 package models
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
-func NewResourceCardType(value string) (ResourceCardType, error) {
-	resourceCardType := ResourceCardType(value)
+func NewResourceCardType(value string) (resourceCardType, error) {
+	resourceCardType := resourceCardType(value)
 
 	switch resourceCardType {
 	case Lumber, Brick, Wool, Grain, Ore:
 		return resourceCardType, nil
 	default:
-		return resourceCardType, errors.Wrap(ErrEnumIsInvalid, value)
+		return resourceCardType, errors.New("resource type is invalid")
 	}
 }
 
-type ResourceCardType string
+type resourceCardType string
 
 const (
-	Lumber ResourceCardType = "Lumber"
-	Brick  ResourceCardType = "Brick"
-	Wool   ResourceCardType = "Wool"
-	Grain  ResourceCardType = "Grain"
-	Ore    ResourceCardType = "Ore"
+	Lumber resourceCardType = "LUMBER"
+	Brick  resourceCardType = "BRICK"
+	Wool   resourceCardType = "WOOL"
+	Grain  resourceCardType = "GRAIN"
+	Ore    resourceCardType = "ORE"
 )

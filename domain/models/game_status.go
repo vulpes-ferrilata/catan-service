@@ -1,22 +1,24 @@
 package models
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
-func NewGameStatus(value string) (GameStatus, error) {
-	gameStatus := GameStatus(value)
+func NewGameStatus(value string) (gameStatus, error) {
+	gameStatus := gameStatus(value)
 
 	switch gameStatus {
 	case Waiting, Started, Finished:
 		return gameStatus, nil
 	default:
-		return gameStatus, errors.Wrap(ErrEnumIsInvalid, string(gameStatus))
+		return gameStatus, errors.Errorf("game status is invalid")
 	}
 }
 
-type GameStatus string
+type gameStatus string
 
 const (
-	Waiting  GameStatus = "Waiting"
-	Started  GameStatus = "Started"
-	Finished GameStatus = "Finished"
+	Waiting  gameStatus = "WAITING"
+	Started  gameStatus = "STARTED"
+	Finished gameStatus = "FINISHED"
 )

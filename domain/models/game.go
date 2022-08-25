@@ -1,81 +1,149 @@
 package models
 
 import (
-	service "github.com/VulpesFerrilata/catan-service"
-	"github.com/VulpesFerrilata/catan-service/domain/models/common"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func NewGame(id uuid.UUID,
-	status GameStatus,
-	activePlayerID uuid.UUID,
-	turn int,
-	players []*Player,
-	dices []*Dice,
-	achievements []*Achievement) *Game {
-	return &Game{
-		Entity:       common.NewEntity(id),
-		status:       status,
-		turn:         turn,
-		players:      players,
-		dices:        dices,
-		achievements: achievements,
-	}
-}
-
 type Game struct {
-	common.Entity
-	status         GameStatus
-	activePlayerID uuid.UUID
-	turn           int
-	players        []*Player
-	dices          []*Dice
-	achievements   []*Achievement
+	aggregateRoot
+	status           gameStatus
+	turn             int
+	isRolledDices    bool
+	players          []*Player
+	dices            []*Dice
+	achievements     []*Achievement
+	resourceCards    []*ResourceCard
+	developmentCards []*DevelopmentCard
+	terrains         []*Terrain
+	harbors          []*Harbor
+	robber           *Robber
+	lands            []*Land
+	paths            []*Path
 }
 
-func (g Game) GetStatus() GameStatus {
+func (g Game) GetStatus() gameStatus {
 	return g.status
-}
-
-func (g Game) GetActivePlayerID() uuid.UUID {
-	return g.activePlayerID
 }
 
 func (g Game) GetTurn() int {
 	return g.turn
 }
 
+func (g Game) IsRolledDices() bool {
+	return g.isRolledDices
+}
+
 func (g Game) GetPlayers() []*Player {
-	return g.players
+	return slices.Clone(g.players)
 }
 
 func (g Game) GetDices() []*Dice {
-	return g.dices
+	return slices.Clone(g.dices)
 }
 
-func (g *Game) AddPlayer(player *Player) error {
-	if len(g.players) >= 4 {
-		return errors.WithStack(service.ErrPlayerIsFull)
-	}
+func (g Game) GetAchievements() []*Achievement {
+	return slices.Clone(g.achievements)
+}
 
-	for _, currentPlayer := range g.players {
-		if currentPlayer.GetUserID() == player.GetUserID() {
-			return errors.WithStack(service.ErrPlayerAlreadyJoined)
-		}
-	}
+func (g Game) GetResourceCards() []*ResourceCard {
+	return slices.Clone(g.resourceCards)
+}
 
-	g.players = append(g.players, player)
+func (g Game) GetDevelopmentCards() []*DevelopmentCard {
+	return slices.Clone(g.developmentCards)
+}
+
+func (g Game) GetTerrains() []*Terrain {
+	return slices.Clone(g.terrains)
+}
+
+func (g Game) GetHarbors() []*Harbor {
+	return slices.Clone(g.harbors)
+}
+
+func (g Game) GetRobber() *Robber {
+	return g.robber
+}
+
+func (g Game) GetLands() []*Land {
+	return slices.Clone(g.lands)
+}
+
+func (g Game) GetPaths() []*Path {
+	return slices.Clone(g.paths)
+}
+
+func (g *Game) getState() state {
+	switch g.status {
+	case Waiting:
+		return &waitingState{g}
+	case Started:
+		return &startedState{g}
+	case Finished:
+		return &finishedState{g}
+	}
 
 	return nil
 }
 
-func (g *Game) Start(userID uuid.UUID) error {
-	if g.activePlayerID != userID {
-		return errors.WithStack(service.ErrOtherPlayerTurn)
+func (g *Game) NewPlayer(userID primitive.ObjectID) error {
+	state := g.getState()
+
+	if err := state.newPlayer(userID); err != nil {
+		return errors.WithStack(err)
 	}
 
-	g.status = Started
+	return nil
+}
+
+func (g *Game) Start(userID primitive.ObjectID) error {
+	state := g.getState()
+
+	if err := state.startGame(userID); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (g *Game) BuildSettlementAndRoad(userID primitive.ObjectID, landID primitive.ObjectID, pathID primitive.ObjectID) error {
+	state := g.getState()
+
+	if err := state.buildSettlementAndRoad(userID, landID, pathID); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (g *Game) RollDices(userID primitive.ObjectID) error {
+	state := g.getState()
+
+	if err := state.rollDices(userID); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (g *Game) MoveRobber(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
+	state := g.getState()
+
+	if err := state.moveRobber(userID, terrainID, playerID); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (g *Game) EndTurn(userID primitive.ObjectID) error {
+	state := g.getState()
+
+	if err := state.endTurn(userID); err != nil {
+		return errors.WithStack(err)
+	}
 
 	return nil
 }

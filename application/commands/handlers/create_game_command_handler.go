@@ -3,51 +3,54 @@ package handlers
 import (
 	"context"
 
-	"github.com/VulpesFerrilata/catan-service/application/commands"
-	"github.com/VulpesFerrilata/catan-service/domain/services"
-	"github.com/VulpesFerrilata/catan-service/infrastructure/dig/results"
-	"github.com/google/uuid"
+	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/catan-service/application/commands"
+	"github.com/vulpes-ferrilata/catan-service/domain/models"
+	"github.com/vulpes-ferrilata/catan-service/domain/repositories"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command/wrappers"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewCreateGameCommandHandler(gameService services.GameService,
-	playerService services.PlayerService) results.CommandHandlerResult {
-	commandHandler := &createGameCommandHandler{
-		gameService: gameService,
+func NewCreateGameCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.CreateGameCommand] {
+	handler := &createGameCommandHandler{
+		gameRepository: gameRepository,
 	}
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateGameCommand](db, handler)
+	validationWrapper := wrappers.NewValidationWrapper[*commands.CreateGameCommand](validate, transactionWrapper)
 
-	return results.CommandHandlerResult{
-		CommandHandler: commandHandler,
-	}
+	return validationWrapper
 }
 
 type createGameCommandHandler struct {
-	gameService services.GameService
+	gameRepository repositories.GameRepository
 }
 
-func (c createGameCommandHandler) GetCommand() interface{} {
-	return new(commands.CreateGameCommand)
-}
-
-func (c createGameCommandHandler) Handle(ctx context.Context, command interface{}) error {
-	createGameCommand := command.(*commands.CreateGameCommand)
-
-	gameID, err := uuid.Parse(createGameCommand.GameID)
+func (c createGameCommandHandler) Handle(ctx context.Context, createGameCommand *commands.CreateGameCommand) error {
+	gameID, err := primitive.ObjectIDFromHex(createGameCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := uuid.Parse(createGameCommand.UserID)
+	userID, err := primitive.ObjectIDFromHex(createGameCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	game, err := c.gameService.NewGame(ctx, gameID, userID)
-	if err != nil {
+	game := models.NewGameBuilder().
+		SetID(gameID).
+		SetStatus(models.Waiting).
+		SetTurn(1).
+		SetIsRolledDices(false).
+		Create()
+
+	if err := game.NewPlayer(userID); err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := c.gameService.Save(ctx, game); err != nil {
+	if err := c.gameRepository.Insert(ctx, game); err != nil {
 		return errors.WithStack(err)
 	}
 

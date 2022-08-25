@@ -3,67 +3,51 @@ package handlers
 import (
 	"context"
 
-	"github.com/VulpesFerrilata/catan-service/application/commands"
-	"github.com/VulpesFerrilata/catan-service/domain/models"
-	"github.com/VulpesFerrilata/catan-service/domain/services"
-	"github.com/VulpesFerrilata/catan-service/infrastructure/dig/results"
-	"github.com/google/uuid"
+	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/catan-service/application/commands"
+	"github.com/vulpes-ferrilata/catan-service/domain/repositories"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command/wrappers"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewJoinGameCommandHandler(gameService services.GameService,
-	playerService services.PlayerService) results.CommandHandlerResult {
-	commandHandler := &joinGameCommandHandler{
-		gameService:   gameService,
-		playerService: playerService,
+func NewJoinGameCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.JoinGameCommand] {
+	handler := &joinGameCommandHandler{
+		gameRepository: gameRepository,
 	}
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.JoinGameCommand](db, handler)
+	validationWrapper := wrappers.NewValidationWrapper[*commands.JoinGameCommand](validate, transactionWrapper)
 
-	return results.CommandHandlerResult{
-		CommandHandler: commandHandler,
-	}
+	return validationWrapper
 }
 
 type joinGameCommandHandler struct {
-	gameService   services.GameService
-	playerService services.PlayerService
+	gameRepository repositories.GameRepository
 }
 
-func (c joinGameCommandHandler) GetCommand() interface{} {
-	return new(commands.JoinGameCommand)
-}
-
-func (c joinGameCommandHandler) Handle(ctx context.Context, command interface{}) error {
-	joinGameCommand := command.(*commands.JoinGameCommand)
-
-	gameID, err := uuid.Parse(joinGameCommand.GameID)
+func (j joinGameCommandHandler) Handle(ctx context.Context, joinGameCommand *commands.JoinGameCommand) error {
+	gameID, err := primitive.ObjectIDFromHex(joinGameCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := uuid.Parse(joinGameCommand.UserID)
+	userID, err := primitive.ObjectIDFromHex(joinGameCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	game, err := c.gameService.GetByID(ctx, gameID)
+	game, err := j.gameRepository.GetByID(ctx, gameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	if game.GetStatus() != models.Waiting {
-		return nil
-	}
-
-	player, err := c.playerService.NewPlayer(ctx, userID)
-	if err != nil {
+	if err := game.NewPlayer(userID); err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := game.AddPlayer(player); err != nil {
-		return errors.WithStack(err)
-	}
-
-	if err := c.gameService.Save(ctx, game); err != nil {
+	if err := j.gameRepository.Update(ctx, game); err != nil {
 		return errors.WithStack(err)
 	}
 
