@@ -15,7 +15,7 @@ func toDevelopmentCardDocument(developmentCard *models.DevelopmentCard) *documen
 		Document: documents.Document{
 			ID: developmentCard.GetID(),
 		},
-		Type:   string(developmentCard.GetType()),
+		Type:   developmentCard.GetType().String(),
 		Status: string(developmentCard.GetStatus()),
 	}
 }
@@ -35,7 +35,7 @@ func toDevelopmentCardDomain(developmentCardDocument *documents.DevelopmentCard)
 		return nil, errors.WithStack(err)
 	}
 
-	developmentCard := models.NewDevelopmentCardBuilder().
+	developmentCard := models.DevelopmentCardBuilder{}.
 		SetID(developmentCardDocument.ID).
 		SetType(developmentCardType).
 		SetStatus(developmentCardStatus).

@@ -31,7 +31,7 @@ func toRoadDomain(roadDocument *documents.Road) (*models.Road, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	road := models.NewRoadBuilder().
+	road := models.RoadBuilder{}.
 		SetID(roadDocument.ID).
 		SetPath(path).
 		Create()

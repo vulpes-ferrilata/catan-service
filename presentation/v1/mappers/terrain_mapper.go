@@ -10,11 +10,17 @@ func toTerrainResponse(terrain *models.Terrain) *catan.TerrainResponse {
 		return nil
 	}
 
+	harborResponse := toHarborResponse(terrain.Harbor)
+
+	robberResponse := toRobberResponse(terrain.Robber)
+
 	return &catan.TerrainResponse{
 		ID:     terrain.ID.Hex(),
 		Q:      int32(terrain.Q),
 		R:      int32(terrain.R),
 		Number: int32(terrain.Number),
 		Type:   terrain.Type,
+		Harbor: harborResponse,
+		Robber: robberResponse,
 	}
 }

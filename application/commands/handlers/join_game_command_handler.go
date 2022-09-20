@@ -18,7 +18,7 @@ func NewJoinGameCommandHandler(validate *validator.Validate, db *mongo.Database,
 		gameRepository: gameRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.JoinGameCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.JoinGameCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }

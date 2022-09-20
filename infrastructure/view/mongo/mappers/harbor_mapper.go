@@ -11,10 +11,9 @@ func toHarborView(harborDocument *documents.Harbor) *models.Harbor {
 	}
 
 	return &models.Harbor{
-		ID:        harborDocument.ID,
-		TerrainID: harborDocument.TerrainID,
-		Q:         harborDocument.Q,
-		R:         harborDocument.R,
-		Type:      harborDocument.Type,
+		ID:   harborDocument.ID,
+		Q:    harborDocument.Q,
+		R:    harborDocument.R,
+		Type: harborDocument.Type,
 	}
 }

@@ -5,6 +5,8 @@ type Terrain struct {
 	hex         Hex
 	number      int
 	terrainType terrainType
+	harbor      *Harbor
+	robber      *Robber
 }
 
 func (t Terrain) GetHex() Hex {
@@ -17,4 +19,12 @@ func (t Terrain) GetNumber() int {
 
 func (t Terrain) GetType() terrainType {
 	return t.terrainType
+}
+
+func (t Terrain) GetHarbor() *Harbor {
+	return t.harbor
+}
+
+func (t Terrain) GetRobber() *Robber {
+	return t.robber
 }

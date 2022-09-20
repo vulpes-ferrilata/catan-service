@@ -2,11 +2,11 @@ package models
 
 type Construction struct {
 	aggregate
-	constructionType constructionType
+	constructionType ConstructionType
 	land             *Land
 }
 
-func (c Construction) GetType() constructionType {
+func (c Construction) GetType() ConstructionType {
 	return c.constructionType
 }
 

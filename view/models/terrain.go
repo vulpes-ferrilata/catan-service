@@ -8,4 +8,6 @@ type Terrain struct {
 	R      int
 	Number int
 	Type   string
+	Harbor *Harbor
+	Robber *Robber
 }

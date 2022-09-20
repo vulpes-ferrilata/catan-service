@@ -24,7 +24,7 @@ func (w waitingState) newPlayer(userID primitive.ObjectID) error {
 		}
 	}
 
-	colors := []playerColor{Red, Blue, Green, Yellow}
+	colors := []PlayerColor{Red, Blue, Green, Yellow}
 	turnOrder := 1
 	for _, player := range w.game.players {
 		colors = slices.Remove(colors, player.color)
@@ -37,7 +37,7 @@ func (w waitingState) newPlayer(userID primitive.ObjectID) error {
 
 	id := primitive.NewObjectID()
 
-	player := NewPlayerBuilder().
+	player := PlayerBuilder{}.
 		SetID(id).
 		SetUserID(userID).
 		SetColor(colors[0]).
@@ -52,36 +52,33 @@ func (w waitingState) newPlayer(userID primitive.ObjectID) error {
 
 func (w waitingState) initDices() {
 	for i := 1; i <= 2; i++ {
-		dice := &Dice{
-			aggregate: aggregate{
-				id: primitive.NewObjectID(),
-			},
-			number: 1,
-		}
+		dice := DiceBuilder{}.
+			SetID(primitive.NewObjectID()).
+			SetNumber(1).
+			Create()
+
 		w.game.dices = append(w.game.dices, dice)
 	}
 }
 
 func (w waitingState) initAchievements() {
-	longestRoadAchievement := &Achievement{
-		aggregate: aggregate{
-			id: primitive.NewObjectID(),
-		},
-		achievementType: LongestRoad,
-	}
+	longestRoadAchievement := AchievementBuilder{}.
+		SetID(primitive.NewObjectID()).
+		SetType(LongestRoad).
+		Create()
+
 	w.game.achievements = append(w.game.achievements, longestRoadAchievement)
 
-	largestArmyAchievement := &Achievement{
-		aggregate: aggregate{
-			id: primitive.NewObjectID(),
-		},
-		achievementType: LargestArmy,
-	}
+	largestArmyAchievement := AchievementBuilder{}.
+		SetID(primitive.NewObjectID()).
+		SetType(LargestArmy).
+		Create()
+
 	w.game.achievements = append(w.game.achievements, largestArmyAchievement)
 }
 
 func (w waitingState) initResourceCards() {
-	resourceCardTypes := []resourceCardType{
+	resourceCardTypes := []ResourceCardType{
 		Lumber,
 		Brick,
 		Wool,
@@ -91,13 +88,12 @@ func (w waitingState) initResourceCards() {
 
 	for _, resourceCardType := range resourceCardTypes {
 		for i := 1; i <= 19; i++ {
-			resourceCard := &ResourceCard{
-				aggregate: aggregate{
-					id: primitive.NewObjectID(),
-				},
-				resourceCardType: resourceCardType,
-				isSelected:       false,
-			}
+			resourceCard := ResourceCardBuilder{}.
+				SetID(primitive.NewObjectID()).
+				SetType(resourceCardType).
+				SetIsSelected(false).
+				Create()
+
 			w.game.resourceCards = append(w.game.resourceCards, resourceCard)
 		}
 	}
@@ -105,42 +101,39 @@ func (w waitingState) initResourceCards() {
 
 func (w waitingState) initDevelopmentCards() {
 	for i := 1; i <= 14; i++ {
-		developmentCard := &DevelopmentCard{
-			aggregate: aggregate{
-				id: primitive.NewObjectID(),
-			},
-			developmentCardType: Knight,
-			status:              Disable,
-		}
+		developmentCard := DevelopmentCardBuilder{}.
+			SetID(primitive.NewObjectID()).
+			SetType(Knight).
+			SetStatus(Disable).
+			Create()
+
 		w.game.developmentCards = append(w.game.developmentCards, developmentCard)
 	}
 
-	progressDevelopmentCardTypes := []developmentCardType{
+	progressDevelopmentCardTypes := []DevelopmentCardType{
 		Monopoly,
 		RoadBuilding,
 		YearOfPlenty,
 	}
 	for _, progressDevelopmentCardType := range progressDevelopmentCardTypes {
 		for i := 1; i <= 2; i++ {
-			developmentCard := &DevelopmentCard{
-				aggregate: aggregate{
-					id: primitive.NewObjectID(),
-				},
-				developmentCardType: progressDevelopmentCardType,
-				status:              Disable,
-			}
+			developmentCard := DevelopmentCardBuilder{}.
+				SetID(primitive.NewObjectID()).
+				SetType(progressDevelopmentCardType).
+				SetStatus(Disable).
+				Create()
+
 			w.game.developmentCards = append(w.game.developmentCards, developmentCard)
 		}
 	}
 
 	for i := 1; i <= 5; i++ {
-		developmentCard := &DevelopmentCard{
-			aggregate: aggregate{
-				id: primitive.NewObjectID(),
-			},
-			developmentCardType: VictoryPoints,
-			status:              Disable,
-		}
+		developmentCard := DevelopmentCardBuilder{}.
+			SetID(primitive.NewObjectID()).
+			SetType(VictoryPoints).
+			SetStatus(Disable).
+			Create()
+
 		w.game.developmentCards = append(w.game.developmentCards, developmentCard)
 	}
 }
@@ -149,12 +142,12 @@ func (w waitingState) initTerrains() {
 	spiralHexes := make([]Hex, 0)
 
 	hexDirections := []hexDirection{
-		NewHexDirection(1, 0),
-		NewHexDirection(0, 1),
-		NewHexDirection(-1, 1),
-		NewHexDirection(-1, 0),
-		NewHexDirection(0, -1),
-		NewHexDirection(1, -1),
+		{1, 0},
+		{0, 1},
+		{-1, 1},
+		{-1, 0},
+		{0, -1},
+		{1, -1},
 	}
 
 	//reverse
@@ -169,15 +162,15 @@ func (w waitingState) initTerrains() {
 	hexDirectionIdx := rand.Intn(len(hexDirections))
 	hexDirections = append(hexDirections[hexDirectionIdx:], hexDirections[:hexDirectionIdx]...)
 
-	centerHex := NewHex(0, 0)
+	centerHex := Hex{0, 0}
 	spiralHexes = append(spiralHexes, centerHex)
 
 	for radius := 1; radius <= 2; radius++ {
 		circleHexes := make([]Hex, 0)
-		hex := hexDirections[len(hexDirections)-2].Multiply(radius).CalculateEndpoint(centerHex)
+		hex := hexDirections[len(hexDirections)-2].multiply(radius).calculateEndpoint(centerHex)
 		for _, hexDirection := range hexDirections {
 			for step := 0; step < radius; step++ {
-				hex = hexDirection.CalculateEndpoint(hex)
+				hex = hexDirection.calculateEndpoint(hex)
 				circleHexes = append(circleHexes, hex)
 			}
 		}
@@ -222,14 +215,13 @@ func (w waitingState) initTerrains() {
 	}
 
 	for i := len(spiralHexes) - 1; i >= 0; i-- {
-		terrain := &Terrain{
-			aggregate: aggregate{
-				id: primitive.NewObjectID(),
-			},
-			hex:         spiralHexes[i],
-			number:      numbers[i],
-			terrainType: terrainTypes[i],
-		}
+		terrain := TerrainBuilder{}.
+			SetID(primitive.NewObjectID()).
+			SetHex(spiralHexes[i]).
+			SetNumber(numbers[i]).
+			SetType(terrainTypes[i]).
+			Create()
+
 		w.game.terrains = append(w.game.terrains, terrain)
 	}
 }
@@ -238,20 +230,20 @@ func (w waitingState) initHarbors() {
 	circleHexes := make([]Hex, 0)
 
 	hexDirections := []hexDirection{
-		NewHexDirection(1, 0),
-		NewHexDirection(0, 1),
-		NewHexDirection(-1, 1),
-		NewHexDirection(-1, 0),
-		NewHexDirection(0, -1),
-		NewHexDirection(1, -1),
+		{1, 0},
+		{0, 1},
+		{-1, 1},
+		{-1, 0},
+		{0, -1},
+		{1, -1},
 	}
 
-	centerHex := NewHex(0, 0)
+	centerHex := Hex{0, 0}
 
-	hex := hexDirections[len(hexDirections)-2].Multiply(3).CalculateEndpoint(centerHex)
+	hex := hexDirections[len(hexDirections)-2].multiply(3).calculateEndpoint(centerHex)
 	for _, hexDirection := range hexDirections {
 		for step := 0; step < 3; step++ {
-			hex = hexDirection.CalculateEndpoint(hex)
+			hex = hexDirection.calculateEndpoint(hex)
 			circleHexes = append(circleHexes, hex)
 		}
 	}
@@ -264,7 +256,7 @@ func (w waitingState) initHarbors() {
 		}
 	}
 
-	harborTypes := []harborType{
+	harborTypes := []HarborType{
 		WoolHarbor,
 		LumberHarbor,
 		BrickHarbor,
@@ -279,16 +271,12 @@ func (w waitingState) initHarbors() {
 
 	for idx, hex := range oddOrEvenCircleHexes {
 		for _, terrain := range w.game.terrains {
-			if terrain.hex.IsAdjacentWithHex(hex) {
-				harbor := &Harbor{
-					aggregate: aggregate{
-						id: primitive.NewObjectID(),
-					},
-					terrainID:  terrain.id,
-					hex:        hex,
-					harborType: harborTypes[idx],
-				}
-				w.game.harbors = append(w.game.harbors, harbor)
+			if terrain.hex.isAdjacentWithHex(hex) {
+				terrain.harbor = HarborBuilder{}.
+					SetID(primitive.NewObjectID()).
+					SetHex(hex).
+					SetType(harborTypes[idx]).
+					Create()
 				break
 			}
 		}
@@ -298,13 +286,9 @@ func (w waitingState) initHarbors() {
 func (w waitingState) initRobber() {
 	for _, terrain := range w.game.terrains {
 		if terrain.terrainType == Desert {
-			w.game.robber = &Robber{
-				aggregate: aggregate{
-					id: primitive.NewObjectID(),
-				},
-				terrainID: terrain.id,
-				isMoving:  false,
-			}
+			terrain.robber = RobberBuilder{}.
+				SetID(primitive.NewObjectID()).
+				Create()
 		}
 	}
 }
@@ -312,19 +296,18 @@ func (w waitingState) initRobber() {
 func (w waitingState) initPaths() {
 	hexEdges := make(map[HexEdge]struct{}, 0)
 	for _, terrain := range w.game.terrains {
-		adjacentHexEdges := FindAdjacentHexEdges(terrain.hex)
+		adjacentHexEdges := findAdjacentHexEdgesFromHex(terrain.hex)
 		for _, adjacentHexEdge := range adjacentHexEdges {
 			hexEdges[adjacentHexEdge] = struct{}{}
 		}
 	}
 
 	for hexEdge := range hexEdges {
-		path := &Path{
-			aggregate: aggregate{
-				id: primitive.NewObjectID(),
-			},
-			hexEdge: hexEdge,
-		}
+		path := PathBuilder{}.
+			SetID(primitive.NewObjectID()).
+			SetHexEdge(hexEdge).
+			Create()
+
 		w.game.paths = append(w.game.paths, path)
 	}
 }
@@ -332,19 +315,18 @@ func (w waitingState) initPaths() {
 func (w waitingState) initLands() {
 	hexCorners := make(map[HexCorner]struct{})
 	for _, terrain := range w.game.terrains {
-		adjacentHexCorners := FindAdjacentHexCorners(terrain.hex)
+		adjacentHexCorners := findAdjacentHexCornersFromHex(terrain.hex)
 		for _, adjacentHexCorner := range adjacentHexCorners {
 			hexCorners[adjacentHexCorner] = struct{}{}
 		}
 	}
 
 	for hexCorner := range hexCorners {
-		land := &Land{
-			aggregate: aggregate{
-				id: primitive.NewObjectID(),
-			},
-			hexCorner: hexCorner,
-		}
+		land := LandBuilder{}.
+			SetID(primitive.NewObjectID()).
+			SetHexCorner(hexCorner).
+			Create()
+
 		w.game.lands = append(w.game.lands, land)
 	}
 }
@@ -354,24 +336,22 @@ func (w waitingState) initConstructions() {
 		constructions := make([]*Construction, 0)
 
 		for i := 1; i <= 5; i++ {
-			construction := &Construction{
-				aggregate: aggregate{
-					id: primitive.NewObjectID(),
-				},
-				constructionType: Settlement,
-				land:             nil,
-			}
+			construction := ConstructionBuilder{}.
+				SetID(primitive.NewObjectID()).
+				SetType(Settlement).
+				SetLand(nil).
+				Create()
+
 			constructions = append(constructions, construction)
 		}
 
 		for i := 1; i <= 4; i++ {
-			construction := &Construction{
-				aggregate: aggregate{
-					id: primitive.NewObjectID(),
-				},
-				constructionType: City,
-				land:             nil,
-			}
+			construction := ConstructionBuilder{}.
+				SetID(primitive.NewObjectID()).
+				SetType(City).
+				SetLand(nil).
+				Create()
+
 			constructions = append(constructions, construction)
 		}
 
@@ -384,12 +364,11 @@ func (w waitingState) initRoads() {
 		roads := make([]*Road, 0)
 
 		for i := 1; i <= 15; i++ {
-			road := &Road{
-				aggregate: aggregate{
-					id: primitive.NewObjectID(),
-				},
-				path: nil,
-			}
+			road := RoadBuilder{}.
+				SetID(primitive.NewObjectID()).
+				SetPath(nil).
+				Create()
+
 			roads = append(roads, road)
 		}
 
@@ -433,6 +412,7 @@ func (w waitingState) startGame(userID primitive.ObjectID) error {
 	}
 
 	w.game.status = Started
+	w.game.phase = ResourceProduction
 
 	return nil
 }
@@ -450,5 +430,57 @@ func (w waitingState) moveRobber(userID primitive.ObjectID, terrainID primitive.
 }
 
 func (w waitingState) endTurn(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) buildSettlement(userID primitive.ObjectID, landID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) buildRoad(userID primitive.ObjectID, pathID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) upgradeCity(userID primitive.ObjectID, constructionID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) buyDevelopmentCard(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) toggleResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) confirmTrading(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) cancelTrading(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) playKnightCard(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) playYearOfPlentyCard(userID primitive.ObjectID, resourceCardTypes []ResourceCardType) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) playMonopolyCard(userID primitive.ObjectID, resourceCardType ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }

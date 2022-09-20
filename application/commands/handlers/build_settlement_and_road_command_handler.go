@@ -13,21 +13,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewBuildSettlementAndRoadHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.BuildSettlementAndRoadCommand] {
-	handler := &buildSettlementAndRoadHandler{
+func NewBuildSettlementAndRoadCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.BuildSettlementAndRoadCommand] {
+	handler := &buildSettlementAndRoadCommandHandler{
 		gameRepository: gameRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.BuildSettlementAndRoadCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.BuildSettlementAndRoadCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }
 
-type buildSettlementAndRoadHandler struct {
+type buildSettlementAndRoadCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (b buildSettlementAndRoadHandler) Handle(ctx context.Context, buildSettlementAndRoad *commands.BuildSettlementAndRoadCommand) error {
+func (b buildSettlementAndRoadCommandHandler) Handle(ctx context.Context, buildSettlementAndRoad *commands.BuildSettlementAndRoadCommand) error {
 	gameID, err := primitive.ObjectIDFromHex(buildSettlementAndRoad.GameID)
 	if err != nil {
 		return errors.WithStack(err)

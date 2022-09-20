@@ -15,7 +15,7 @@ func toAchievementDocument(achievement *models.Achievement) *documents.Achieveme
 		Document: documents.Document{
 			ID: achievement.GetID(),
 		},
-		Type: string(achievement.GetType()),
+		Type: achievement.GetType().String(),
 	}
 }
 
@@ -29,7 +29,7 @@ func toAchievementDomain(achievementDocument *documents.Achievement) (*models.Ac
 		return nil, errors.WithStack(err)
 	}
 
-	achievement := models.NewAchievementBuilder().
+	achievement := models.AchievementBuilder{}.
 		SetID(achievementDocument.ID).
 		SetType(achievementType).
 		Create()

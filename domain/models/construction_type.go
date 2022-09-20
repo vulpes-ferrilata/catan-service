@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewConstructionType(value string) (constructionType, error) {
-	constructionType := constructionType(value)
+func NewConstructionType(enum string) (ConstructionType, error) {
+	constructionType := ConstructionType{enum}
 
 	switch constructionType {
 	case Settlement, City:
@@ -15,9 +15,15 @@ func NewConstructionType(value string) (constructionType, error) {
 	}
 }
 
-type constructionType string
+type ConstructionType struct {
+	enum string
+}
 
-const (
-	Settlement constructionType = "SETTLEMENT"
-	City       constructionType = "CITY"
+func (c ConstructionType) String() string {
+	return c.enum
+}
+
+var (
+	Settlement = ConstructionType{"SETTLEMENT"}
+	City       = ConstructionType{"CITY"}
 )

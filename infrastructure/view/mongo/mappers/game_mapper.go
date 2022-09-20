@@ -35,12 +35,6 @@ func ToGameDetailView(gameDocument *documents.Game) *models.Game {
 		return toTerrainView(terrainDocument), nil
 	}, gameDocument.Terrains)
 
-	harbors, _ := slices.Map(func(harborDocument *documents.Harbor) (*models.Harbor, error) {
-		return toHarborView(harborDocument), nil
-	}, gameDocument.Harbors)
-
-	robber := toRobberView(gameDocument.Robber)
-
 	lands, _ := slices.Map(func(landDocument *documents.Land) (*models.Land, error) {
 		return toLandView(landDocument), nil
 	}, gameDocument.Lands)
@@ -52,16 +46,14 @@ func ToGameDetailView(gameDocument *documents.Game) *models.Game {
 	return &models.Game{
 		ID:               gameDocument.ID,
 		Status:           gameDocument.Status,
+		Phase:            gameDocument.Phase,
 		Turn:             gameDocument.Turn,
-		IsRolledDices:    gameDocument.IsRolledDices,
 		Players:          players,
 		Dices:            dices,
 		Achievements:     achievements,
 		ResourceCards:    resourceCards,
 		DevelopmentCards: developmentCards,
 		Terrains:         terrains,
-		Harbors:          harbors,
-		Robber:           robber,
 		Lands:            lands,
 		Paths:            paths,
 	}

@@ -28,6 +28,8 @@ func (r resourceProductionPhase) rollDices(userID primitive.ObjectID) error {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
+	r.game.phase = ResourceConsumption
+
 	total := 0
 
 	for _, dice := range r.game.dices {
@@ -35,10 +37,8 @@ func (r resourceProductionPhase) rollDices(userID primitive.ObjectID) error {
 		total += dice.number
 	}
 
-	r.game.isRolledDices = true
-
 	if total == 7 {
-		r.game.robber.isMoving = true
+		r.game.phase = Robbing
 
 		for _, player := range r.game.players {
 			if len(player.resourceCards) > 7 {
@@ -56,14 +56,14 @@ func (r resourceProductionPhase) rollDices(userID primitive.ObjectID) error {
 
 	dispatchedResourceCards := make([]*ResourceCard, 0)
 
-	terrains := slices.Filter(func(terrain *Terrain) bool {
-		return terrain.number == total
-	}, r.game.terrains)
+	for _, terrain := range r.game.terrains {
+		if terrain.number != total || terrain.robber != nil {
+			continue
+		}
 
-	for _, terrain := range terrains {
 		for _, player := range r.game.players {
 			constructions := slices.Filter(func(construction *Construction) bool {
-				return construction.land != nil && construction.land.hexCorner.IsAdjacentWithHex(terrain.hex)
+				return construction.land != nil && construction.land.hexCorner.isAdjacentWithHex(terrain.hex)
 			}, player.constructions)
 
 			for _, construction := range constructions {
@@ -133,5 +133,25 @@ func (r resourceProductionPhase) upgradeCity(userID primitive.ObjectID, construc
 }
 
 func (r resourceProductionPhase) buyDevelopmentCard(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (r resourceProductionPhase) toggleResourceCards(userID primitive.ObjectID, resourceCardID []primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (r resourceProductionPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (r resourceProductionPhase) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (r resourceProductionPhase) confirmTrading(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (r resourceProductionPhase) cancelTrading(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
 }

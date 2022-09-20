@@ -18,7 +18,7 @@ func NewMoveRobberCommandHandler(validate *validator.Validate, db *mongo.Databas
 		gameRepository: gameRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.MoveRobberCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.MoveRobberCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }
@@ -43,7 +43,13 @@ func (m moveRobberCommandHandler) Handle(ctx context.Context, moveRobberCommand 
 		return errors.WithStack(err)
 	}
 
-	playerID, _ := primitive.ObjectIDFromHex(moveRobberCommand.PlayerID)
+	var playerID primitive.ObjectID
+	if moveRobberCommand.PlayerID != "" {
+		playerID, err = primitive.ObjectIDFromHex(moveRobberCommand.PlayerID)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
 
 	game, err := m.gameRepository.GetByID(ctx, gameID)
 	if err != nil {

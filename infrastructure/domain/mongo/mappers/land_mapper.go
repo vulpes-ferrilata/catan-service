@@ -17,7 +17,7 @@ func toLandDocument(land *models.Land) *documents.Land {
 		},
 		Q:        land.GetHexCorner().GetQ(),
 		R:        land.GetHexCorner().GetR(),
-		Location: string(land.GetHexCorner().GetLocation()),
+		Location: land.GetHexCorner().GetLocation().String(),
 	}
 
 	return landDocument
@@ -35,7 +35,7 @@ func toLandDomain(landDocument *documents.Land) (*models.Land, error) {
 
 	hexCorner := models.NewHexCorner(landDocument.Q, landDocument.R, hexCornerLocation)
 
-	land := models.NewLandBuilder().
+	land := models.LandBuilder{}.
 		SetID(landDocument.ID).
 		SetHexCorner(hexCorner).
 		Create()

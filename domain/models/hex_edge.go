@@ -2,7 +2,7 @@ package models
 
 import "github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
 
-func NewHexEdge(q int, r int, location hexEdgeLocation) HexEdge {
+func NewHexEdge(q int, r int, location HexEdgeLocation) HexEdge {
 	return HexEdge{
 		q:        q,
 		r:        r,
@@ -10,15 +10,15 @@ func NewHexEdge(q int, r int, location hexEdgeLocation) HexEdge {
 	}
 }
 
-func FindAdjacentHexEdges(hex Hex) []HexEdge {
+func findAdjacentHexEdgesFromHex(hex Hex) []HexEdge {
 	hexEdges := make([]HexEdge, 0)
 
-	topRightHexEdge := NewHexEdge(hex.q+1, hex.r-1, BottomLeft)
-	middleRightHexEdge := NewHexEdge(hex.q+1, hex.r, MiddleLeft)
-	bottomRightHexEdge := NewHexEdge(hex.q, hex.r+1, TopLeft)
-	bottomLeftHexEdge := NewHexEdge(hex.q, hex.r, BottomLeft)
-	middleLeftHexEdge := NewHexEdge(hex.q, hex.r, MiddleLeft)
-	topLeftHexEdge := NewHexEdge(hex.q, hex.r, TopLeft)
+	topRightHexEdge := HexEdge{hex.q + 1, hex.r - 1, BottomLeft}
+	middleRightHexEdge := HexEdge{hex.q + 1, hex.r, MiddleLeft}
+	bottomRightHexEdge := HexEdge{hex.q, hex.r + 1, TopLeft}
+	bottomLeftHexEdge := HexEdge{hex.q, hex.r, BottomLeft}
+	middleLeftHexEdge := HexEdge{hex.q, hex.r, MiddleLeft}
+	topLeftHexEdge := HexEdge{hex.q, hex.r, TopLeft}
 
 	hexEdges = append(
 		hexEdges,
@@ -33,20 +33,20 @@ func FindAdjacentHexEdges(hex Hex) []HexEdge {
 	return hexEdges
 }
 
-func FindAdjacentHexEdgesFromHexCorner(hexCorner HexCorner) []HexEdge {
+func findAdjacentHexEdgesFromHexCorner(hexCorner HexCorner) []HexEdge {
 	hexEdges := make([]HexEdge, 0)
 
 	switch hexCorner.location {
 	case Top:
-		topHexEdge := NewHexEdge(hexCorner.q+1, hexCorner.r-1, MiddleLeft)
-		bottomRightHexEdge := NewHexEdge(hexCorner.q+1, hexCorner.r-1, BottomLeft)
-		bottomLeftHexEdge := NewHexEdge(hexCorner.q, hexCorner.r, TopLeft)
+		topHexEdge := HexEdge{hexCorner.q + 1, hexCorner.r - 1, MiddleLeft}
+		bottomRightHexEdge := HexEdge{hexCorner.q + 1, hexCorner.r - 1, BottomLeft}
+		bottomLeftHexEdge := HexEdge{hexCorner.q, hexCorner.r, TopLeft}
 
 		hexEdges = append(hexEdges, topHexEdge, bottomRightHexEdge, bottomLeftHexEdge)
 	case Bottom:
-		topRightHexEdge := NewHexEdge(hexCorner.q+1, hexCorner.r+1, TopLeft)
-		bottomHexEdge := NewHexEdge(hexCorner.q+1, hexCorner.r+1, MiddleLeft)
-		topLeftHexEdge := NewHexEdge(hexCorner.q, hexCorner.r, BottomLeft)
+		topRightHexEdge := HexEdge{hexCorner.q, hexCorner.r + 1, TopLeft}
+		bottomHexEdge := HexEdge{hexCorner.q, hexCorner.r + 1, MiddleLeft}
+		topLeftHexEdge := HexEdge{hexCorner.q, hexCorner.r, BottomLeft}
 
 		hexEdges = append(hexEdges, topRightHexEdge, bottomHexEdge, topLeftHexEdge)
 	}
@@ -54,7 +54,7 @@ func FindAdjacentHexEdgesFromHexCorner(hexCorner HexCorner) []HexEdge {
 	return hexEdges
 }
 
-func FindAdjacentHexEdgesFromHexEdge(hexEdge HexEdge) []HexEdge {
+func findAdjacentHexEdgesFromHexEdge(hexEdge HexEdge) []HexEdge {
 	hexEdges := make([]HexEdge, 0)
 
 	var topLeftHexEdge HexEdge
@@ -64,20 +64,20 @@ func FindAdjacentHexEdgesFromHexEdge(hexEdge HexEdge) []HexEdge {
 
 	switch hexEdge.location {
 	case TopLeft:
-		topLeftHexEdge = NewHexEdge(hexEdge.q+1, hexEdge.r-1, MiddleLeft)
-		topRightHexEdge = NewHexEdge(hexEdge.q+1, hexEdge.r-1, BottomLeft)
-		bottomLeftHexEdge = NewHexEdge(hexEdge.q, hexEdge.r-1, BottomLeft)
-		bottomRightHexEdge = NewHexEdge(hexEdge.q, hexEdge.r, MiddleLeft)
+		topLeftHexEdge = HexEdge{hexEdge.q + 1, hexEdge.r - 1, MiddleLeft}
+		topRightHexEdge = HexEdge{hexEdge.q + 1, hexEdge.r - 1, BottomLeft}
+		bottomLeftHexEdge = HexEdge{hexEdge.q, hexEdge.r - 1, BottomLeft}
+		bottomRightHexEdge = HexEdge{hexEdge.q, hexEdge.r, MiddleLeft}
 	case MiddleLeft:
-		topLeftHexEdge = NewHexEdge(hexEdge.q, hexEdge.r-1, BottomLeft)
-		topRightHexEdge = NewHexEdge(hexEdge.q, hexEdge.r, TopLeft)
-		bottomLeftHexEdge = NewHexEdge(hexEdge.q-1, hexEdge.r+1, TopLeft)
-		bottomRightHexEdge = NewHexEdge(hexEdge.q, hexEdge.r, BottomLeft)
+		topLeftHexEdge = HexEdge{hexEdge.q, hexEdge.r - 1, BottomLeft}
+		topRightHexEdge = HexEdge{hexEdge.q, hexEdge.r, TopLeft}
+		bottomLeftHexEdge = HexEdge{hexEdge.q - 1, hexEdge.r + 1, TopLeft}
+		bottomRightHexEdge = HexEdge{hexEdge.q, hexEdge.r, BottomLeft}
 	case BottomLeft:
-		topLeftHexEdge = NewHexEdge(hexEdge.q-1, hexEdge.r+1, TopLeft)
-		topRightHexEdge = NewHexEdge(hexEdge.q, hexEdge.r, MiddleLeft)
-		bottomLeftHexEdge = NewHexEdge(hexEdge.q, hexEdge.r+1, MiddleLeft)
-		bottomRightHexEdge = NewHexEdge(hexEdge.q, hexEdge.r+1, TopLeft)
+		topLeftHexEdge = HexEdge{hexEdge.q - 1, hexEdge.r + 1, TopLeft}
+		topRightHexEdge = HexEdge{hexEdge.q, hexEdge.r, MiddleLeft}
+		bottomLeftHexEdge = HexEdge{hexEdge.q, hexEdge.r + 1, MiddleLeft}
+		bottomRightHexEdge = HexEdge{hexEdge.q, hexEdge.r + 1, TopLeft}
 	}
 
 	hexEdges = append(
@@ -94,7 +94,7 @@ func FindAdjacentHexEdgesFromHexEdge(hexEdge HexEdge) []HexEdge {
 type HexEdge struct {
 	q        int
 	r        int
-	location hexEdgeLocation
+	location HexEdgeLocation
 }
 
 func (h HexEdge) GetQ() int {
@@ -105,18 +105,18 @@ func (h HexEdge) GetR() int {
 	return h.r
 }
 
-func (h HexEdge) GetLocation() hexEdgeLocation {
+func (h HexEdge) GetLocation() HexEdgeLocation {
 	return h.location
 }
 
-func (h HexEdge) IsAdjacentWithHexCorner(hexCorner HexCorner) bool {
-	adjacentHexCorners := FindAdjacentHexCornersFromHexEdge(h)
+func (h HexEdge) isAdjacentWithHexCorner(hexCorner HexCorner) bool {
+	adjacentHexCorners := findAdjacentHexCornersFromHexEdge(h)
 
 	return slices.Contains(adjacentHexCorners, hexCorner)
 }
 
-func (h HexEdge) IsAdjacentWithHexEdge(hexEdge HexEdge) bool {
-	adjacentHexEdges := FindAdjacentHexEdgesFromHexEdge(h)
+func (h HexEdge) isAdjacentWithHexEdge(hexEdge HexEdge) bool {
+	adjacentHexEdges := findAdjacentHexEdgesFromHexEdge(h)
 
 	return slices.Contains(adjacentHexEdges, hexEdge)
 }

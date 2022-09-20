@@ -2,55 +2,35 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type HarborBuilder interface {
-	SetID(id primitive.ObjectID) HarborBuilder
-	SetTerrainID(terrainID primitive.ObjectID) HarborBuilder
-	SetHex(hex Hex) HarborBuilder
-	SetHarborType(harborType harborType) HarborBuilder
-	Create() *Harbor
-}
-
-func NewHarborBuilder() HarborBuilder {
-	return &harborBuilder{}
-}
-
-type harborBuilder struct {
+type HarborBuilder struct {
 	id         primitive.ObjectID
-	terrainID  primitive.ObjectID
 	hex        Hex
-	harborType harborType
+	harborType HarborType
 }
 
-func (h *harborBuilder) SetID(id primitive.ObjectID) HarborBuilder {
+func (h HarborBuilder) SetID(id primitive.ObjectID) HarborBuilder {
 	h.id = id
 
 	return h
 }
 
-func (h *harborBuilder) SetTerrainID(terrainID primitive.ObjectID) HarborBuilder {
-	h.terrainID = terrainID
-
-	return h
-}
-
-func (h *harborBuilder) SetHex(hex Hex) HarborBuilder {
+func (h HarborBuilder) SetHex(hex Hex) HarborBuilder {
 	h.hex = hex
 
 	return h
 }
 
-func (h *harborBuilder) SetHarborType(harborType harborType) HarborBuilder {
+func (h HarborBuilder) SetType(harborType HarborType) HarborBuilder {
 	h.harborType = harborType
 
 	return h
 }
 
-func (h harborBuilder) Create() *Harbor {
+func (h HarborBuilder) Create() *Harbor {
 	return &Harbor{
 		aggregate: aggregate{
 			id: h.id,
 		},
-		terrainID:  h.terrainID,
 		hex:        h.hex,
 		harborType: h.harborType,
 	}

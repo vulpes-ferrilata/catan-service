@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewAchievementType(value string) (achievementType, error) {
-	achievementType := achievementType(value)
+func NewAchievementType(enum string) (AchievementType, error) {
+	achievementType := AchievementType{enum}
 
 	switch achievementType {
 	case LongestRoad, LargestArmy:
@@ -15,9 +15,15 @@ func NewAchievementType(value string) (achievementType, error) {
 	}
 }
 
-type achievementType string
+type AchievementType struct {
+	enum string
+}
 
-const (
-	LongestRoad achievementType = "LONGEST_ROAD"
-	LargestArmy achievementType = "LARGEST_ARMY"
+func (a AchievementType) String() string {
+	return a.enum
+}
+
+var (
+	LongestRoad = AchievementType{"LONGEST_ROAD"}
+	LargestArmy = AchievementType{"LARGEST_ARMY"}
 )

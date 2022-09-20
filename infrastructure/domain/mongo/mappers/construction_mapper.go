@@ -17,7 +17,7 @@ func toConstructionDocument(construction *models.Construction) *documents.Constr
 		Document: documents.Document{
 			ID: construction.GetID(),
 		},
-		Type: string(construction.GetType()),
+		Type: construction.GetType().String(),
 		Land: landDocument,
 	}
 }
@@ -37,7 +37,7 @@ func toConstructionDomain(constructionDocument *documents.Construction) (*models
 		return nil, errors.WithStack(err)
 	}
 
-	construction := models.NewConstructionBuilder().
+	construction := models.ConstructionBuilder{}.
 		SetID(constructionDocument.ID).
 		SetType(constructionType).
 		SetLand(land).

@@ -18,7 +18,7 @@ func NewRollDicesCommandHandler(validate *validator.Validate, db *mongo.Database
 		gameRepository: gameRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.RollDicesCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.RollDicesCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }

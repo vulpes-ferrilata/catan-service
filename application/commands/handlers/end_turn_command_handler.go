@@ -18,7 +18,7 @@ func NewEndTurnCommandHandler(validate *validator.Validate, db *mongo.Database, 
 		gameRepository: gameRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.EndTurnCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.EndTurnCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }

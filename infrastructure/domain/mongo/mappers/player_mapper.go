@@ -38,9 +38,10 @@ func toPlayerDocument(player *models.Player) *documents.Player {
 		},
 		UserID:           player.GetUserID(),
 		TurnOrder:        player.GetTurnOrder(),
-		Color:            string(player.GetColor()),
+		Color:            player.GetColor().String(),
 		IsActive:         player.IsActive(),
 		IsOffered:        player.IsOffered(),
+		Score:            player.GetScore(),
 		Achievements:     achievementDocuments,
 		ResourceCards:    resourceCardDocuments,
 		DevelopmentCards: developmentCardDocuments,
@@ -94,13 +95,14 @@ func toPlayerDomain(playerDocument *documents.Player) (*models.Player, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	player := models.NewPlayerBuilder().
+	player := models.PlayerBuilder{}.
 		SetID(playerDocument.ID).
 		SetUserID(playerDocument.UserID).
 		SetColor(color).
 		SetTurnOrder(playerDocument.TurnOrder).
 		SetIsActive(playerDocument.IsActive).
 		SetIsOffered(playerDocument.IsOffered).
+		SetScore(playerDocument.Score).
 		SetAchievements(achievements...).
 		SetResourceCards(resourceCards...).
 		SetDevelopmentCards(developmentCards...).

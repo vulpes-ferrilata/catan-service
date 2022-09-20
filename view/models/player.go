@@ -9,7 +9,7 @@ type Player struct {
 	TurnOrder        int
 	IsOffered        bool
 	IsActive         bool
-	IsMe             bool
+	Score            int
 	Achievements     []*Achievement
 	ResourceCards    []*ResourceCard
 	DevelopmentCards []*DevelopmentCard

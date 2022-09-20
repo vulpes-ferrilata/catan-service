@@ -2,32 +2,14 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type PlayerBuilder interface {
-	SetID(id primitive.ObjectID) PlayerBuilder
-	SetUserID(userID primitive.ObjectID) PlayerBuilder
-	SetColor(color playerColor) PlayerBuilder
-	SetTurnOrder(turnOrder int) PlayerBuilder
-	SetIsActive(isActive bool) PlayerBuilder
-	SetIsOffered(isOffered bool) PlayerBuilder
-	SetAchievements(achievements ...*Achievement) PlayerBuilder
-	SetResourceCards(resourceCards ...*ResourceCard) PlayerBuilder
-	SetDevelopmentCards(developmentCards ...*DevelopmentCard) PlayerBuilder
-	SetConstructions(constructions ...*Construction) PlayerBuilder
-	SetRoads(roads ...*Road) PlayerBuilder
-	Create() *Player
-}
-
-func NewPlayerBuilder() PlayerBuilder {
-	return &playerBuilder{}
-}
-
-type playerBuilder struct {
+type PlayerBuilder struct {
 	id               primitive.ObjectID
 	userID           primitive.ObjectID
-	color            playerColor
+	color            PlayerColor
 	turnOrder        int
 	isActive         bool
 	isOffered        bool
+	score            int
 	achievements     []*Achievement
 	resourceCards    []*ResourceCard
 	developmentCards []*DevelopmentCard
@@ -35,73 +17,79 @@ type playerBuilder struct {
 	roads            []*Road
 }
 
-func (p *playerBuilder) SetID(id primitive.ObjectID) PlayerBuilder {
+func (p PlayerBuilder) SetID(id primitive.ObjectID) PlayerBuilder {
 	p.id = id
 
 	return p
 }
 
-func (p *playerBuilder) SetUserID(userID primitive.ObjectID) PlayerBuilder {
+func (p PlayerBuilder) SetUserID(userID primitive.ObjectID) PlayerBuilder {
 	p.userID = userID
 
 	return p
 }
 
-func (p *playerBuilder) SetColor(color playerColor) PlayerBuilder {
+func (p PlayerBuilder) SetColor(color PlayerColor) PlayerBuilder {
 	p.color = color
 
 	return p
 }
 
-func (p *playerBuilder) SetTurnOrder(turnOrder int) PlayerBuilder {
+func (p PlayerBuilder) SetTurnOrder(turnOrder int) PlayerBuilder {
 	p.turnOrder = turnOrder
 
 	return p
 }
 
-func (p *playerBuilder) SetIsActive(isActive bool) PlayerBuilder {
+func (p PlayerBuilder) SetIsActive(isActive bool) PlayerBuilder {
 	p.isActive = isActive
 
 	return p
 }
 
-func (p *playerBuilder) SetIsOffered(isOffered bool) PlayerBuilder {
+func (p PlayerBuilder) SetIsOffered(isOffered bool) PlayerBuilder {
 	p.isOffered = isOffered
 
 	return p
 }
 
-func (p *playerBuilder) SetAchievements(achievements ...*Achievement) PlayerBuilder {
+func (p PlayerBuilder) SetScore(score int) PlayerBuilder {
+	p.score = score
+
+	return p
+}
+
+func (p PlayerBuilder) SetAchievements(achievements ...*Achievement) PlayerBuilder {
 	p.achievements = achievements
 
 	return p
 }
 
-func (p *playerBuilder) SetResourceCards(resourceCards ...*ResourceCard) PlayerBuilder {
+func (p PlayerBuilder) SetResourceCards(resourceCards ...*ResourceCard) PlayerBuilder {
 	p.resourceCards = resourceCards
 
 	return p
 }
 
-func (p *playerBuilder) SetDevelopmentCards(developmentCards ...*DevelopmentCard) PlayerBuilder {
+func (p PlayerBuilder) SetDevelopmentCards(developmentCards ...*DevelopmentCard) PlayerBuilder {
 	p.developmentCards = developmentCards
 
 	return p
 }
 
-func (p *playerBuilder) SetConstructions(constructions ...*Construction) PlayerBuilder {
+func (p PlayerBuilder) SetConstructions(constructions ...*Construction) PlayerBuilder {
 	p.constructions = constructions
 
 	return p
 }
 
-func (p *playerBuilder) SetRoads(roads ...*Road) PlayerBuilder {
+func (p PlayerBuilder) SetRoads(roads ...*Road) PlayerBuilder {
 	p.roads = roads
 
 	return p
 }
 
-func (p playerBuilder) Create() *Player {
+func (p PlayerBuilder) Create() *Player {
 	return &Player{
 		aggregate: aggregate{
 			id: p.id,

@@ -2,34 +2,24 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type RoadBuilder interface {
-	SetID(id primitive.ObjectID) RoadBuilder
-	SetPath(path *Path) RoadBuilder
-	Create() *Road
-}
-
-func NewRoadBuilder() RoadBuilder {
-	return &roadBuilder{}
-}
-
-type roadBuilder struct {
+type RoadBuilder struct {
 	id   primitive.ObjectID
 	path *Path
 }
 
-func (r *roadBuilder) SetID(id primitive.ObjectID) RoadBuilder {
+func (r RoadBuilder) SetID(id primitive.ObjectID) RoadBuilder {
 	r.id = id
 
 	return r
 }
 
-func (r *roadBuilder) SetPath(path *Path) RoadBuilder {
+func (r RoadBuilder) SetPath(path *Path) RoadBuilder {
 	r.path = path
 
 	return r
 }
 
-func (r *roadBuilder) Create() *Road {
+func (r RoadBuilder) Create() *Road {
 	return &Road{
 		aggregate: aggregate{
 			id: r.id,

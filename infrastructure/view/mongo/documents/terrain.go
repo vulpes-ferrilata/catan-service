@@ -8,4 +8,6 @@ type Terrain struct {
 	R      int                `bson:"r"`
 	Number int
 	Type   string
+	Harbor *Harbor `bson:"harbor"`
+	Robber *Robber `bson:"robber"`
 }

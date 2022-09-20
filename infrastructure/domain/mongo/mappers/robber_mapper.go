@@ -14,8 +14,6 @@ func toRobberDocument(robber *models.Robber) *documents.Robber {
 		Document: documents.Document{
 			ID: robber.GetID(),
 		},
-		TerrainID: robber.GetTerrainID(),
-		IsMoving:  robber.IsMoving(),
 	}
 }
 
@@ -24,10 +22,8 @@ func toRobberDomain(robberDocument *documents.Robber) (*models.Robber, error) {
 		return nil, nil
 	}
 
-	robber := models.NewRobberBuilder().
+	robber := models.RobberBuilder{}.
 		SetID(robberDocument.ID).
-		SetTerrainID(robberDocument.TerrainID).
-		SetIsMoving(robberDocument.IsMoving).
 		Create()
 
 	return robber, nil

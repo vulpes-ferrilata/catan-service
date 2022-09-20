@@ -11,10 +11,9 @@ func toHarborResponse(harbor *models.Harbor) *catan.HarborResponse {
 	}
 
 	return &catan.HarborResponse{
-		ID:        harbor.ID.Hex(),
-		TerrainID: harbor.TerrainID.Hex(),
-		Q:         int32(harbor.Q),
-		R:         int32(harbor.R),
-		Type:      harbor.Type,
+		ID:   harbor.ID.Hex(),
+		Q:    int32(harbor.Q),
+		R:    int32(harbor.R),
+		Type: harbor.Type,
 	}
 }

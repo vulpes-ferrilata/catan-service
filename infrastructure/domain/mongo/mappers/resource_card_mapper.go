@@ -15,7 +15,7 @@ func toResourceCardDocument(resourceCard *models.ResourceCard) *documents.Resour
 		Document: documents.Document{
 			ID: resourceCard.GetID(),
 		},
-		Type:       string(resourceCard.GetType()),
+		Type:       resourceCard.GetType().String(),
 		IsSelected: resourceCard.IsSelected(),
 	}
 }
@@ -30,7 +30,7 @@ func toResourceCardDomain(resourceCardDocument *documents.ResourceCard) (*models
 		return nil, errors.WithStack(err)
 	}
 
-	resourceCard := models.NewResourceCardBuilder().
+	resourceCard := models.ResourceCardBuilder{}.
 		SetID(resourceCardDocument.ID).
 		SetType(resourceCardType).
 		SetIsSelected(resourceCardDocument.IsSelected).

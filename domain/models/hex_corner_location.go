@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewHexCornerLocation(value string) (hexCornerLocation, error) {
-	hexCornerLocation := hexCornerLocation(value)
+func NewHexCornerLocation(enum string) (HexCornerLocation, error) {
+	hexCornerLocation := HexCornerLocation{enum}
 	switch hexCornerLocation {
 	case Top, Bottom:
 		return hexCornerLocation, nil
@@ -14,9 +14,15 @@ func NewHexCornerLocation(value string) (hexCornerLocation, error) {
 	}
 }
 
-type hexCornerLocation string
+type HexCornerLocation struct {
+	enum string
+}
 
-const (
-	Top    hexCornerLocation = "TOP"
-	Bottom hexCornerLocation = "BOTTOM"
+func (h HexCornerLocation) String() string {
+	return h.enum
+}
+
+var (
+	Top    = HexCornerLocation{"TOP"}
+	Bottom = HexCornerLocation{"BOTTOM"}
 )

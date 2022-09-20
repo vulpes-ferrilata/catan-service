@@ -38,7 +38,7 @@ func toPlayerResponse(player *models.Player) *catan.PlayerResponse {
 		TurnOrder:        int32(player.TurnOrder),
 		IsOffered:        player.IsOffered,
 		IsActive:         player.IsActive,
-		IsMe:             player.IsMe,
+		Score:            int32(player.Score),
 		Achievements:     achievementResponses,
 		ResourceCards:    resourceCardResponses,
 		DevelopmentCards: developmentCardResponses,

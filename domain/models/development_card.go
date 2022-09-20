@@ -2,11 +2,11 @@ package models
 
 type DevelopmentCard struct {
 	aggregate
-	developmentCardType developmentCardType
+	developmentCardType DevelopmentCardType
 	status              developmentCardStatus
 }
 
-func (r DevelopmentCard) GetType() developmentCardType {
+func (r DevelopmentCard) GetType() DevelopmentCardType {
 	return r.developmentCardType
 }
 

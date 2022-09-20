@@ -15,10 +15,9 @@ func toHarborDocument(harbor *models.Harbor) *documents.Harbor {
 		Document: documents.Document{
 			ID: harbor.GetID(),
 		},
-		TerrainID: harbor.GetTerrainID(),
-		Q:         harbor.GetHex().GetQ(),
-		R:         harbor.GetHex().GetR(),
-		Type:      string(harbor.GetType()),
+		Q:    harbor.GetHex().GetQ(),
+		R:    harbor.GetHex().GetR(),
+		Type: harbor.GetType().String(),
 	}
 }
 
@@ -34,11 +33,10 @@ func toHarborDomain(harborDocument *documents.Harbor) (*models.Harbor, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	harbor := models.NewHarborBuilder().
+	harbor := models.HarborBuilder{}.
 		SetID(harborDocument.ID).
-		SetTerrainID(harborDocument.TerrainID).
 		SetHex(hex).
-		SetHarborType(harborType).
+		SetType(harborType).
 		Create()
 
 	return harbor, nil

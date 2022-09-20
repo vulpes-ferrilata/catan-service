@@ -1,22 +1,15 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
-
 type Harbor struct {
 	aggregate
-	terrainID  primitive.ObjectID
 	hex        Hex
-	harborType harborType
-}
-
-func (t Harbor) GetTerrainID() primitive.ObjectID {
-	return t.terrainID
+	harborType HarborType
 }
 
 func (t Harbor) GetHex() Hex {
 	return t.hex
 }
 
-func (t Harbor) GetType() harborType {
+func (t Harbor) GetType() HarborType {
 	return t.harborType
 }

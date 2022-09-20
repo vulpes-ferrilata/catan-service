@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewDevelopmentCardType(value string) (developmentCardType, error) {
-	developmentCardType := developmentCardType(value)
+func NewDevelopmentCardType(enum string) (DevelopmentCardType, error) {
+	developmentCardType := DevelopmentCardType{enum}
 
 	switch developmentCardType {
 	case Knight, Monopoly, RoadBuilding, YearOfPlenty, VictoryPoints:
@@ -15,12 +15,18 @@ func NewDevelopmentCardType(value string) (developmentCardType, error) {
 	}
 }
 
-type developmentCardType string
+type DevelopmentCardType struct {
+	enum string
+}
 
-const (
-	Knight        developmentCardType = "KNIGHT"
-	Monopoly      developmentCardType = "MONOPOLY"
-	RoadBuilding  developmentCardType = "ROAD_BUILDING"
-	YearOfPlenty  developmentCardType = "YEAR_OF_PLENTY"
-	VictoryPoints developmentCardType = "VICTORY_POINTS"
+func (d DevelopmentCardType) String() string {
+	return d.enum
+}
+
+var (
+	Knight        = DevelopmentCardType{"KNIGHT"}
+	Monopoly      = DevelopmentCardType{"MONOPOLY"}
+	RoadBuilding  = DevelopmentCardType{"ROAD_BUILDING"}
+	YearOfPlenty  = DevelopmentCardType{"YEAR_OF_PLENTY"}
+	VictoryPoints = DevelopmentCardType{"VICTORY_POINTS"}
 )

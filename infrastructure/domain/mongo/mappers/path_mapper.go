@@ -17,7 +17,7 @@ func toPathDocument(path *models.Path) *documents.Path {
 		},
 		Q:        path.GetHexEdge().GetQ(),
 		R:        path.GetHexEdge().GetR(),
-		Location: string(path.GetHexEdge().GetLocation()),
+		Location: path.GetHexEdge().GetLocation().String(),
 	}
 
 	return pathDocument
@@ -35,7 +35,7 @@ func toPathDomain(pathDocument *documents.Path) (*models.Path, error) {
 
 	hexEdge := models.NewHexEdge(pathDocument.Q, pathDocument.R, hexEdgeLocation)
 
-	path := models.NewPathBuilder().
+	path := models.PathBuilder{}.
 		SetID(pathDocument.ID).
 		SetHexEdge(hexEdge).
 		Create()

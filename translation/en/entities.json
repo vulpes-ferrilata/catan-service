@@ -1,0 +1,47 @@
+[
+    {
+        "locale": "en",
+        "key": "game",
+        "trans": "game"
+    },
+    {
+        "locale": "en",
+        "key": "player",
+        "trans": "player"
+    },
+    {
+        "locale": "en",
+        "key": "terrain",
+        "trans": "terrain"
+    },
+    {
+        "locale": "en",
+        "key": "land",
+        "trans": "land"
+    },
+    {
+        "locale": "en",
+        "key": "path",
+        "trans": "path"
+    },
+    {
+        "locale": "en",
+        "key": "construction",
+        "trans": "construction"
+    },
+    {
+        "locale": "en",
+        "key": "resource-card",
+        "trans": "resource card"
+    },
+    {
+        "locale": "en",
+        "key": "development-card",
+        "trans": "development card"
+    },
+    {
+        "locale": "en",
+        "key": "achievement-card",
+        "trans": "achievement card"
+    }
+]

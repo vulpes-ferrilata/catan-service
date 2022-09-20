@@ -1,10 +1,10 @@
-dns := mysql://catan:123456@tcp(localhost:3306)/catan?charset=utf8mb4
+dns := mongodb://root:123456@127.0.0.1:27017/catan?authSource=admin&directConnection=true
 path := ./migration
 
-migrate:
-	migrate -database ${dns} -path ${path} up
+migrate-up:
+	migrate -database "${dns}" -path ${path} up
 
-generate-swag:
-	swag init --pd -d cmd/http
+migrate-down:
+	migrate -database "${dns}" -path ${path} down
 
-.PHONY: migrate generate-swag
+.PHONY: migrate-up migrate-down

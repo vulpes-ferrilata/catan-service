@@ -11,8 +11,6 @@ func toRobberResponse(robber *models.Robber) *catan.RobberResponse {
 	}
 
 	return &catan.RobberResponse{
-		ID:        robber.ID.Hex(),
-		TerrainID: robber.TerrainID.Hex(),
-		IsMoving:  robber.IsMoving,
+		ID: robber.ID.Hex(),
 	}
 }

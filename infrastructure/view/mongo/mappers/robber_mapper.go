@@ -11,8 +11,6 @@ func toRobberView(robberDocument *documents.Robber) *models.Robber {
 	}
 
 	return &models.Robber{
-		ID:        robberDocument.ID,
-		TerrainID: robberDocument.TerrainID,
-		IsMoving:  robberDocument.IsMoving,
+		ID: robberDocument.ID,
 	}
 }

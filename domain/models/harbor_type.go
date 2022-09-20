@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewHarborType(value string) (harborType, error) {
-	harborType := harborType(value)
+func NewHarborType(enum string) (HarborType, error) {
+	harborType := HarborType{enum}
 
 	switch harborType {
 	case LumberHarbor, BrickHarbor, WoolHarbor, GrainHarbor, OreHarbor, GeneralHarbor:
@@ -15,13 +15,19 @@ func NewHarborType(value string) (harborType, error) {
 	}
 }
 
-type harborType string
+type HarborType struct {
+	enum string
+}
 
-const (
-	LumberHarbor  harborType = "LUMBER"
-	BrickHarbor   harborType = "BRICK"
-	WoolHarbor    harborType = "WOOL"
-	GrainHarbor   harborType = "GRAIN"
-	OreHarbor     harborType = "ORE"
-	GeneralHarbor harborType = "GENERAL"
+func (h HarborType) String() string {
+	return h.enum
+}
+
+var (
+	LumberHarbor  = HarborType{"LUMBER"}
+	BrickHarbor   = HarborType{"BRICK"}
+	WoolHarbor    = HarborType{"WOOL"}
+	GrainHarbor   = HarborType{"GRAIN"}
+	OreHarbor     = HarborType{"ORE"}
+	GeneralHarbor = HarborType{"GENERAL"}
 )

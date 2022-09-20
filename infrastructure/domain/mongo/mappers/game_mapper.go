@@ -32,12 +32,6 @@ func ToGameDocument(game *models.Game) *documents.Game {
 		return toTerrainDocument(terrain), nil
 	}, game.GetTerrains())
 
-	harborDocuments, _ := slices.Map(func(harbor *models.Harbor) (*documents.Harbor, error) {
-		return toHarborDocument(harbor), nil
-	}, game.GetHarbors())
-
-	robberDocument := toRobberDocument(game.GetRobber())
-
 	landDocuments, _ := slices.Map(func(land *models.Land) (*documents.Land, error) {
 		return toLandDocument(land), nil
 	}, game.GetLands())
@@ -53,17 +47,15 @@ func ToGameDocument(game *models.Game) *documents.Game {
 			},
 			Version: game.GetVersion(),
 		},
-		Status:           string(game.GetStatus()),
+		Status:           game.GetStatus().String(),
+		Phase:            game.GetPhase().String(),
 		Turn:             game.GetTurn(),
-		IsRolledDices:    game.IsRolledDices(),
 		Players:          playerDocuments,
 		Dices:            diceDocuments,
 		Achievements:     achievementDocuments,
 		ResourceCards:    resourceCardDocuments,
 		DevelopmentCards: developmentCardDocuments,
 		Terrains:         terrainDocuments,
-		Harbors:          harborDocuments,
-		Robber:           robberDocument,
 		Lands:            landDocuments,
 		Paths:            pathDocuments,
 	}
@@ -75,6 +67,11 @@ func ToGameDomain(gameDocument *documents.Game) (*models.Game, error) {
 	}
 
 	status, err := models.NewGameStatus(gameDocument.Status)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	phase, err := models.NewGamePhase(gameDocument.Phase)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -118,18 +115,6 @@ func ToGameDomain(gameDocument *documents.Game) (*models.Game, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	harbors, err := slices.Map(func(harborDocument *documents.Harbor) (*models.Harbor, error) {
-		return toHarborDomain(harborDocument)
-	}, gameDocument.Harbors)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	robber, err := toRobberDomain(gameDocument.Robber)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
 	lands, err := slices.Map(func(landDocument *documents.Land) (*models.Land, error) {
 		return toLandDomain(landDocument)
 	}, gameDocument.Lands)
@@ -144,19 +129,17 @@ func ToGameDomain(gameDocument *documents.Game) (*models.Game, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	game := models.NewGameBuilder().
+	game := models.GameBuilder{}.
 		SetID(gameDocument.ID).
 		SetStatus(status).
+		SetPhase(phase).
 		SetTurn(gameDocument.Turn).
-		SetIsRolledDices(gameDocument.IsRolledDices).
 		SetPlayers(players...).
 		SetDices(dices...).
 		SetAchievements(achievements...).
 		SetResourceCards(resourceCards...).
 		SetDevelopmentCards(developmentCards...).
 		SetTerrains(terrains...).
-		SetHarbors(harbors...).
-		SetRobber(robber).
 		SetLands(lands...).
 		SetPaths(paths...).
 		SetVersion(gameDocument.Version).

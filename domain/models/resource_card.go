@@ -2,11 +2,11 @@ package models
 
 type ResourceCard struct {
 	aggregate
-	resourceCardType resourceCardType
+	resourceCardType ResourceCardType
 	isSelected       bool
 }
 
-func (r ResourceCard) GetType() resourceCardType {
+func (r ResourceCard) GetType() ResourceCardType {
 	return r.resourceCardType
 }
 

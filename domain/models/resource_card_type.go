@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewResourceCardType(value string) (resourceCardType, error) {
-	resourceCardType := resourceCardType(value)
+func NewResourceCardType(enum string) (ResourceCardType, error) {
+	resourceCardType := ResourceCardType{enum}
 
 	switch resourceCardType {
 	case Lumber, Brick, Wool, Grain, Ore:
@@ -15,12 +15,18 @@ func NewResourceCardType(value string) (resourceCardType, error) {
 	}
 }
 
-type resourceCardType string
+type ResourceCardType struct {
+	enum string
+}
 
-const (
-	Lumber resourceCardType = "LUMBER"
-	Brick  resourceCardType = "BRICK"
-	Wool   resourceCardType = "WOOL"
-	Grain  resourceCardType = "GRAIN"
-	Ore    resourceCardType = "ORE"
+func (r ResourceCardType) String() string {
+	return r.enum
+}
+
+var (
+	Lumber = ResourceCardType{"LUMBER"}
+	Brick  = ResourceCardType{"BRICK"}
+	Wool   = ResourceCardType{"WOOL"}
+	Grain  = ResourceCardType{"GRAIN"}
+	Ore    = ResourceCardType{"ORE"}
 )

@@ -21,6 +21,7 @@ func NewContainer() *dig.Container {
 	container.Provide(NewLogrus)
 	container.Provide(NewUniversalTranslator)
 	//--Grpc interceptors
+	container.Provide(interceptors.NewRecoverInterceptor)
 	container.Provide(interceptors.NewErrorHandlerInterceptor)
 	container.Provide(interceptors.NewLocaleInterceptor)
 
@@ -40,10 +41,23 @@ func NewContainer() *dig.Container {
 	container.Provide(command_handlers.NewCreateGameCommandHandler)
 	container.Provide(command_handlers.NewJoinGameCommandHandler)
 	container.Provide(command_handlers.NewStartGameCommandHandler)
-	container.Provide(command_handlers.NewBuildSettlementAndRoadHandler)
+	container.Provide(command_handlers.NewBuildSettlementAndRoadCommandHandler)
 	container.Provide(command_handlers.NewRollDicesCommandHandler)
 	container.Provide(command_handlers.NewMoveRobberCommandHandler)
 	container.Provide(command_handlers.NewEndTurnCommandHandler)
+	container.Provide(command_handlers.NewBuildSettlementCommandHandler)
+	container.Provide(command_handlers.NewBuildRoadCommandHandler)
+	container.Provide(command_handlers.NewUpgradeCityCommandHandler)
+	container.Provide(command_handlers.NewBuyDevelopmentCardCommandHandler)
+	container.Provide(command_handlers.NewToggleResourceCardsCommandHandler)
+	container.Provide(command_handlers.NewMaritimeTradeCommandHandler)
+	container.Provide(command_handlers.NewOfferTradingCommandHandler)
+	container.Provide(command_handlers.NewConfirmTradingCommandHandler)
+	container.Provide(command_handlers.NewCancelTradingCommandHandler)
+	container.Provide(command_handlers.NewPlayKnightCardCommandHandler)
+	container.Provide(command_handlers.NewPlayRoadBuildingCardCommandHandler)
+	container.Provide(command_handlers.NewPlayYearOfPlentyCardCommandHandler)
+	container.Provide(command_handlers.NewPlayMonopolyCardCommandHandler)
 
 	//Presentation layer
 	//--Server

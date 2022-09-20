@@ -2,34 +2,24 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type AchievementBuilder interface {
-	SetID(id primitive.ObjectID) AchievementBuilder
-	SetType(achievementType achievementType) AchievementBuilder
-	Create() *Achievement
-}
-
-func NewAchievementBuilder() AchievementBuilder {
-	return &achievementBuilder{}
-}
-
-type achievementBuilder struct {
+type AchievementBuilder struct {
 	id              primitive.ObjectID
-	achievementType achievementType
+	achievementType AchievementType
 }
 
-func (a *achievementBuilder) SetID(id primitive.ObjectID) AchievementBuilder {
+func (a AchievementBuilder) SetID(id primitive.ObjectID) AchievementBuilder {
 	a.id = id
 
 	return a
 }
 
-func (a *achievementBuilder) SetType(achievementType achievementType) AchievementBuilder {
+func (a AchievementBuilder) SetType(achievementType AchievementType) AchievementBuilder {
 	a.achievementType = achievementType
 
 	return a
 }
 
-func (a achievementBuilder) Create() *Achievement {
+func (a AchievementBuilder) Create() *Achievement {
 	return &Achievement{
 		aggregate: aggregate{
 			id: a.id,

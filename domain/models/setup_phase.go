@@ -12,13 +12,13 @@ type setupPhase struct {
 }
 
 func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID primitive.ObjectID, pathID primitive.ObjectID) error {
-	activePlayer, isExists := slices.Find(func(player *Player) bool {
+	player, isExists := slices.Find(func(player *Player) bool {
 		return player.userID == userID
 	}, s.game.players)
 	if !isExists {
 		return errors.WithStack(app_errors.ErrPlayerNotFound)
 	}
-	if !activePlayer.isActive {
+	if !player.isActive {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
@@ -26,38 +26,39 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 		return land.id == landID
 	}, s.game.lands)
 	if !isExists {
-		return errors.WithStack(app_errors.ErrSelectedLandHasBeenOccupied)
+		return errors.WithStack(app_errors.ErrLandNotFound)
 	}
 
 	path, isExists := slices.Find(func(path *Path) bool {
 		return path.id == pathID
 	}, s.game.paths)
 	if !isExists {
-		return errors.WithStack(app_errors.ErrSelectedPathHasBeenOccupied)
+		return errors.WithStack(app_errors.ErrPathNotFound)
 	}
 
-	for _, player := range s.game.players {
-		for _, construction := range player.constructions {
-			if construction.land != nil && construction.land.hexCorner.IsAdjacentWithHexCorner(land.hexCorner) {
-				return errors.WithStack(app_errors.ErrNearbyLandsMustBeVacant)
-			}
-		}
+	isLandAdjacentToAnyConstruction := slices.Any(func(player *Player) bool {
+		return slices.Any(func(construction *Construction) bool {
+			return construction.land != nil && construction.land.hexCorner.isAdjacentWithHexCorner(land.hexCorner)
+		}, player.constructions)
+	}, s.game.players)
+	if isLandAdjacentToAnyConstruction {
+		return errors.WithStack(app_errors.ErrNearbyLandsMustBeVacant)
 	}
 
-	if !path.hexEdge.IsAdjacentWithHexCorner(land.hexCorner) {
+	if !path.hexEdge.isAdjacentWithHexCorner(land.hexCorner) {
 		return errors.WithStack(app_errors.ErrSelectedLandAndPathMustBeAdjacent)
 	}
 
 	settlement, isExists := slices.Find(func(construction *Construction) bool {
 		return construction.land == nil && construction.constructionType == Settlement
-	}, activePlayer.constructions)
+	}, player.constructions)
 	if !isExists {
 		return errors.WithStack(app_errors.ErrYouHaveRunOutOfSettlements)
 	}
 
 	road, isExists := slices.Find(func(road *Road) bool {
 		return road.path == nil
-	}, activePlayer.roads)
+	}, player.roads)
 	if !isExists {
 		return errors.WithStack(app_errors.ErrYouHaveRunOutOfRoads)
 	}
@@ -70,7 +71,7 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 
 	//dispatch resources
 	if s.game.turn == 2 {
-		adjacentHexes := FindAdjacentHexesFromHexCorner(land.hexCorner)
+		adjacentHexes := findAdjacentHexesFromHexCorner(land.hexCorner)
 
 		terrains := slices.Filter(func(terrain *Terrain) bool {
 			return slices.Contains(adjacentHexes, terrain.hex) && terrain.terrainType != Desert
@@ -95,7 +96,7 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 			}, s.game.resourceCards)
 			if isExists {
 				s.game.resourceCards = slices.Remove(s.game.resourceCards, resourceCard)
-				activePlayer.resourceCards = append(activePlayer.resourceCards, resourceCard)
+				player.resourceCards = append(player.resourceCards, resourceCard)
 			}
 		}
 	}
@@ -106,26 +107,28 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 
 	switch s.game.turn {
 	case 1:
-		nextPlayer, isExists := slices.Find(func(player *Player) bool {
-			return player.turnOrder == activePlayer.turnOrder+1
+		nextPlayer, isExists := slices.Find(func(p *Player) bool {
+			return p.turnOrder == player.turnOrder+1
 		}, s.game.players)
 		if !isExists {
 			s.game.turn++
-			activePlayer.isActive = true
+			player.isActive = true
 			return nil
 		}
 		nextPlayer.isActive = true
 	case 2:
-		nextPlayer, isExists := slices.Find(func(player *Player) bool {
-			return player.turnOrder == activePlayer.turnOrder-1
+		nextPlayer, isExists := slices.Find(func(p *Player) bool {
+			return p.turnOrder == player.turnOrder-1
 		}, s.game.players)
 		if !isExists {
 			s.game.turn++
-			activePlayer.isActive = true
+			player.isActive = true
 			return nil
 		}
 		nextPlayer.isActive = true
 	}
+
+	s.game.calculateScore()
 
 	return nil
 }
@@ -139,5 +142,41 @@ func (s setupPhase) moveRobber(userID primitive.ObjectID, terrainID primitive.Ob
 }
 
 func (s setupPhase) endTurn(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) buildSettlement(userID primitive.ObjectID, landID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) buildRoad(userID primitive.ObjectID, pathID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) upgradeCity(userID primitive.ObjectID, constructionID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) buyDevelopmentCard(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) toggleResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) confirmTrading(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+}
+
+func (s setupPhase) cancelTrading(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
 }

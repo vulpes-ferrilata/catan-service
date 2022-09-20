@@ -9,7 +9,7 @@ type Player struct {
 	TurnOrder        int                `bson:"turn_order"`
 	IsOffered        bool               `bson:"is_offered"`
 	IsActive         bool               `bson:"is_active"`
-	IsMe             bool               `bson:"is_me"`
+	Score            int                `bson:"score"`
 	Achievements     []*Achievement     `bson:"achievements"`
 	ResourceCards    []*ResourceCard    `bson:"resource_cards"`
 	DevelopmentCards []*DevelopmentCard `bson:"development_cards"`

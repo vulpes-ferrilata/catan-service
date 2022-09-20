@@ -19,7 +19,7 @@ func NewCreateGameCommandHandler(validate *validator.Validate, db *mongo.Databas
 		gameRepository: gameRepository,
 	}
 	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateGameCommand](db, handler)
-	validationWrapper := wrappers.NewValidationWrapper[*commands.CreateGameCommand](validate, transactionWrapper)
+	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }
@@ -39,11 +39,11 @@ func (c createGameCommandHandler) Handle(ctx context.Context, createGameCommand 
 		return errors.WithStack(err)
 	}
 
-	game := models.NewGameBuilder().
+	game := models.GameBuilder{}.
 		SetID(gameID).
 		SetStatus(models.Waiting).
+		SetPhase(models.ResourceConsumption).
 		SetTurn(1).
-		SetIsRolledDices(false).
 		Create()
 
 	if err := game.NewPlayer(userID); err != nil {

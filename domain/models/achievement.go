@@ -2,9 +2,9 @@ package models
 
 type Achievement struct {
 	aggregate
-	achievementType achievementType
+	achievementType AchievementType
 }
 
-func (a Achievement) GetType() achievementType {
+func (a Achievement) GetType() AchievementType {
 	return a.achievementType
 }

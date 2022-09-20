@@ -22,75 +22,7 @@ func (r resourceConsumptionPhase) rollDices(userID primitive.ObjectID) error {
 }
 
 func (r resourceConsumptionPhase) moveRobber(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
-	activePlayer, isExists := slices.Find(func(player *Player) bool {
-		return player.userID == userID
-	}, r.game.players)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPlayerNotFound)
-	}
-	if !activePlayer.isActive {
-		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-	}
-
-	//TODO: robber need to moving
-	if !r.game.robber.isMoving {
-		return errors.WithStack(app_errors.ErrRobberIsNotAvailableToMove)
-	}
-
-	r.game.robber.isMoving = false
-
-	if r.game.robber.terrainID == terrainID {
-		return errors.WithStack(app_errors.ErrRobberMustBeMovedToOtherTerrain)
-	}
-
-	r.game.robber.terrainID = terrainID
-
-	terrain, isExists := slices.Find(func(terrain *Terrain) bool {
-		return terrain.id == terrainID
-	}, r.game.terrains)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrTerrainNotFound)
-	}
-
-	if playerID == primitive.NilObjectID {
-		for _, player := range r.game.players {
-			if player.userID != userID {
-				canBeRob := slices.Some(func(construction *Construction) bool {
-					return construction.land != nil && construction.land.hexCorner.IsAdjacentWithHex(terrain.hex)
-				}, player.constructions)
-				if canBeRob {
-					return errors.WithStack(app_errors.ErrYouMustRobPlayerWhoHaveConstructionNextToRobber)
-				}
-			}
-		}
-	}
-
-	robbingPlayer, isExists := slices.Find(func(player *Player) bool {
-		return player.id == playerID
-	}, r.game.players)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPlayerNotFound)
-	}
-
-	if activePlayer == robbingPlayer {
-		return errors.WithStack(app_errors.ErrYouCannotRobYourself)
-	}
-
-	canBeRob := slices.Some(func(construction *Construction) bool {
-		return construction.land != nil && construction.land.hexCorner.IsAdjacentWithHex(terrain.hex)
-	}, robbingPlayer.constructions)
-	if !canBeRob {
-		return errors.WithStack(app_errors.ErrSelectedPlayerMustHaveConstructionNextToRobber)
-	}
-
-	if len(robbingPlayer.resourceCards) > 0 {
-		resourceCardIdx := rand.Intn(len(robbingPlayer.resourceCards))
-		resourceCard := robbingPlayer.resourceCards[resourceCardIdx]
-		robbingPlayer.resourceCards = slices.Remove(robbingPlayer.resourceCards, resourceCard)
-		activePlayer.resourceCards = append(activePlayer.resourceCards, resourceCard)
-	}
-
-	return nil
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
 }
 
 func (r resourceConsumptionPhase) endTurn(userID primitive.ObjectID) error {
@@ -104,11 +36,7 @@ func (r resourceConsumptionPhase) endTurn(userID primitive.ObjectID) error {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	if !r.game.isRolledDices {
-		return errors.WithStack(app_errors.ErrYouMustRollDices)
-	}
-
-	r.game.isRolledDices = false
+	r.game.phase = ResourceProduction
 
 	for _, player := range r.game.players {
 		for _, resourceCard := range player.resourceCards {
@@ -143,354 +71,374 @@ func (r resourceConsumptionPhase) endTurn(userID primitive.ObjectID) error {
 	return nil
 }
 
-// func (r resourceConsumptionPhase) buildSettlement(userID primitive.ObjectID, landID primitive.ObjectID) error {
-// 	currentPlayer, err := r.game.GetCurrentPlayer()
-// 	if err != nil {
-// 		return errors.WithStack(err)
-// 	}
-// 	if currentPlayer.userID != userID {
-// 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-// 	}
+func (r resourceConsumptionPhase) buildSettlement(userID primitive.ObjectID, landID primitive.ObjectID) error {
+	player, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
 
-// 	lumberResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Brick
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(lumberResourceCard)
-// 	r.game.resourceCards.Add(lumberResourceCard)
+	land, isExists := slices.Find(func(land *Land) bool {
+		return land.id == landID
+	}, r.game.lands)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrLandNotFound)
+	}
 
-// 	brickResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Brick
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(brickResourceCard)
-// 	r.game.resourceCards.Add(brickResourceCard)
+	if err := r.game.useResourceCards(player, Lumber, Brick, Grain, Wool); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	woolResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Wool
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(woolResourceCard)
-// 	r.game.resourceCards.Add(woolResourceCard)
+	if err := r.game.buildSettlement(player, land); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	grainResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Grain
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(grainResourceCard)
-// 	r.game.resourceCards.Add(grainResourceCard)
+	if err := r.game.dispatchLongestRoadAchievement(); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	land, isExists := r.game.lands.Find(func(land *Land) bool {
-// 		return land.id == landID
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrSelectedLandHasBeenOccupied)
-// 	}
+	r.game.calculateScore()
 
-// 	if err := r.game.players.ForEach(func(player *Player) error {
-// 		return player.constructions.ForEach(func(construction *Construction) error {
-// 			if construction.land != nil && construction.land.hexCorner.IsAdjacentWithHexCorner(land.hexCorner) {
-// 				return errors.WithStack(app_errors.ErrNearbyLandsMustBeVacant)
-// 			}
+	return nil
+}
 
-// 			return nil
-// 		})
-// 	}); err != nil {
-// 		return errors.WithStack(err)
-// 	}
+func (r resourceConsumptionPhase) buildRoad(userID primitive.ObjectID, pathID primitive.ObjectID) error {
+	player, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
 
-// 	if isAdjacentWithRoad := currentPlayer.roads.Some(func(road *Road) bool {
-// 		if road.path != nil && road.path.hexEdge.IsAdjacentWithHexCorner(land.hexCorner) {
-// 			return true
-// 		}
+	path, isExists := slices.Find(func(path *Path) bool {
+		return path.id == pathID
+	}, r.game.paths)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPathNotFound)
+	}
 
-// 		return false
-// 	}); !isAdjacentWithRoad {
-// 		return errors.WithStack(app_errors.ErrSelectedLandMustBeAdjacentWithYourRoad)
-// 	}
+	if err := r.game.useResourceCards(player, Lumber, Brick); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	settlement, isExists := currentPlayer.constructions.Find(func(construction *Construction) bool {
-// 		return construction.land == nil && construction.constructionType == Settlement
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveRunOutOfSettlements)
-// 	}
+	if err := r.game.buildRoad(player, path); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	r.game.lands.Remove(land)
-// 	settlement.land = land
+	if err := r.game.dispatchLongestRoadAchievement(); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	//TODO: calculate score
+	r.game.calculateScore()
 
-// 	return nil
-// }
+	return nil
+}
 
-// func (r resourceConsumptionPhase) buildRoad(userID primitive.ObjectID, pathID primitive.ObjectID) error {
-// 	currentPlayer, err := r.game.GetCurrentPlayer()
-// 	if err != nil {
-// 		return errors.WithStack(err)
-// 	}
-// 	if currentPlayer.userID != userID {
-// 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-// 	}
+func (r resourceConsumptionPhase) upgradeCity(userID primitive.ObjectID, constructionID primitive.ObjectID) error {
+	player, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
 
-// 	lumberResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Brick
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(lumberResourceCard)
-// 	r.game.resourceCards.Add(lumberResourceCard)
+	if err := r.game.useResourceCards(player, Grain, Grain, Ore, Ore, Ore); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	brickResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Brick
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(brickResourceCard)
-// 	r.game.resourceCards.Add(brickResourceCard)
+	construction, isExists := slices.Find(func(construction *Construction) bool {
+		return construction.id == constructionID
+	}, player.constructions)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrConstructionNotFound)
+	}
 
-// 	path, isExists := r.game.paths.Find(func(path *Path) bool {
-// 		return path.id == pathID
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrSelectedPathHasBeenOccupied)
-// 	}
+	if err := r.game.upgradeConstruction(player, construction); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	isAdjacentWithConstruction := currentPlayer.constructions.Some(func(construction *Construction) bool {
-// 		if construction.land != nil && construction.land.hexCorner.IsAdjacentWithHexEdge(path.hexEdge) {
-// 			return true
-// 		}
+	r.game.calculateScore()
 
-// 		return false
-// 	})
-// 	isAdjacentWithRoad := currentPlayer.roads.Some(func(road *Road) bool {
-// 		if road.path != nil && road.path.hexEdge.IsAdjacentWithHexEdge(path.hexEdge) {
-// 			return true
-// 		}
+	return nil
+}
 
-// 		return false
-// 	})
-// 	if !isAdjacentWithConstruction && !isAdjacentWithRoad {
-// 		return errors.WithStack(app_errors.ErrSelectedPathMustBeAdjacentWithYourConstructionOrRoad)
-// 	}
+func (r resourceConsumptionPhase) buyDevelopmentCard(userID primitive.ObjectID) error {
+	player, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
 
-// 	road, isExists := currentPlayer.roads.Find(func(road *Road) bool {
-// 		return road.path == nil
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveRunOutOfRoads)
-// 	}
+	if err := r.game.useResourceCards(player, Wool, Grain, Ore); err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	r.game.paths.Remove(path)
-// 	road.path = path
+	if len(r.game.developmentCards) == 0 {
+		return errors.WithStack(app_errors.ErrGameHasInsufficientDevelopmentCards)
+	}
 
-// 	var longestRoadAchievement *Achievement
+	developmentCardIdx := rand.Intn(len(r.game.developmentCards))
+	developmentCard := r.game.developmentCards[developmentCardIdx]
+	r.game.developmentCards = slices.Remove(r.game.developmentCards, developmentCard)
+	player.developmentCards = append(player.developmentCards, developmentCard)
 
-// 	r.game.achievements.ForEach(func(achievement *Achievement) error {
-// 		if achievement.achievementType == LongestRoad {
-// 			longestRoadAchievement = achievement
-// 		}
+	r.game.calculateScore()
 
-// 		return nil
-// 	})
+	return nil
+}
 
-// 	if err := r.game.players.ForEach(func(player *Player) error {
-// 		return player.achievements.ForEach(func(achievement *Achievement) error {
-// 			if achievement.achievementType == LongestRoad {
-// 				longestRoadAchievement = achievement
-// 			}
+func (r resourceConsumptionPhase) toggleResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
+	player, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
 
-// 			return nil
-// 		})
-// 	}); err != nil {
-// 		return errors.WithStack(err)
-// 	}
+	player.isOffered = false
 
-// 	if longestRoadAchievement == nil {
-// 		return errors.New("longest road achievement is not exists")
-// 	}
+	if player.isActive {
+		for _, player := range r.game.players {
+			player.isOffered = false
+		}
+	}
 
-// 	r.game.achievements.Remove(longestRoadAchievement)
-// 	if err := r.game.players.ForEach(func(player *Player) error {
-// 		player.achievements.Remove(longestRoadAchievement)
+	for _, resourceCardID := range resourceCardIDs {
+		resourceCard, isExists := slices.Find(func(resourceCard *ResourceCard) bool {
+			return resourceCard.id == resourceCardID
+		}, player.resourceCards)
+		if !isExists {
+			return errors.WithStack(app_errors.ErrResourceCardNotFound)
+		}
 
-// 		return nil
-// 	}); err != nil {
-// 		return errors.WithStack(err)
-// 	}
+		resourceCard.isSelected = !resourceCard.isSelected
+	}
 
-// 	longestRoad := 0
-// 	var longestRoadPlayer *Player
-// 	r.game.players.ForEach(func(player *Player) error {
-// 		result := r.calculateLongestRoad(player.roads.ToSlice())
-// 		if result == longestRoad {
-// 			longestRoadPlayer = nil
-// 		}
-// 		if result > longestRoad {
-// 			longestRoad = result
-// 			longestRoadPlayer = player
-// 		}
+	return nil
+}
 
-// 		return nil
-// 	})
-// 	if longestRoad >= 5 && longestRoadPlayer == nil {
-// 		r.game.achievements.Add(longestRoadAchievement)
-// 	} else {
-// 		longestRoadPlayer.achievements.Add(longestRoadAchievement)
-// 	}
+func (r resourceConsumptionPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+	player, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
+	if !player.isActive {
+		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
+	}
 
-// 	//TODO: calculate score
+	totalDemandingResourceCardQuantity := 0
 
-// 	return nil
-// }
+	requiringResourceCardTypes := []ResourceCardType{
+		Lumber,
+		Brick,
+		Wool,
+		Grain,
+		Ore,
+	}
 
-// func (r resourceConsumptionPhase) calculateLongestRoad(roads []*Road) int {
-// 	longestRoad := 0
+	requiringResourceCardTypes = slices.Remove(requiringResourceCardTypes, demandingResourceCardType)
 
-// 	for idx, road := range roads {
-// 		remainRoads := append(roads[:idx], roads[idx+1:]...)
-// 		result := r.calculateLongestRoadFromCurrentRoad(road, remainRoads)
-// 		if result > longestRoad {
-// 			longestRoad = result
-// 		}
-// 	}
+	for _, requiringResourceCardType := range requiringResourceCardTypes {
+		requiringResourceCardQuantity := 4
 
-// 	return longestRoad
-// }
+		var specificHarborType HarborType
 
-// func (r resourceConsumptionPhase) calculateLongestRoadFromCurrentRoad(currentRoad *Road, otherRoads []*Road) int {
-// 	longestRoad := 0
+		switch requiringResourceCardType {
+		case Lumber:
+			specificHarborType = LumberHarbor
+		case Brick:
+			specificHarborType = BrickHarbor
+		case Wool:
+			specificHarborType = WoolHarbor
+		case Grain:
+			specificHarborType = GrainHarbor
+		case Ore:
+			specificHarborType = OreHarbor
+		}
 
-// 	for idx, otherRoad := range otherRoads {
-// 		if currentRoad.path != nil && otherRoad.path != nil && currentRoad.path.hexEdge.IsAdjacentWithHexEdge(otherRoad.path.hexEdge) {
-// 			remainRoads := append(otherRoads[:idx], otherRoads[idx+1:]...)
-// 			result := r.calculateLongestRoadFromCurrentRoad(otherRoad, remainRoads)
-// 			if result > longestRoad {
-// 				longestRoad = result
-// 			}
-// 		}
-// 	}
+		if r.isPlayerHasConstructionAdjacentToSpecificHarborType(player, specificHarborType) {
+			requiringResourceCardQuantity = 2
+		} else if r.isPlayerHasConstructionAdjacentToSpecificHarborType(player, GeneralHarbor) {
+			requiringResourceCardQuantity = 3
+		}
 
-// 	return 1 + longestRoad
-// }
+		requiringResourceCards := slices.Filter(func(resourceCard *ResourceCard) bool {
+			return resourceCard.resourceCardType == requiringResourceCardType && resourceCard.isSelected
+		}, player.resourceCards)
 
-// func (r resourceConsumptionPhase) upgradeCity(userID primitive.ObjectID, constructionID primitive.ObjectID) error {
-// 	currentPlayer, err := r.game.GetCurrentPlayer()
-// 	if err != nil {
-// 		return errors.WithStack(err)
-// 	}
-// 	if currentPlayer.userID != userID {
-// 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-// 	}
+		demandingResourceCardQuantity := len(requiringResourceCards) / requiringResourceCardQuantity
 
-// 	grainResourceCards := currentPlayer.resourceCards.Filter(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Grain
-// 	}).ToSlice()
-// 	if len(grainResourceCards) < 2 {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	grainResourceCards = grainResourceCards[:2]
-// 	currentPlayer.resourceCards.Remove(grainResourceCards...)
-// 	r.game.resourceCards.Add(grainResourceCards...)
+		requiringResourceCards = requiringResourceCards[:demandingResourceCardQuantity*requiringResourceCardQuantity]
 
-// 	oreResourceCards := currentPlayer.resourceCards.Filter(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Ore
-// 	}).ToSlice()
-// 	if len(grainResourceCards) < 3 {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	oreResourceCards = oreResourceCards[:3]
-// 	currentPlayer.resourceCards.Remove(oreResourceCards...)
-// 	r.game.resourceCards.Add(oreResourceCards...)
+		for _, requiringResourceCard := range requiringResourceCards {
+			requiringResourceCard.isSelected = false
+		}
+		//substract requiring resource cards
+		player.resourceCards = slices.Remove(player.resourceCards, requiringResourceCards...)
+		r.game.resourceCards = append(r.game.resourceCards, requiringResourceCards...)
 
-// 	construction, isExists := currentPlayer.constructions.Find(func(construction *Construction) bool {
-// 		return construction.id == constructionID
-// 	})
-// 	if !isExists {
-// 		return errors.New("construction is not exists")
-// 	}
-// 	if construction.constructionType == City {
-// 		return errors.WithStack(app_errors.ErrSelectedConstructionAlreadyUpgraded)
-// 	}
+		totalDemandingResourceCardQuantity += demandingResourceCardQuantity
+	}
 
-// 	land := construction.land
+	demandingResourceCards := slices.Filter(func(resourceCard *ResourceCard) bool {
+		return resourceCard.resourceCardType == demandingResourceCardType
+	}, r.game.resourceCards)
 
-// 	if land == nil {
-// 		return errors.WithStack(app_errors.SelectedConstructionDoesNotBelongToAnyLand)
-// 	}
+	if len(demandingResourceCards) < totalDemandingResourceCardQuantity {
+		return errors.WithStack(app_errors.ErrGameHasInsufficientResourceCards)
+	}
 
-// 	city, isExists := currentPlayer.constructions.Find(func(construction *Construction) bool {
-// 		return construction.constructionType == City && construction.land == nil
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveRunOutOfCities)
-// 	}
+	demandingResourceCards = demandingResourceCards[:totalDemandingResourceCardQuantity]
+	//add demanding resource cards
+	r.game.resourceCards = slices.Remove(r.game.resourceCards, demandingResourceCards...)
+	player.resourceCards = append(player.resourceCards, demandingResourceCards...)
 
-// 	construction.land = nil
-// 	city.land = land
+	return nil
+}
 
-// 	//TODO: calculate score
+func (r resourceConsumptionPhase) isPlayerHasConstructionAdjacentToSpecificHarborType(player *Player, harborType HarborType) bool {
+	return slices.Any(func(terrain *Terrain) bool {
+		if terrain.harbor == nil || terrain.harbor.harborType != harborType {
+			return false
+		}
 
-// 	return nil
-// }
+		intersectionHexCorners := findIntersectionHexCornersBetweenTwoHexes(terrain.hex, terrain.harbor.hex)
 
-// func (r resourceConsumptionPhase) buyDevelopmentCard(userID primitive.ObjectID) error {
-// 	currentPlayer, err := r.game.GetCurrentPlayer()
-// 	if err != nil {
-// 		return errors.WithStack(err)
-// 	}
-// 	if currentPlayer.userID != userID {
-// 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-// 	}
+		return slices.Any(func(construction *Construction) bool {
+			if construction.land == nil {
+				return false
+			}
 
-// 	woolResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Wool
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(woolResourceCard)
-// 	r.game.resourceCards.Add(woolResourceCard)
+			return slices.Any(func(intersectionHexCorner HexCorner) bool {
+				return construction.land.hexCorner == intersectionHexCorner
+			}, intersectionHexCorners)
+		}, player.constructions)
+	}, r.game.terrains)
+}
 
-// 	grainResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Grain
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(grainResourceCard)
-// 	r.game.resourceCards.Add(grainResourceCard)
+func (r resourceConsumptionPhase) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+	player, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
+	if !player.isActive {
+		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
+	}
 
-// 	oreResourceCard, isExists := currentPlayer.resourceCards.Find(func(resourceCard *ResourceCard) bool {
-// 		return resourceCard.resourceCardType == Ore
-// 	})
-// 	if !isExists {
-// 		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
-// 	}
-// 	currentPlayer.resourceCards.Remove(oreResourceCard)
-// 	r.game.resourceCards.Add(oreResourceCard)
+	offeringPlayer, isExists := slices.Find(func(player *Player) bool {
+		return player.id == playerID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
 
-// 	if r.game.developmentCards.Length() == 0 {
-// 		return errors.WithStack(app_errors.ErrGameHasRunOutOfDevelopmentCards)
-// 	}
+	if offeringPlayer == player {
+		return errors.WithStack(app_errors.ErrYouCannotOfferYourself)
+	}
 
-// 	developmentCards := r.game.developmentCards.ToSlice()
-// 	rand.Shuffle(len(developmentCards), func(i, j int) { developmentCards[i], developmentCards[j] = developmentCards[j], developmentCards[i] })
-// 	developmentCards = developmentCards[:1]
-// 	r.game.developmentCards.Remove(developmentCards...)
-// 	currentPlayer.developmentCards.Add(developmentCards...)
+	if offeringPlayer.isOffered {
+		return errors.WithStack(app_errors.ErrYouAlreadyOfferedThisPlayer)
+	}
 
-// 	//TODO: calculate score
+	isPlayerSelectedAnyResourceCard := slices.Any(func(resourceCard *ResourceCard) bool {
+		return resourceCard.isSelected
+	}, player.resourceCards)
 
-// 	return nil
-// }
+	if !isPlayerSelectedAnyResourceCard {
+		return errors.WithStack(app_errors.ErrYouMustSelectAtLeastOneResourceCard)
+	}
+
+	isOfferingPlayerSelectedAnyResourceCard := slices.Any(func(resourceCard *ResourceCard) bool {
+		return resourceCard.isSelected
+	}, offeringPlayer.resourceCards)
+
+	if !isOfferingPlayerSelectedAnyResourceCard {
+		return errors.WithStack(app_errors.ErrSelectedPlayerMustSelectAtLeastOneResourceCard)
+	}
+
+	offeringPlayer.isOffered = true
+
+	return nil
+}
+
+func (r resourceConsumptionPhase) confirmTrading(userID primitive.ObjectID) error {
+	activePlayer, isExists := slices.Find(func(player *Player) bool {
+		return player.isActive
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
+
+	offeringPlayer, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
+
+	if offeringPlayer == activePlayer {
+		return errors.WithStack(app_errors.ErrYouCannotTradeWithYourself)
+	}
+
+	if !offeringPlayer.isOffered {
+		return errors.WithStack(app_errors.ErrYouHaveNotReceivedOffer)
+	}
+
+	activePlayer.isOffered = false
+	offeringPlayer.isOffered = false
+
+	selectedResourceCardsOfActivePlayer := slices.Filter(func(resourceCard *ResourceCard) bool {
+		return resourceCard.isSelected
+	}, activePlayer.resourceCards)
+
+	if len(selectedResourceCardsOfActivePlayer) == 0 {
+		return errors.WithStack(app_errors.ErrActivePlayerMustSelectAtLeastOneResourceCard)
+	}
+
+	for _, selectedResourceCardOfActivePlayer := range selectedResourceCardsOfActivePlayer {
+		selectedResourceCardOfActivePlayer.isSelected = false
+	}
+
+	selectedResourceCardsOfOferringPlayer := slices.Filter(func(resourceCard *ResourceCard) bool {
+		return resourceCard.isSelected
+	}, offeringPlayer.resourceCards)
+
+	if len(selectedResourceCardsOfOferringPlayer) == 0 {
+		return errors.WithStack(app_errors.ErrYouMustSelectAtLeastOneResourceCard)
+	}
+
+	for _, selectedResourceCardOfOferringPlayer := range selectedResourceCardsOfOferringPlayer {
+		selectedResourceCardOfOferringPlayer.isSelected = false
+	}
+
+	activePlayer.resourceCards = slices.Remove(activePlayer.resourceCards, selectedResourceCardsOfActivePlayer...)
+	offeringPlayer.resourceCards = append(offeringPlayer.resourceCards, selectedResourceCardsOfActivePlayer...)
+
+	offeringPlayer.resourceCards = slices.Remove(offeringPlayer.resourceCards, selectedResourceCardsOfOferringPlayer...)
+	activePlayer.resourceCards = append(activePlayer.resourceCards, selectedResourceCardsOfOferringPlayer...)
+
+	return nil
+}
+
+func (r resourceConsumptionPhase) cancelTrading(userID primitive.ObjectID) error {
+	player, isExists := slices.Find(func(player *Player) bool {
+		return player.userID == userID
+	}, r.game.players)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
+
+	if !player.isOffered {
+		return errors.WithStack(app_errors.ErrYouHaveNotReceivedOffer)
+	}
+
+	player.isOffered = false
+
+	return nil
+}

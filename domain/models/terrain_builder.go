@@ -2,49 +2,51 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type TerrainBuilder interface {
-	SetID(id primitive.ObjectID) TerrainBuilder
-	SetHex(hex Hex) TerrainBuilder
-	SetNumber(number int) TerrainBuilder
-	SetType(terrainType terrainType) TerrainBuilder
-	Create() *Terrain
-}
-
-func NewTerrainBuilder() TerrainBuilder {
-	return &terrainBuilder{}
-}
-
-type terrainBuilder struct {
+type TerrainBuilder struct {
 	id          primitive.ObjectID
 	hex         Hex
 	number      int
 	terrainType terrainType
+	harbor      *Harbor
+	robber      *Robber
 }
 
-func (t *terrainBuilder) SetID(id primitive.ObjectID) TerrainBuilder {
+func (t TerrainBuilder) SetID(id primitive.ObjectID) TerrainBuilder {
 	t.id = id
 
 	return t
 }
-func (t *terrainBuilder) SetHex(hex Hex) TerrainBuilder {
+func (t TerrainBuilder) SetHex(hex Hex) TerrainBuilder {
 	t.hex = hex
 
 	return t
 }
 
-func (t *terrainBuilder) SetNumber(number int) TerrainBuilder {
+func (t TerrainBuilder) SetNumber(number int) TerrainBuilder {
 	t.number = number
 
 	return t
 }
 
-func (t *terrainBuilder) SetType(terrainType terrainType) TerrainBuilder {
+func (t TerrainBuilder) SetType(terrainType terrainType) TerrainBuilder {
 	t.terrainType = terrainType
 
 	return t
 }
 
-func (t terrainBuilder) Create() *Terrain {
+func (t TerrainBuilder) SetHarbor(harbor *Harbor) TerrainBuilder {
+	t.harbor = harbor
+
+	return t
+}
+
+func (t TerrainBuilder) SetRobber(robber *Robber) TerrainBuilder {
+	t.robber = robber
+
+	return t
+}
+
+func (t TerrainBuilder) Create() *Terrain {
 	return &Terrain{
 		aggregate: aggregate{
 			id: t.id,
@@ -52,5 +54,7 @@ func (t terrainBuilder) Create() *Terrain {
 		hex:         t.hex,
 		number:      t.number,
 		terrainType: t.terrainType,
+		harbor:      t.harbor,
+		robber:      t.robber,
 	}
 }

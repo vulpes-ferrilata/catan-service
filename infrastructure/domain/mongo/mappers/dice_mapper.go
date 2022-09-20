@@ -23,7 +23,7 @@ func toDiceDomain(diceDocument *documents.Dice) *models.Dice {
 		return nil
 	}
 
-	dice := models.NewDiceBuilder().
+	dice := models.DiceBuilder{}.
 		SetID(diceDocument.ID).
 		SetNumber(diceDocument.Number).
 		Create()

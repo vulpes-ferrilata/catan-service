@@ -11,6 +11,8 @@ func ToGameResponse(game *models.Game) *catan.GameResponse {
 		return nil
 	}
 
+	me := toPlayerResponse(game.Me)
+
 	playerResponses, _ := slices.Map(func(player *models.Player) (*catan.PlayerResponse, error) {
 		return toPlayerResponse(player), nil
 	}, game.Players)
@@ -35,12 +37,6 @@ func ToGameResponse(game *models.Game) *catan.GameResponse {
 		return toTerrainResponse(terrain), nil
 	}, game.Terrains)
 
-	harborResponses, _ := slices.Map(func(harbor *models.Harbor) (*catan.HarborResponse, error) {
-		return toHarborResponse(harbor), nil
-	}, game.Harbors)
-
-	robberResponse := toRobberResponse(game.Robber)
-
 	landResponses, _ := slices.Map(func(land *models.Land) (*catan.LandResponse, error) {
 		return toLandResponse(land), nil
 	}, game.Lands)
@@ -52,16 +48,15 @@ func ToGameResponse(game *models.Game) *catan.GameResponse {
 	return &catan.GameResponse{
 		ID:               game.ID.Hex(),
 		Status:           game.Status,
+		Phase:            game.Phase,
 		Turn:             int32(game.Turn),
-		IsRolledDices:    game.IsRolledDices,
+		Me:               me,
 		Players:          playerResponses,
 		Dices:            diceResponses,
 		Achievements:     achievementResponses,
 		ResourceCards:    resourceCardResponses,
 		DevelopmentCards: developmentCardResponses,
 		Terrains:         terrainResponses,
-		Harbors:          harborResponses,
-		Robber:           robberResponse,
 		Lands:            landResponses,
 		Paths:            pathResponses,
 	}

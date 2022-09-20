@@ -8,10 +8,11 @@ import (
 type Player struct {
 	aggregate
 	userID           primitive.ObjectID
-	color            playerColor
+	color            PlayerColor
 	turnOrder        int
 	isActive         bool
 	isOffered        bool
+	score            int
 	achievements     []*Achievement
 	resourceCards    []*ResourceCard
 	developmentCards []*DevelopmentCard
@@ -23,7 +24,7 @@ func (p Player) GetUserID() primitive.ObjectID {
 	return p.userID
 }
 
-func (p Player) GetColor() playerColor {
+func (p Player) GetColor() PlayerColor {
 	return p.color
 }
 
@@ -37,6 +38,10 @@ func (p Player) IsActive() bool {
 
 func (p Player) IsOffered() bool {
 	return p.isOffered
+}
+
+func (p Player) GetScore() int {
+	return p.score
 }
 
 func (p Player) GetAchievements() []*Achievement {

@@ -4,8 +4,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewGameStatus(value string) (gameStatus, error) {
-	gameStatus := gameStatus(value)
+func NewGameStatus(enum string) (GameStatus, error) {
+	gameStatus := GameStatus{enum}
 
 	switch gameStatus {
 	case Waiting, Started, Finished:
@@ -15,10 +15,16 @@ func NewGameStatus(value string) (gameStatus, error) {
 	}
 }
 
-type gameStatus string
+type GameStatus struct {
+	enum string
+}
 
-const (
-	Waiting  gameStatus = "WAITING"
-	Started  gameStatus = "STARTED"
-	Finished gameStatus = "FINISHED"
+func (g GameStatus) String() string {
+	return g.enum
+}
+
+var (
+	Waiting  = GameStatus{"WAITING"}
+	Started  = GameStatus{"STARTED"}
+	Finished = GameStatus{"FINISHED"}
 )

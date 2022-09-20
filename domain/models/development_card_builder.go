@@ -2,42 +2,31 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type DevelopmentCardBuilder interface {
-	SetID(id primitive.ObjectID) DevelopmentCardBuilder
-	SetType(developmentCardType developmentCardType) DevelopmentCardBuilder
-	SetStatus(status developmentCardStatus) DevelopmentCardBuilder
-	Create() *DevelopmentCard
-}
-
-func NewDevelopmentCardBuilder() DevelopmentCardBuilder {
-	return &developmentCardBuilder{}
-}
-
-type developmentCardBuilder struct {
+type DevelopmentCardBuilder struct {
 	id                  primitive.ObjectID
-	developmentCardType developmentCardType
+	developmentCardType DevelopmentCardType
 	status              developmentCardStatus
 }
 
-func (a *developmentCardBuilder) SetID(id primitive.ObjectID) DevelopmentCardBuilder {
+func (a DevelopmentCardBuilder) SetID(id primitive.ObjectID) DevelopmentCardBuilder {
 	a.id = id
 
 	return a
 }
 
-func (a *developmentCardBuilder) SetType(developmentCardType developmentCardType) DevelopmentCardBuilder {
+func (a DevelopmentCardBuilder) SetType(developmentCardType DevelopmentCardType) DevelopmentCardBuilder {
 	a.developmentCardType = developmentCardType
 
 	return a
 }
 
-func (a *developmentCardBuilder) SetStatus(developmentCardStatus developmentCardStatus) DevelopmentCardBuilder {
+func (a DevelopmentCardBuilder) SetStatus(developmentCardStatus developmentCardStatus) DevelopmentCardBuilder {
 	a.status = developmentCardStatus
 
 	return a
 }
 
-func (a developmentCardBuilder) Create() *DevelopmentCard {
+func (a DevelopmentCardBuilder) Create() *DevelopmentCard {
 	return &DevelopmentCard{
 		aggregate: aggregate{
 			id: a.id,
