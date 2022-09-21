@@ -1,18 +1,8 @@
 [
     {
         "locale": "en",
-        "key": "validation-error",
-        "trans": "the request contains invalid parameters, more information can be found in the errors"
-    },
-    {
-        "locale": "en",
-        "key": "business-error",
-        "trans": "the request cannot be proceeded, more information can be found in the errors"
-    },
-    {
-        "locale": "en",
-        "key": "authentication-error",
-        "trans": "the request has invalid credential, more information can be found in the errors"
+        "key": "command-validation-error",
+        "trans": "the command contains invalid parameters, more information can be found in the errors"
     },
     {
         "locale": "en",
