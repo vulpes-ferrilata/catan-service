@@ -1,7 +1,7 @@
 package commands
 
-type ToggleResourceCardsCommand struct {
-	UserID          string   `validate:"required,objectid"`
+type ToggleResourceCards struct {
 	GameID          string   `validate:"required,objectid"`
+	UserID          string   `validate:"required,objectid"`
 	ResourceCardIDs []string `validate:"required,unique"`
 }

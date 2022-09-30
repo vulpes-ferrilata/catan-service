@@ -14,11 +14,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewCreateGameCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.CreateGameCommand] {
+func NewCreateGameCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.CreateGame] {
 	handler := &createGameCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateGameCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CreateGame](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -28,7 +28,7 @@ type createGameCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (c createGameCommandHandler) Handle(ctx context.Context, createGameCommand *commands.CreateGameCommand) error {
+func (c createGameCommandHandler) Handle(ctx context.Context, createGameCommand *commands.CreateGame) error {
 	gameID, err := primitive.ObjectIDFromHex(createGameCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)

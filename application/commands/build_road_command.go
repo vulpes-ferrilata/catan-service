@@ -1,7 +1,7 @@
 package commands
 
-type BuildRoadCommand struct {
-	UserID string `validate:"required,objectid"`
+type BuildRoad struct {
 	GameID string `validate:"required,objectid"`
+	UserID string `validate:"required,objectid"`
 	PathID string `validate:"required,objectid"`
 }

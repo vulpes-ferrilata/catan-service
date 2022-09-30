@@ -8,7 +8,6 @@ type Player struct {
 	Color            string
 	TurnOrder        int
 	IsOffered        bool
-	IsActive         bool
 	Score            int
 	Achievements     []*Achievement
 	ResourceCards    []*ResourceCard

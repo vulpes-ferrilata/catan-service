@@ -8,6 +8,8 @@ import (
 )
 
 func ToGameDocument(game *models.Game) *documents.Game {
+	activePlayerDocument := toPlayerDocument(game.GetActivePlayer())
+
 	playerDocuments, _ := slices.Map(func(player *models.Player) (*documents.Player, error) {
 		return toPlayerDocument(player), nil
 	}, game.GetPlayers())
@@ -50,6 +52,7 @@ func ToGameDocument(game *models.Game) *documents.Game {
 		Status:           game.GetStatus().String(),
 		Phase:            game.GetPhase().String(),
 		Turn:             game.GetTurn(),
+		ActivePlayer:     activePlayerDocument,
 		Players:          playerDocuments,
 		Dices:            diceDocuments,
 		Achievements:     achievementDocuments,
@@ -72,6 +75,11 @@ func ToGameDomain(gameDocument *documents.Game) (*models.Game, error) {
 	}
 
 	phase, err := models.NewGamePhase(gameDocument.Phase)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	activePlayer, err := toPlayerDomain(gameDocument.ActivePlayer)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -134,6 +142,7 @@ func ToGameDomain(gameDocument *documents.Game) (*models.Game, error) {
 		SetStatus(status).
 		SetPhase(phase).
 		SetTurn(gameDocument.Turn).
+		SetActivePlayer(activePlayer).
 		SetPlayers(players...).
 		SetDices(dices...).
 		SetAchievements(achievements...).

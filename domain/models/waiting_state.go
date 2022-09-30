@@ -14,11 +14,13 @@ type waitingState struct {
 }
 
 func (w waitingState) newPlayer(userID primitive.ObjectID) error {
-	if len(w.game.players) >= 4 {
+	allPlayers := w.game.getAllPlayers()
+
+	if len(allPlayers) >= 4 {
 		return errors.WithStack(app_errors.ErrGameHasFullPlayers)
 	}
 
-	for _, player := range w.game.players {
+	for _, player := range allPlayers {
 		if player.userID == userID {
 			return errors.WithStack(app_errors.ErrYouAlreadyJoined)
 		}
@@ -26,14 +28,12 @@ func (w waitingState) newPlayer(userID primitive.ObjectID) error {
 
 	colors := []PlayerColor{Red, Blue, Green, Yellow}
 	turnOrder := 1
-	for _, player := range w.game.players {
+	for _, player := range allPlayers {
 		colors = slices.Remove(colors, player.color)
 		if player.turnOrder >= turnOrder {
 			turnOrder = player.turnOrder + 1
 		}
 	}
-
-	isActive := len(w.game.players) == 0
 
 	id := primitive.NewObjectID()
 
@@ -42,10 +42,13 @@ func (w waitingState) newPlayer(userID primitive.ObjectID) error {
 		SetUserID(userID).
 		SetColor(colors[0]).
 		SetTurnOrder(turnOrder).
-		SetIsActive(isActive).
 		Create()
 
-	w.game.players = append(w.game.players, player)
+	if w.game.activePlayer == nil {
+		w.game.activePlayer = player
+	} else {
+		w.game.players = append(w.game.players, player)
+	}
 
 	return nil
 }
@@ -332,7 +335,7 @@ func (w waitingState) initLands() {
 }
 
 func (w waitingState) initConstructions() {
-	for _, player := range w.game.players {
+	for _, player := range w.game.getAllPlayers() {
 		constructions := make([]*Construction, 0)
 
 		for i := 1; i <= 5; i++ {
@@ -360,7 +363,7 @@ func (w waitingState) initConstructions() {
 }
 
 func (w waitingState) initRoads() {
-	for _, player := range w.game.players {
+	for _, player := range w.game.getAllPlayers() {
 		roads := make([]*Road, 0)
 
 		for i := 1; i <= 15; i++ {
@@ -377,13 +380,7 @@ func (w waitingState) initRoads() {
 }
 
 func (w waitingState) startGame(userID primitive.ObjectID) error {
-	activePlayer, isExists := slices.Find(func(player *Player) bool {
-		return player.userID == userID
-	}, w.game.players)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPlayerNotFound)
-	}
-	if !activePlayer.isActive {
+	if w.game.activePlayer.userID != userID {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
@@ -399,15 +396,17 @@ func (w waitingState) startGame(userID primitive.ObjectID) error {
 	w.initConstructions()
 	w.initRoads()
 
-	rand.Shuffle(len(w.game.players), func(i, j int) {
-		w.game.players[i].turnOrder, w.game.players[j].turnOrder = w.game.players[j].turnOrder, w.game.players[i].turnOrder
+	allPlayers := w.game.getAllPlayers()
+
+	rand.Shuffle(len(allPlayers), func(i, j int) {
+		allPlayers[i].turnOrder, allPlayers[j].turnOrder = allPlayers[j].turnOrder, allPlayers[i].turnOrder
 	})
 
-	for _, player := range w.game.players {
+	for _, player := range allPlayers {
 		if player.turnOrder == 1 {
-			player.isActive = true
-		} else {
-			player.isActive = false
+			w.game.activePlayer = player
+			w.game.players = slices.Remove(allPlayers, player)
+			break
 		}
 	}
 

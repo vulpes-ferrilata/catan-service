@@ -6,10 +6,12 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func ToGameDetailView(gameDocument *documents.Game) *models.Game {
+func ToGameView(gameDocument *documents.Game) *models.Game {
 	if gameDocument == nil {
 		return nil
 	}
+
+	activePlayer := toPlayerView(gameDocument.ActivePlayer)
 
 	players, _ := slices.Map(func(playerDocument *documents.Player) (*models.Player, error) {
 		return toPlayerView(playerDocument), nil
@@ -48,6 +50,7 @@ func ToGameDetailView(gameDocument *documents.Game) *models.Game {
 		Status:           gameDocument.Status,
 		Phase:            gameDocument.Phase,
 		Turn:             gameDocument.Turn,
+		ActivePlayer:     activePlayer,
 		Players:          players,
 		Dices:            dices,
 		Achievements:     achievements,

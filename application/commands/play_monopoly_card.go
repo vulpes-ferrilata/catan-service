@@ -1,7 +1,7 @@
 package commands
 
-type PlayMonopolyCardCommand struct {
-	UserID           string `validate:"required,objectid"`
+type PlayMonopolyCard struct {
 	GameID           string `validate:"required,objectid"`
+	UserID           string `validate:"required,objectid"`
 	ResourceCardType string `validate:"required"`
 }

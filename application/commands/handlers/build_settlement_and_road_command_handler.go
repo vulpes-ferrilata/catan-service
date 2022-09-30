@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewBuildSettlementAndRoadCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.BuildSettlementAndRoadCommand] {
+func NewBuildSettlementAndRoadCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.BuildSettlementAndRoad] {
 	handler := &buildSettlementAndRoadCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.BuildSettlementAndRoadCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.BuildSettlementAndRoad](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -27,23 +27,23 @@ type buildSettlementAndRoadCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (b buildSettlementAndRoadCommandHandler) Handle(ctx context.Context, buildSettlementAndRoad *commands.BuildSettlementAndRoadCommand) error {
-	gameID, err := primitive.ObjectIDFromHex(buildSettlementAndRoad.GameID)
+func (b buildSettlementAndRoadCommandHandler) Handle(ctx context.Context, buildSettlementAndRoadCommand *commands.BuildSettlementAndRoad) error {
+	gameID, err := primitive.ObjectIDFromHex(buildSettlementAndRoadCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := primitive.ObjectIDFromHex(buildSettlementAndRoad.UserID)
+	userID, err := primitive.ObjectIDFromHex(buildSettlementAndRoadCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	landID, err := primitive.ObjectIDFromHex(buildSettlementAndRoad.LandID)
+	landID, err := primitive.ObjectIDFromHex(buildSettlementAndRoadCommand.LandID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	pathID, err := primitive.ObjectIDFromHex(buildSettlementAndRoad.PathID)
+	pathID, err := primitive.ObjectIDFromHex(buildSettlementAndRoadCommand.PathID)
 	if err != nil {
 		return errors.WithStack(err)
 	}

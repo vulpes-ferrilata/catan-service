@@ -5,6 +5,7 @@ type Game struct {
 	Status           string             `bson:"status"`
 	Phase            string             `bson:"phase"`
 	Turn             int                `bson:"turn"`
+	ActivePlayer     *Player            `bson:"active_player"`
 	Players          []*Player          `bson:"players"`
 	Dices            []*Dice            `bson:"dices"`
 	Achievements     []*Achievement     `bson:"achievements"`

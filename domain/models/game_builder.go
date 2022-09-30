@@ -7,6 +7,7 @@ type GameBuilder struct {
 	status           GameStatus
 	phase            GamePhase
 	turn             int
+	activePlayer     *Player
 	players          []*Player
 	dices            []*Dice
 	achievements     []*Achievement
@@ -38,6 +39,12 @@ func (g GameBuilder) SetPhase(phase GamePhase) GameBuilder {
 
 func (g GameBuilder) SetTurn(turn int) GameBuilder {
 	g.turn = turn
+
+	return g
+}
+
+func (g GameBuilder) SetActivePlayer(activePlayer *Player) GameBuilder {
+	g.activePlayer = activePlayer
 
 	return g
 }
@@ -107,6 +114,7 @@ func (g GameBuilder) Create() *Game {
 		status:           g.status,
 		phase:            g.phase,
 		turn:             g.turn,
+		activePlayer:     g.activePlayer,
 		players:          g.players,
 		dices:            g.dices,
 		achievements:     g.achievements,

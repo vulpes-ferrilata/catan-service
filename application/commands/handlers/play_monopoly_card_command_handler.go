@@ -14,11 +14,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewPlayMonopolyCardCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.PlayMonopolyCardCommand] {
+func NewPlayMonopolyCardCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.PlayMonopolyCard] {
 	handler := &playMonopolyCardCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.PlayMonopolyCardCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.PlayMonopolyCard](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -28,7 +28,7 @@ type playMonopolyCardCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (p playMonopolyCardCommandHandler) Handle(ctx context.Context, playMonopolyCardCommand *commands.PlayMonopolyCardCommand) error {
+func (p playMonopolyCardCommandHandler) Handle(ctx context.Context, playMonopolyCardCommand *commands.PlayMonopolyCard) error {
 	gameID, err := primitive.ObjectIDFromHex(playMonopolyCardCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)

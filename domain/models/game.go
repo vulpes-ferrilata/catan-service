@@ -14,6 +14,7 @@ type Game struct {
 	status           GameStatus
 	phase            GamePhase
 	turn             int
+	activePlayer     *Player
 	players          []*Player
 	dices            []*Dice
 	achievements     []*Achievement
@@ -34,6 +35,10 @@ func (g Game) GetPhase() GamePhase {
 
 func (g Game) GetTurn() int {
 	return g.turn
+}
+
+func (g Game) GetActivePlayer() *Player {
+	return g.activePlayer
 }
 
 func (g Game) GetPlayers() []*Player {
@@ -79,6 +84,16 @@ func (g *Game) getState() state {
 	}
 
 	return nil
+}
+
+func (g Game) getAllPlayers() []*Player {
+	allPlayers := make([]*Player, 0)
+	if g.activePlayer != nil {
+		allPlayers = append(allPlayers, g.activePlayer)
+	}
+	allPlayers = append(allPlayers, g.players...)
+
+	return allPlayers
 }
 
 func (g *Game) NewPlayer(userID primitive.ObjectID) error {
@@ -233,31 +248,23 @@ func (g *Game) PlayMonopolyCard(userID primitive.ObjectID, resourceCardType Reso
 	return nil
 }
 
-func (g *Game) useResourceCards(player *Player, resourceCardTypes ...ResourceCardType) error {
-	if !player.isActive {
-		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-	}
-
+func (g *Game) useResourceCards(resourceCardTypes ...ResourceCardType) error {
 	for _, resourceCardType := range resourceCardTypes {
 		resourceCard, isExists := slices.Find(func(resourceCard *ResourceCard) bool {
 			return resourceCard.resourceCardType == resourceCardType
-		}, player.resourceCards)
+		}, g.activePlayer.resourceCards)
 		if !isExists {
 			return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
 		}
 
-		player.resourceCards = slices.Remove(player.resourceCards, resourceCard)
+		g.activePlayer.resourceCards = slices.Remove(g.activePlayer.resourceCards, resourceCard)
 		g.resourceCards = append(g.resourceCards, resourceCard)
 	}
 
 	return nil
 }
 
-func (g *Game) buildSettlement(player *Player, land *Land) error {
-	if !player.isActive {
-		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-	}
-
+func (g *Game) buildSettlement(land *Land) error {
 	isLandAdjacentToAnyConstruction := slices.Any(func(player *Player) bool {
 		return slices.Any(func(construction *Construction) bool {
 			return construction.land != nil && construction.land.hexCorner.isAdjacentWithHexCorner(land.hexCorner)
@@ -269,16 +276,16 @@ func (g *Game) buildSettlement(player *Player, land *Land) error {
 
 	isLandAdjacentToPlayerRoad := slices.Any(func(road *Road) bool {
 		return road.path != nil && road.path.hexEdge.isAdjacentWithHexCorner(land.hexCorner)
-	}, player.roads)
+	}, g.activePlayer.roads)
 	if !isLandAdjacentToPlayerRoad {
 		return errors.WithStack(app_errors.ErrSelectedLandMustBeAdjacentToYourRoad)
 	}
 
 	settlement, isExists := slices.Find(func(construction *Construction) bool {
 		return construction.constructionType == Settlement && construction.land == nil
-	}, player.constructions)
+	}, g.activePlayer.constructions)
 	if !isExists {
-		return errors.WithStack(app_errors.ErrYouHaveRunOutOfSettlements)
+		return errors.WithStack(app_errors.ErrYouRunOutOfSettlements)
 	}
 
 	g.lands = slices.Remove(g.lands, land)
@@ -287,49 +294,44 @@ func (g *Game) buildSettlement(player *Player, land *Land) error {
 	return nil
 }
 
-func (g *Game) buildRoad(player *Player, path *Path) error {
-	if !player.isActive {
-		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-	}
-
-	isAdjacentToPlayerConstruction := slices.Any(func(construction *Construction) bool {
+func (g *Game) buildRoad(path *Path) error {
+	isAdjacentToConstruction := slices.Any(func(construction *Construction) bool {
 		return construction.land != nil && construction.land.hexCorner.isAdjacentWithHexEdge(path.hexEdge)
-	}, player.constructions)
+	}, g.activePlayer.constructions)
 
 	//if selected path adjacent to your construction, other adjacent land cannot be occupied by other player
-	if !isAdjacentToPlayerConstruction {
+	if !isAdjacentToConstruction {
 		adjacentHexCorners := findAdjacentHexCornersFromHexEdge(path.hexEdge)
 
 		intersectionHexCorners := slices.Filter(func(adjacentHexCorner HexCorner) bool {
 			return slices.Any(func(road *Road) bool {
 				return road.path != nil && adjacentHexCorner.isAdjacentWithHexEdge(road.path.hexEdge)
-			}, player.roads)
+			}, g.activePlayer.roads)
 		}, adjacentHexCorners)
 
 		if len(intersectionHexCorners) == 0 {
 			return errors.WithStack(app_errors.ErrSelectedPathMustBeAdjacentToYourConstructionOrRoad)
 		}
 
-		//if you have roads on both sides of selected path, both sides cannot be occupied
 		if len(intersectionHexCorners) == 1 {
-			otherPlayers := slices.Remove(g.players, player)
-
 			isSelectedPathPassThroughConstructionOfOtherPlayer := slices.Any(func(otherPlayer *Player) bool {
 				return slices.Any(func(construction *Construction) bool {
 					return construction.land != nil && construction.land.hexCorner == intersectionHexCorners[0]
 				}, otherPlayer.constructions)
-			}, otherPlayers)
+			}, g.players)
 			if isSelectedPathPassThroughConstructionOfOtherPlayer {
 				return errors.WithStack(app_errors.ErrSelectedPathPassThroughConstructionOfOtherPlayer)
 			}
 		}
+
+		//if you have roads on both sides of selected path, both sides cannot be occupied
 	}
 
 	road, isExists := slices.Find(func(road *Road) bool {
 		return road.path == nil
-	}, player.roads)
+	}, g.activePlayer.roads)
 	if !isExists {
-		return errors.WithStack(app_errors.ErrYouHaveRunOutOfRoads)
+		return errors.WithStack(app_errors.ErrYouRunOutOfRoads)
 	}
 
 	g.paths = slices.Remove(g.paths, path)
@@ -338,11 +340,7 @@ func (g *Game) buildRoad(player *Player, path *Path) error {
 	return nil
 }
 
-func (g *Game) upgradeConstruction(player *Player, construction *Construction) error {
-	if !player.isActive {
-		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-	}
-
+func (g *Game) upgradeConstruction(construction *Construction) error {
 	if construction.constructionType == City {
 		return errors.WithStack(app_errors.ErrSelectedConstructionAlreadyUpgraded)
 	}
@@ -353,9 +351,9 @@ func (g *Game) upgradeConstruction(player *Player, construction *Construction) e
 
 	city, isExists := slices.Find(func(construction *Construction) bool {
 		return construction.land == nil && construction.constructionType == City
-	}, player.constructions)
+	}, g.activePlayer.constructions)
 	if !isExists {
-		return errors.WithStack(app_errors.ErrYouHaveRunOutOfCities)
+		return errors.WithStack(app_errors.ErrYouRunOutOfCities)
 	}
 
 	city.land = construction.land
@@ -364,11 +362,7 @@ func (g *Game) upgradeConstruction(player *Player, construction *Construction) e
 	return nil
 }
 
-func (g *Game) moveRobber(player *Player, terrain *Terrain) error {
-	if !player.isActive {
-		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-	}
-
+func (g *Game) moveRobber(terrain *Terrain) error {
 	if terrain.robber != nil {
 		return errors.WithStack(app_errors.ErrRobberMustBeMovedToOtherTerrain)
 	}
@@ -387,11 +381,7 @@ func (g *Game) moveRobber(player *Player, terrain *Terrain) error {
 	return nil
 }
 
-func (g *Game) robPlayer(robbingPlayer *Player, player *Player) error {
-	if !robbingPlayer.isActive {
-		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-	}
-
+func (g *Game) robPlayer(player *Player) error {
 	terrainHasRobber, isExists := slices.Find(func(terrain *Terrain) bool {
 		return terrain.robber != nil
 	}, g.terrains)
@@ -401,7 +391,7 @@ func (g *Game) robPlayer(robbingPlayer *Player, player *Player) error {
 
 	if player == nil {
 		hasPlayerCanBeRob := slices.Any(func(player *Player) bool {
-			return player != robbingPlayer && slices.Any(func(construction *Construction) bool {
+			return slices.Any(func(construction *Construction) bool {
 				return construction.land != nil && construction.land.hexCorner.isAdjacentWithHex(terrainHasRobber.hex)
 			}, player.constructions)
 		}, g.players)
@@ -410,10 +400,6 @@ func (g *Game) robPlayer(robbingPlayer *Player, player *Player) error {
 		}
 
 		return nil
-	}
-
-	if robbingPlayer == player {
-		return errors.WithStack(app_errors.ErrYouCannotRobYourself)
 	}
 
 	canBeRob := slices.Any(func(construction *Construction) bool {
@@ -428,27 +414,23 @@ func (g *Game) robPlayer(robbingPlayer *Player, player *Player) error {
 		resourceCard := player.resourceCards[resourceCardIdx]
 
 		player.resourceCards = slices.Remove(player.resourceCards, resourceCard)
-		robbingPlayer.resourceCards = append(robbingPlayer.resourceCards, resourceCard)
+		g.activePlayer.resourceCards = append(g.activePlayer.resourceCards, resourceCard)
 	}
 
 	return nil
 }
 
-func (g *Game) useDevelopmentCard(player *Player, developmentCardType DevelopmentCardType) error {
-	if !player.isActive {
-		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
-	}
-
+func (g *Game) useDevelopmentCard(developmentCardType DevelopmentCardType) error {
 	knightDevelopmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
 		return developmentCard.developmentCardType == developmentCardType && developmentCard.status == Enable
-	}, player.developmentCards)
+	}, g.activePlayer.developmentCards)
 	if !isExists {
 		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
 	}
 
 	knightDevelopmentCard.status = Used
 
-	for _, developmentCard := range player.developmentCards {
+	for _, developmentCard := range g.activePlayer.developmentCards {
 		if developmentCard.status == Enable {
 			developmentCard.status = Disable
 		}
@@ -467,7 +449,7 @@ func (g *Game) dispatchLongestRoadAchievement() error {
 		}
 	}
 
-	for _, player := range g.players {
+	for _, player := range g.getAllPlayers() {
 		for _, achievement := range player.achievements {
 			if achievement.achievementType == LongestRoad {
 				longestRoadAchievement = achievement
@@ -482,7 +464,7 @@ func (g *Game) dispatchLongestRoadAchievement() error {
 
 	var playerHasLongestRoad *Player
 	maxLongestRoad := 0
-	for _, player := range g.players {
+	for _, player := range g.getAllPlayers() {
 		longestRoad := g.calculateLongestRoad(player)
 
 		if longestRoad == maxLongestRoad {
@@ -566,7 +548,7 @@ func (g *Game) dispatchLargestArmyDevelopment() error {
 		}
 	}
 
-	for _, player := range g.players {
+	for _, player := range g.getAllPlayers() {
 		for _, achievement := range player.achievements {
 			if achievement.achievementType == LargestArmy {
 				largestArmyAchievement = achievement
@@ -581,7 +563,7 @@ func (g *Game) dispatchLargestArmyDevelopment() error {
 
 	var playerHasLargestArmy *Player
 	maxKnightDevelopmentCardPlayed := 0
-	for _, player := range g.players {
+	for _, player := range g.getAllPlayers() {
 		knightDevelopmentCardPlayed := 0
 		for _, developmentCard := range player.developmentCards {
 			if developmentCard.developmentCardType == Knight && developmentCard.status == Used {
@@ -611,7 +593,7 @@ func (g *Game) dispatchLargestArmyDevelopment() error {
 func (g *Game) calculateScore() {
 	maxScore := 0
 
-	for _, player := range g.players {
+	for _, player := range g.getAllPlayers() {
 		score := 0
 
 		score += len(player.achievements) * 2

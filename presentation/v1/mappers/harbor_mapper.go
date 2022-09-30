@@ -1,16 +1,16 @@
 package mappers
 
 import (
+	"github.com/vulpes-ferrilata/catan-service-proto/pb/responses"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
-	"github.com/vulpes-ferrilata/shared/proto/v1/catan"
 )
 
-func toHarborResponse(harbor *models.Harbor) *catan.HarborResponse {
+func toHarborResponse(harbor *models.Harbor) *responses.Harbor {
 	if harbor == nil {
 		return nil
 	}
 
-	return &catan.HarborResponse{
+	return &responses.Harbor{
 		ID:   harbor.ID.Hex(),
 		Q:    int32(harbor.Q),
 		R:    int32(harbor.R),

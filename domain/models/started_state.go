@@ -141,14 +141,11 @@ func (s startedState) cancelTrading(userID primitive.ObjectID) error {
 }
 
 func (s startedState) playKnightCard(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
-	robbingPlayer, isExists := slices.Find(func(player *Player) bool {
-		return player.userID == userID
-	}, s.game.players)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	if s.game.activePlayer.userID != userID {
+		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	if err := s.game.useDevelopmentCard(robbingPlayer, Knight); err != nil {
+	if err := s.game.useDevelopmentCard(Knight); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -169,11 +166,11 @@ func (s startedState) playKnightCard(userID primitive.ObjectID, terrainID primit
 		}
 	}
 
-	if err := s.game.moveRobber(robbingPlayer, terrain); err != nil {
+	if err := s.game.moveRobber(terrain); err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := s.game.robPlayer(robbingPlayer, player); err != nil {
+	if err := s.game.robPlayer(player); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -187,11 +184,8 @@ func (s startedState) playKnightCard(userID primitive.ObjectID, terrainID primit
 }
 
 func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
-	player, isExists := slices.Find(func(player *Player) bool {
-		return player.userID == userID
-	}, s.game.players)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	if s.game.activePlayer.userID != userID {
+		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
 	paths, err := slices.Map(func(pathID primitive.ObjectID) (*Path, error) {
@@ -208,16 +202,12 @@ func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []
 		return errors.WithStack(err)
 	}
 
-	if len(paths) > 2 {
-		return errors.WithStack(app_errors.ErrYouCanOnlyBuildAtMostTwoRoads)
-	}
-
-	if err := s.game.useDevelopmentCard(player, RoadBuilding); err != nil {
+	if err := s.game.useDevelopmentCard(RoadBuilding); err != nil {
 		return errors.WithStack(err)
 	}
 
 	for _, path := range paths {
-		if err := s.game.buildRoad(player, path); err != nil {
+		if err := s.game.buildRoad(path); err != nil {
 			return errors.WithStack(err)
 		}
 	}
@@ -232,19 +222,12 @@ func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []
 }
 
 func (s startedState) playYearOfPlentyCard(userID primitive.ObjectID, resourceCardTypes []ResourceCardType) error {
-	player, isExists := slices.Find(func(player *Player) bool {
-		return player.userID == userID
-	}, s.game.players)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	if s.game.activePlayer.userID != userID {
+		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	if err := s.game.useDevelopmentCard(player, YearOfPlenty); err != nil {
+	if err := s.game.useDevelopmentCard(YearOfPlenty); err != nil {
 		return errors.WithStack(err)
-	}
-
-	if len(resourceCardTypes) > 2 {
-		return errors.WithStack(app_errors.ErrYouCanOnlyReceiveAtMostTwoResourceCards)
 	}
 
 	for _, resourceCardType := range resourceCardTypes {
@@ -256,38 +239,33 @@ func (s startedState) playYearOfPlentyCard(userID primitive.ObjectID, resourceCa
 		}
 
 		s.game.resourceCards = slices.Remove(s.game.resourceCards, resourceCard)
-		player.resourceCards = append(player.resourceCards, resourceCard)
+		s.game.activePlayer.resourceCards = append(s.game.activePlayer.resourceCards, resourceCard)
 	}
 
 	return nil
 }
 
 func (s startedState) playMonopolyCard(userID primitive.ObjectID, resourceCardType ResourceCardType) error {
-	player, isExists := slices.Find(func(player *Player) bool {
-		return player.userID == userID
-	}, s.game.players)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	if s.game.activePlayer.userID != userID {
+		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	if err := s.game.useDevelopmentCard(player, Monopoly); err != nil {
+	if err := s.game.useDevelopmentCard(Monopoly); err != nil {
 		return errors.WithStack(err)
 	}
 
 	resourceCards := make([]*ResourceCard, 0)
 
-	otherPlayers := slices.Remove(s.game.players, player)
-
-	for _, otherPlayer := range otherPlayers {
-		for _, resourceCard := range otherPlayer.resourceCards {
+	for _, player := range s.game.players {
+		for _, resourceCard := range player.resourceCards {
 			if resourceCard.resourceCardType == resourceCardType {
-				otherPlayer.resourceCards = slices.Remove(otherPlayer.resourceCards, resourceCard)
+				player.resourceCards = slices.Remove(player.resourceCards, resourceCard)
 				resourceCards = append(resourceCards, resourceCard)
 			}
 		}
 	}
 
-	player.resourceCards = append(player.resourceCards, resourceCards...)
+	s.game.activePlayer.resourceCards = append(s.game.activePlayer.resourceCards, resourceCards...)
 
 	return nil
 }

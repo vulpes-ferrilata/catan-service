@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewBuildSettlementCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.BuildSettlementCommand] {
+func NewBuildSettlementCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.BuildSettlement] {
 	handler := &buildSettlementCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.BuildSettlementCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.BuildSettlement](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -27,18 +27,18 @@ type buildSettlementCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (b buildSettlementCommandHandler) Handle(ctx context.Context, buildSettlement *commands.BuildSettlementCommand) error {
-	gameID, err := primitive.ObjectIDFromHex(buildSettlement.GameID)
+func (b buildSettlementCommandHandler) Handle(ctx context.Context, buildSettlementCommand *commands.BuildSettlement) error {
+	gameID, err := primitive.ObjectIDFromHex(buildSettlementCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := primitive.ObjectIDFromHex(buildSettlement.UserID)
+	userID, err := primitive.ObjectIDFromHex(buildSettlementCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	landID, err := primitive.ObjectIDFromHex(buildSettlement.LandID)
+	landID, err := primitive.ObjectIDFromHex(buildSettlementCommand.LandID)
 	if err != nil {
 		return errors.WithStack(err)
 	}

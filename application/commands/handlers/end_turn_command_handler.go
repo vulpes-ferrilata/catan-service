@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewEndTurnCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.EndTurnCommand] {
+func NewEndTurnCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.EndTurn] {
 	handler := &endTurnCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.EndTurnCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.EndTurn](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -27,7 +27,7 @@ type endTurnCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (e endTurnCommandHandler) Handle(ctx context.Context, endTurnCommand *commands.EndTurnCommand) error {
+func (e endTurnCommandHandler) Handle(ctx context.Context, endTurnCommand *commands.EndTurn) error {
 	gameID, err := primitive.ObjectIDFromHex(endTurnCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)

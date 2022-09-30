@@ -25,7 +25,17 @@ func (b bussinessRuleError) Error() string {
 }
 
 func (b bussinessRuleError) Status(translator ut.Translator) *status.Status {
-	detail, err := translator.T(b.message, b.params...)
+	translatedParams := make([]string, 0)
+
+	for _, param := range b.params {
+		if translatedParam, err := translator.T(param); err == nil {
+			translatedParams = append(translatedParams, translatedParam)
+		} else {
+			translatedParams = append(translatedParams, param)
+		}
+	}
+
+	detail, err := translator.T(b.message, translatedParams...)
 	if err != nil {
 		detail = b.message
 	}

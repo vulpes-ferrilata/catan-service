@@ -1,16 +1,16 @@
 package mappers
 
 import (
+	"github.com/vulpes-ferrilata/catan-service-proto/pb/responses"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
-	"github.com/vulpes-ferrilata/shared/proto/v1/catan"
 )
 
-func toDiceResponse(dice *models.Dice) *catan.DiceResponse {
+func toDiceResponse(dice *models.Dice) *responses.Dice {
 	if dice == nil {
 		return nil
 	}
 
-	return &catan.DiceResponse{
+	return &responses.Dice{
 		ID:     dice.ID.Hex(),
 		Number: int32(dice.Number),
 	}

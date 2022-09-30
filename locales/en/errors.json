@@ -47,7 +47,7 @@
     {
         "locale": "en",
         "key": "you-are-unable-to-perform-this-action-in-current-phase",
-        "trans": "you are unable to perform this action in current phase"
+        "trans": "you are unable to perform this action in {0} phase"
     },
     {
         "locale": "en",
@@ -86,18 +86,18 @@
     },
     {
         "locale": "en",
-        "key": "you-have-run-out-of-roads",
-        "trans": "you have run out of roads"
+        "key": "you-run-out-of-roads",
+        "trans": "you run out of roads"
     },
     {
         "locale": "en",
-        "key": "you-have-run-out-of-settlements",
-        "trans": "you have run out of settlements"
+        "key": "you-run-out-of-settlements",
+        "trans": "you run out of settlements"
     },
     {
         "locale": "en",
-        "key": "you-have-run-out-of-cities",
-        "trans": "you have run out of cities"
+        "key": "you-run-out-of-cities",
+        "trans": "you run out of cities"
     },
     {
         "locale": "en",

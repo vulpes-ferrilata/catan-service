@@ -1,7 +1,7 @@
 package commands
 
-type OfferTradingCommand struct {
-	UserID   string `validate:"required,objectid"`
+type OfferTrading struct {
 	GameID   string `validate:"required,objectid"`
+	UserID   string `validate:"required,objectid"`
 	PlayerID string `validate:"required,objectid"`
 }

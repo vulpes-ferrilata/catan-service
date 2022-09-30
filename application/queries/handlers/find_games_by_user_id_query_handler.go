@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func NewFindGamesByUserIDQueryHandler(validate *validator.Validate, gameProjector projectors.GameProjector) query.QueryHandler[*queries.FindGamesByUserIDQuery, []*models.Game] {
+func NewFindGamesByUserIDQueryHandler(validate *validator.Validate, gameProjector projectors.GameProjector) query.QueryHandler[*queries.FindGamesByUserID, []*models.Game] {
 	handler := &findGamesByUserIDQueryHandler{
 		gameProjector: gameProjector,
 	}
-	validationWrapper := wrappers.NewValidationWrapper[*queries.FindGamesByUserIDQuery, []*models.Game](validate, handler)
+	validationWrapper := wrappers.NewValidationWrapper[*queries.FindGamesByUserID, []*models.Game](validate, handler)
 
 	return validationWrapper
 }
@@ -26,7 +26,7 @@ type findGamesByUserIDQueryHandler struct {
 	gameProjector projectors.GameProjector
 }
 
-func (f findGamesByUserIDQueryHandler) Handle(ctx context.Context, findGamesByUserIDQuery *queries.FindGamesByUserIDQuery) ([]*models.Game, error) {
+func (f findGamesByUserIDQueryHandler) Handle(ctx context.Context, findGamesByUserIDQuery *queries.FindGamesByUserID) ([]*models.Game, error) {
 	userID, err := primitive.ObjectIDFromHex(findGamesByUserIDQuery.UserID)
 	if err != nil {
 		return nil, errors.WithStack(err)

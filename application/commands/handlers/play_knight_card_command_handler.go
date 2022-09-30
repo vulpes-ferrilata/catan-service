@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewPlayKnightCardCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.PlayKnightCardCommand] {
+func NewPlayKnightCardCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.PlayKnightCard] {
 	handler := &playKnightCardCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.PlayKnightCardCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.PlayKnightCard](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -27,7 +27,7 @@ type playKnightCardCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (p playKnightCardCommandHandler) Handle(ctx context.Context, playKnightCardCommand *commands.PlayKnightCardCommand) error {
+func (p playKnightCardCommandHandler) Handle(ctx context.Context, playKnightCardCommand *commands.PlayKnightCard) error {
 	gameID, err := primitive.ObjectIDFromHex(playKnightCardCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)

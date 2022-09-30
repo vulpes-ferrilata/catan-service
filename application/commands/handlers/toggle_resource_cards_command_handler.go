@@ -14,11 +14,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewToggleResourceCardsCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.ToggleResourceCardsCommand] {
+func NewToggleResourceCardsCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.ToggleResourceCards] {
 	handler := &toggleResourceCardsCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.ToggleResourceCardsCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.ToggleResourceCards](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -28,7 +28,7 @@ type toggleResourceCardsCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (t toggleResourceCardsCommandHandler) Handle(ctx context.Context, toggleResourceCardsCommand *commands.ToggleResourceCardsCommand) error {
+func (t toggleResourceCardsCommandHandler) Handle(ctx context.Context, toggleResourceCardsCommand *commands.ToggleResourceCards) error {
 	gameID, err := primitive.ObjectIDFromHex(toggleResourceCardsCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)

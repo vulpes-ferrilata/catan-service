@@ -1,6 +1,6 @@
-package queries
+package commands
 
-type GetGameByIDByUserIDQuery struct {
+type RollDices struct {
 	GameID string `validate:"required,objectid"`
 	UserID string `validate:"required,objectid"`
 }

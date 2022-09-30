@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewBuildRoadCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.BuildRoadCommand] {
+func NewBuildRoadCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.BuildRoad] {
 	handler := &buildRoadCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.BuildRoadCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.BuildRoad](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -27,18 +27,18 @@ type buildRoadCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (b buildRoadCommandHandler) Handle(ctx context.Context, buildRoad *commands.BuildRoadCommand) error {
-	gameID, err := primitive.ObjectIDFromHex(buildRoad.GameID)
+func (b buildRoadCommandHandler) Handle(ctx context.Context, buildRoadCommand *commands.BuildRoad) error {
+	gameID, err := primitive.ObjectIDFromHex(buildRoadCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := primitive.ObjectIDFromHex(buildRoad.UserID)
+	userID, err := primitive.ObjectIDFromHex(buildRoadCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	pathID, err := primitive.ObjectIDFromHex(buildRoad.PathID)
+	pathID, err := primitive.ObjectIDFromHex(buildRoadCommand.PathID)
 	if err != nil {
 		return errors.WithStack(err)
 	}

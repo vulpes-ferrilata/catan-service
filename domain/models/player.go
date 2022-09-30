@@ -10,7 +10,6 @@ type Player struct {
 	userID           primitive.ObjectID
 	color            PlayerColor
 	turnOrder        int
-	isActive         bool
 	isOffered        bool
 	score            int
 	achievements     []*Achievement
@@ -30,10 +29,6 @@ func (p Player) GetColor() PlayerColor {
 
 func (p Player) GetTurnOrder() int {
 	return p.turnOrder
-}
-
-func (p Player) IsActive() bool {
-	return p.isActive
 }
 
 func (p Player) IsOffered() bool {

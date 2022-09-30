@@ -7,7 +7,6 @@ type Player struct {
 	UserID           primitive.ObjectID `bson:"user_id"`
 	TurnOrder        int                `bson:"turn_order"`
 	Color            string             `bson:"color"`
-	IsActive         bool               `bson:"is_active"`
 	IsOffered        bool               `bson:"is_offered"`
 	Score            int                `bson:"score"`
 	Achievements     []*Achievement     `bson:"achievements"`

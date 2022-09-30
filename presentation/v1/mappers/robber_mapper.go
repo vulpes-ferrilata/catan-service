@@ -1,16 +1,16 @@
 package mappers
 
 import (
+	"github.com/vulpes-ferrilata/catan-service-proto/pb/responses"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
-	"github.com/vulpes-ferrilata/shared/proto/v1/catan"
 )
 
-func toRobberResponse(robber *models.Robber) *catan.RobberResponse {
+func toRobberResponse(robber *models.Robber) *responses.Robber {
 	if robber == nil {
 		return nil
 	}
 
-	return &catan.RobberResponse{
+	return &responses.Robber{
 		ID: robber.ID.Hex(),
 	}
 }

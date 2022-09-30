@@ -16,7 +16,7 @@ import (
 
 func NewGameRepository(db *mongo.Database) repositories.GameRepository {
 	return &gameRepository{
-		gameCollection: db.Collection("games"),
+		gameCollection: db.Collection("game"),
 	}
 }
 

@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewMoveRobberCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.MoveRobberCommand] {
+func NewMoveRobberCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.MoveRobber] {
 	handler := &moveRobberCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.MoveRobberCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.MoveRobber](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -27,7 +27,7 @@ type moveRobberCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (m moveRobberCommandHandler) Handle(ctx context.Context, moveRobberCommand *commands.MoveRobberCommand) error {
+func (m moveRobberCommandHandler) Handle(ctx context.Context, moveRobberCommand *commands.MoveRobber) error {
 	gameID, err := primitive.ObjectIDFromHex(moveRobberCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)

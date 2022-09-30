@@ -17,7 +17,7 @@ import (
 
 func NewGameProjector(db *mongo.Database) projectors.GameProjector {
 	return &gameProjector{
-		gameCollection: db.Collection("games"),
+		gameCollection: db.Collection("game"),
 	}
 }
 
@@ -37,34 +37,31 @@ func (g gameProjector) FindByUserID(ctx context.Context, userID primitive.Object
 		return nil, errors.WithStack(err)
 	}
 
-	games, _ := slices.Map(func(gameDocument *documents.Game) (*models.Game, error) {
-		return mappers.ToGameDetailView(gameDocument), nil
-	}, gameDocuments)
-
-	for _, game := range games {
-		for _, player := range game.Players {
-			if player.UserID != userID && game.Status == "STARTED" {
-				for _, resourceCard := range player.ResourceCards {
-					if !resourceCard.IsSelected {
-						resourceCard.Type = "HIDDEN"
+	for _, gameDocument := range gameDocuments {
+		if gameDocument.Status == "STARTED" {
+			for _, playerDocument := range append(gameDocument.Players, gameDocument.ActivePlayer) {
+				if playerDocument.UserID != userID {
+					for _, resourceCard := range playerDocument.ResourceCards {
+						if !resourceCard.IsSelected {
+							resourceCard.Type = "HIDDEN"
+						}
 					}
-				}
 
-				for _, developmentCard := range player.DevelopmentCards {
-					if developmentCard.Status != "USED" {
-						developmentCard.Type = "HIDDEN"
+					for _, developmentCard := range playerDocument.DevelopmentCards {
+						if developmentCard.Status != "USED" {
+							developmentCard.Type = "HIDDEN"
+						}
 					}
+
+					playerDocument.Score = 0
 				}
-
-				player.Score = 0
-			}
-
-			if player.UserID == userID {
-				game.Me = player
-				game.Players = slices.Remove(game.Players, player)
 			}
 		}
 	}
+
+	games, _ := slices.Map(func(gameDocument *documents.Game) (*models.Game, error) {
+		return mappers.ToGameView(gameDocument), nil
+	}, gameDocuments)
 
 	return games, nil
 }
@@ -84,30 +81,27 @@ func (g gameProjector) GetByIDByUserID(ctx context.Context, id primitive.ObjectI
 		return nil, errors.WithStack(err)
 	}
 
-	game := mappers.ToGameDetailView(gameDocument)
-
-	for _, player := range game.Players {
-		if player.UserID != userID && game.Status == "STARTED" {
-			for _, resourceCard := range player.ResourceCards {
-				if !resourceCard.IsSelected {
-					resourceCard.Type = "HIDDEN"
+	if gameDocument.Status == "STARTED" {
+		for _, playerDocument := range append(gameDocument.Players, gameDocument.ActivePlayer) {
+			if playerDocument.UserID != userID {
+				for _, resourceCard := range playerDocument.ResourceCards {
+					if !resourceCard.IsSelected {
+						resourceCard.Type = "HIDDEN"
+					}
 				}
-			}
 
-			for _, developmentCard := range player.DevelopmentCards {
-				if developmentCard.Status != "USED" {
-					developmentCard.Type = "HIDDEN"
+				for _, developmentCard := range playerDocument.DevelopmentCards {
+					if developmentCard.Status != "USED" {
+						developmentCard.Type = "HIDDEN"
+					}
 				}
+
+				playerDocument.Score = 0
 			}
-
-			player.Score = 0
-		}
-
-		if player.UserID == userID {
-			game.Me = player
-			game.Players = slices.Remove(game.Players, player)
 		}
 	}
+
+	game := mappers.ToGameView(gameDocument)
 
 	return game, nil
 }

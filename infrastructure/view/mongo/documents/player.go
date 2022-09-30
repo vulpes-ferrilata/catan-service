@@ -8,7 +8,6 @@ type Player struct {
 	Color            string             `bson:"color"`
 	TurnOrder        int                `bson:"turn_order"`
 	IsOffered        bool               `bson:"is_offered"`
-	IsActive         bool               `bson:"is_active"`
 	Score            int                `bson:"score"`
 	Achievements     []*Achievement     `bson:"achievements"`
 	ResourceCards    []*ResourceCard    `bson:"resource_cards"`

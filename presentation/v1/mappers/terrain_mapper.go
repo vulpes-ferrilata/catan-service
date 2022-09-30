@@ -1,11 +1,11 @@
 package mappers
 
 import (
+	"github.com/vulpes-ferrilata/catan-service-proto/pb/responses"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
-	"github.com/vulpes-ferrilata/shared/proto/v1/catan"
 )
 
-func toTerrainResponse(terrain *models.Terrain) *catan.TerrainResponse {
+func toTerrainResponse(terrain *models.Terrain) *responses.Terrain {
 	if terrain == nil {
 		return nil
 	}
@@ -14,7 +14,7 @@ func toTerrainResponse(terrain *models.Terrain) *catan.TerrainResponse {
 
 	robberResponse := toRobberResponse(terrain.Robber)
 
-	return &catan.TerrainResponse{
+	return &responses.Terrain{
 		ID:     terrain.ID.Hex(),
 		Q:      int32(terrain.Q),
 		R:      int32(terrain.R),

@@ -1,5 +1,5 @@
 package queries
 
-type FindGamesByUserIDQuery struct {
+type FindGamesByUserID struct {
 	UserID string `validate:"required,objectid"`
 }

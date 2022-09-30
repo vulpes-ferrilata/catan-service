@@ -37,7 +37,6 @@ func toPlayerView(playerDocument *documents.Player) *models.Player {
 		Color:            playerDocument.Color,
 		TurnOrder:        playerDocument.TurnOrder,
 		IsOffered:        playerDocument.IsOffered,
-		IsActive:         playerDocument.IsActive,
 		Score:            playerDocument.Score,
 		Achievements:     achievements,
 		ResourceCards:    resourceCards,

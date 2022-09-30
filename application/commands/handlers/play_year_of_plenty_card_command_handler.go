@@ -15,11 +15,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewPlayYearOfPlentyCardCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.PlayYearOfPlentyCardCommand] {
+func NewPlayYearOfPlentyCardCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.PlayYearOfPlentyCard] {
 	handler := &playYearOfPlentyCardCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.PlayYearOfPlentyCardCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.PlayYearOfPlentyCard](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -29,7 +29,7 @@ type playYearOfPlentyCardCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (p playYearOfPlentyCardCommandHandler) Handle(ctx context.Context, playYearOfPlentyCardCommand *commands.PlayYearOfPlentyCardCommand) error {
+func (p playYearOfPlentyCardCommandHandler) Handle(ctx context.Context, playYearOfPlentyCardCommand *commands.PlayYearOfPlentyCard) error {
 	gameID, err := primitive.ObjectIDFromHex(playYearOfPlentyCardCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)

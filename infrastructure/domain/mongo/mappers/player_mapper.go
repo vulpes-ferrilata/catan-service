@@ -39,7 +39,6 @@ func toPlayerDocument(player *models.Player) *documents.Player {
 		UserID:           player.GetUserID(),
 		TurnOrder:        player.GetTurnOrder(),
 		Color:            player.GetColor().String(),
-		IsActive:         player.IsActive(),
 		IsOffered:        player.IsOffered(),
 		Score:            player.GetScore(),
 		Achievements:     achievementDocuments,
@@ -100,7 +99,6 @@ func toPlayerDomain(playerDocument *documents.Player) (*models.Player, error) {
 		SetUserID(playerDocument.UserID).
 		SetColor(color).
 		SetTurnOrder(playerDocument.TurnOrder).
-		SetIsActive(playerDocument.IsActive).
 		SetIsOffered(playerDocument.IsOffered).
 		SetScore(playerDocument.Score).
 		SetAchievements(achievements...).

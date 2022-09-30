@@ -1,16 +1,16 @@
 package mappers
 
 import (
+	"github.com/vulpes-ferrilata/catan-service-proto/pb/responses"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
-	"github.com/vulpes-ferrilata/shared/proto/v1/catan"
 )
 
-func toAchievementResponse(achievement *models.Achievement) *catan.AchievementResponse {
+func toAchievementResponse(achievement *models.Achievement) *responses.Achievement {
 	if achievement == nil {
 		return nil
 	}
 
-	return &catan.AchievementResponse{
+	return &responses.Achievement{
 		ID:   achievement.ID.Hex(),
 		Type: achievement.Type,
 	}

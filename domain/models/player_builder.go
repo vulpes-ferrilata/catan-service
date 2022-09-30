@@ -7,7 +7,6 @@ type PlayerBuilder struct {
 	userID           primitive.ObjectID
 	color            PlayerColor
 	turnOrder        int
-	isActive         bool
 	isOffered        bool
 	score            int
 	achievements     []*Achievement
@@ -37,12 +36,6 @@ func (p PlayerBuilder) SetColor(color PlayerColor) PlayerBuilder {
 
 func (p PlayerBuilder) SetTurnOrder(turnOrder int) PlayerBuilder {
 	p.turnOrder = turnOrder
-
-	return p
-}
-
-func (p PlayerBuilder) SetIsActive(isActive bool) PlayerBuilder {
-	p.isActive = isActive
 
 	return p
 }
@@ -94,11 +87,11 @@ func (p PlayerBuilder) Create() *Player {
 		aggregate: aggregate{
 			id: p.id,
 		},
-		userID:           p.userID,
-		color:            p.color,
-		turnOrder:        p.turnOrder,
-		isOffered:        p.isOffered,
-		isActive:         p.isActive,
+		userID:    p.userID,
+		color:     p.color,
+		turnOrder: p.turnOrder,
+		isOffered: p.isOffered,
+		// isActive:         p.isActive,
 		achievements:     p.achievements,
 		resourceCards:    p.resourceCards,
 		developmentCards: p.developmentCards,

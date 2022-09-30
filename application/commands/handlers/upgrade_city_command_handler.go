@@ -13,11 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewUpgradeCityCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.UpgradeCityCommand] {
+func NewUpgradeCityCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.UpgradeCity] {
 	handler := &upgradeCityCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.UpgradeCityCommand](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.UpgradeCity](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
@@ -27,7 +27,7 @@ type upgradeCityCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (u upgradeCityCommandHandler) Handle(ctx context.Context, upgradeCity *commands.UpgradeCityCommand) error {
+func (u upgradeCityCommandHandler) Handle(ctx context.Context, upgradeCity *commands.UpgradeCity) error {
 	gameID, err := primitive.ObjectIDFromHex(upgradeCity.GameID)
 	if err != nil {
 		return errors.WithStack(err)

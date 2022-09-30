@@ -1,0 +1,22 @@
+[
+    {
+        "locale": "en",
+        "key": "setup-phase",
+        "trans": "setup"
+    },
+    {
+        "locale": "en",
+        "key": "resource-production-phase",
+        "trans": "resource production"
+    },
+    {
+        "locale": "en",
+        "key": "robbing-phase",
+        "trans": "robbing"
+    },
+    {
+        "locale": "en",
+        "key": "resource-consumption-phase",
+        "trans": "resource consumption"
+    }
+]

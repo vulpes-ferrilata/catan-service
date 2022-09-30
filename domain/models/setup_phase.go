@@ -12,13 +12,7 @@ type setupPhase struct {
 }
 
 func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID primitive.ObjectID, pathID primitive.ObjectID) error {
-	player, isExists := slices.Find(func(player *Player) bool {
-		return player.userID == userID
-	}, s.game.players)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPlayerNotFound)
-	}
-	if !player.isActive {
+	if s.game.activePlayer.userID != userID {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
@@ -40,7 +34,7 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 		return slices.Any(func(construction *Construction) bool {
 			return construction.land != nil && construction.land.hexCorner.isAdjacentWithHexCorner(land.hexCorner)
 		}, player.constructions)
-	}, s.game.players)
+	}, s.game.getAllPlayers())
 	if isLandAdjacentToAnyConstruction {
 		return errors.WithStack(app_errors.ErrNearbyLandsMustBeVacant)
 	}
@@ -51,16 +45,16 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 
 	settlement, isExists := slices.Find(func(construction *Construction) bool {
 		return construction.land == nil && construction.constructionType == Settlement
-	}, player.constructions)
+	}, s.game.activePlayer.constructions)
 	if !isExists {
-		return errors.WithStack(app_errors.ErrYouHaveRunOutOfSettlements)
+		return errors.WithStack(app_errors.ErrYouRunOutOfSettlements)
 	}
 
 	road, isExists := slices.Find(func(road *Road) bool {
 		return road.path == nil
-	}, player.roads)
+	}, s.game.activePlayer.roads)
 	if !isExists {
-		return errors.WithStack(app_errors.ErrYouHaveRunOutOfRoads)
+		return errors.WithStack(app_errors.ErrYouRunOutOfRoads)
 	}
 
 	//build settlement and road
@@ -96,36 +90,32 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 			}, s.game.resourceCards)
 			if isExists {
 				s.game.resourceCards = slices.Remove(s.game.resourceCards, resourceCard)
-				player.resourceCards = append(player.resourceCards, resourceCard)
+				s.game.activePlayer.resourceCards = append(s.game.activePlayer.resourceCards, resourceCard)
 			}
 		}
-	}
-
-	for _, player := range s.game.players {
-		player.isActive = false
 	}
 
 	switch s.game.turn {
 	case 1:
 		nextPlayer, isExists := slices.Find(func(p *Player) bool {
-			return p.turnOrder == player.turnOrder+1
+			return p.turnOrder == s.game.activePlayer.turnOrder+1
 		}, s.game.players)
 		if !isExists {
 			s.game.turn++
-			player.isActive = true
 			return nil
 		}
-		nextPlayer.isActive = true
+
+		*s.game.activePlayer, *nextPlayer = *nextPlayer, *s.game.activePlayer //swap pointer
 	case 2:
 		nextPlayer, isExists := slices.Find(func(p *Player) bool {
-			return p.turnOrder == player.turnOrder-1
+			return p.turnOrder == s.game.activePlayer.turnOrder-1
 		}, s.game.players)
 		if !isExists {
 			s.game.turn++
-			player.isActive = true
 			return nil
 		}
-		nextPlayer.isActive = true
+
+		*s.game.activePlayer, *nextPlayer = *nextPlayer, *s.game.activePlayer //swap pointer
 	}
 
 	s.game.calculateScore()
@@ -134,49 +124,49 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 }
 
 func (s setupPhase) rollDices(userID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) moveRobber(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) endTurn(userID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) buildSettlement(userID primitive.ObjectID, landID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) buildRoad(userID primitive.ObjectID, pathID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) upgradeCity(userID primitive.ObjectID, constructionID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) buyDevelopmentCard(userID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) toggleResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) confirmTrading(userID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
 func (s setupPhase) cancelTrading(userID primitive.ObjectID) error {
-	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInCurrentPhase)
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }

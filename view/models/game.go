@@ -7,7 +7,7 @@ type Game struct {
 	Status           string
 	Phase            string
 	Turn             int
-	Me               *Player
+	ActivePlayer     *Player
 	Players          []*Player
 	Dices            []*Dice
 	Achievements     []*Achievement
