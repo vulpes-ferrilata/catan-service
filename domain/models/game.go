@@ -192,24 +192,24 @@ func (g *Game) MaritimeTrade(userID primitive.ObjectID, demandingResourceCardTyp
 	return nil
 }
 
-func (g *Game) OfferTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
-	if err := g.getState().offerTrading(userID, playerID); err != nil {
+func (g *Game) SendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+	if err := g.getState().sendTradeOffer(userID, playerID); err != nil {
 		return errors.WithStack(err)
 	}
 
 	return nil
 }
 
-func (g *Game) ConfirmTrading(userID primitive.ObjectID) error {
-	if err := g.getState().confirmTrading(userID); err != nil {
+func (g *Game) ConfirmTradeOffer(userID primitive.ObjectID) error {
+	if err := g.getState().confirmTradeOffer(userID); err != nil {
 		return errors.WithStack(err)
 	}
 
 	return nil
 }
 
-func (g *Game) CancelTrading(userID primitive.ObjectID) error {
-	if err := g.getState().cancelTrading(userID); err != nil {
+func (g *Game) CancelTradeOffer(userID primitive.ObjectID) error {
+	if err := g.getState().cancelTradeOffer(userID); err != nil {
 		return errors.WithStack(err)
 	}
 

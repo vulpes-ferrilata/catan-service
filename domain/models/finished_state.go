@@ -58,15 +58,15 @@ func (f finishedState) maritimeTrade(userID primitive.ObjectID, demandingResourc
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
-func (f finishedState) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (f finishedState) sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
-func (f finishedState) confirmTrading(userID primitive.ObjectID) error {
+func (f finishedState) confirmTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
-func (f finishedState) cancelTrading(userID primitive.ObjectID) error {
+func (f finishedState) cancelTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 

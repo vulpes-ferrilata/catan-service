@@ -21,13 +21,18 @@
     },
     {
         "locale": "en",
-        "key": "you-already-joined",
-        "trans": "you already joined"
+        "key": "you-already-joined-the-game",
+        "trans": "you already joined the game"
     },
     {
         "locale": "en",
         "key": "you-are-not-in-turn",
         "trans": "you are not in turn"
+    },
+    {
+        "locale": "en",
+        "key": "game-must-have-at-least-two-players",
+        "trans": "game must have at least two players"
     },
     {
         "locale": "en",
@@ -51,18 +56,8 @@
     },
     {
         "locale": "en",
-        "key": "selected-land-has-been-occupied",
-        "trans": "selected land has been occupied"
-    },
-    {
-        "locale": "en",
         "key": "selected-land-must-be-adjacent-to-your-road",
         "trans": "selected land must be adjacent to your road"
-    },    
-    {
-        "locale": "en",
-        "key": "selected-path-has-been-occupied",
-        "trans": "selected path has been occupied"
     },
     {
         "locale": "en",
@@ -106,23 +101,8 @@
     },
     {
         "locale": "en",
-        "key": "you-already-rolled-dices",
-        "trans": "you already rolled dices"
-    },
-    {
-        "locale": "en",
         "key": "robber-must-be-moved-to-other-terrain",
         "trans": "robber must be moved to other terrain"
-    },
-    {
-        "locale": "en",
-        "key": "robber-is-not-available-to-move",
-        "trans": "robber is not available to move"
-    },
-    {
-        "locale": "en",
-        "key": "you-cannot-rob-yourself",
-        "trans": "you cannot rob yourself"
     },
     {
         "locale": "en",
@@ -136,23 +116,8 @@
     },
     {
         "locale": "en",
-        "key": "you-must-roll-dices",
-        "trans": "you must roll dices"
-    },
-    {
-        "locale": "en",
-        "key": "you-must-move-robber",
-        "trans": "you must move robber"
-    },
-    {
-        "locale": "en",
-        "key": "you-cannot-upgrade-construction-of-other-player",
-        "trans": "you cannot upgrade construction of other player"
-    },    
-    {
-        "locale": "en",
         "key": "selected-construction-already-upgraded",
-        "trans": "selected construction already upgradd"
+        "trans": "selected construction already upgraded"
     },
     {
         "locale": "en",
@@ -161,13 +126,8 @@
     },
     {
         "locale": "en",
-        "key": "game-has-insufficient-development-cards",
-        "trans": "game has insufficient development cards"
-    },
-    {
-        "locale": "en",
-        "key": "you-cannot-select-resource-card-of-other-player",
-        "trans": "you cannot select resource card of other player"
+        "key": "game-run-out-of-development-cards",
+        "trans": "game run out of development cards"
     },
     {
         "locale": "en",
@@ -176,18 +136,8 @@
     },
     {
         "locale": "en",
-        "key": "you-cannot-offer-yourself",
-        "trans": "you cannot offer yourself"
-    },
-    {
-        "locale": "en",
         "key": "you-already-offered-this-player",
         "trans": "you already offered this player"
-    },
-    {
-        "locale": "en",
-        "key": "you-cannot-trade-with-yourself",
-        "trans": "you cannot trade with yourself"
     },
     {
         "locale": "en",
@@ -208,15 +158,5 @@
         "locale": "en",
         "key": "active-player-must-select-at-least-one-resource-card",
         "trans": "active player must select at least one resource card"
-    },
-    {
-        "locale": "en",
-        "key": "you-can-only-build-at-most-two-roads",
-        "trans": "you can build at most two roads"
-    },
-    {
-        "locale": "en",
-        "key": "you-can-only-receive-at-most-two-resource-cards",
-        "trans": "you can only receive at most two resource cards"
     }
 ]

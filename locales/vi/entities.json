@@ -1,0 +1,47 @@
+[
+    {
+        "locale": "vi",
+        "key": "game",
+        "trans": "trò chơi"
+    },
+    {
+        "locale": "vi",
+        "key": "player",
+        "trans": "người chơi"
+    },
+    {
+        "locale": "vi",
+        "key": "terrain",
+        "trans": "địa hình"
+    },
+    {
+        "locale": "vi",
+        "key": "land",
+        "trans": "vùng đất"
+    },
+    {
+        "locale": "vi",
+        "key": "path",
+        "trans": "đường mòn"
+    },
+    {
+        "locale": "vi",
+        "key": "construction",
+        "trans": "công trình"
+    },
+    {
+        "locale": "vi",
+        "key": "resource-card",
+        "trans": "thẻ tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "development-card",
+        "trans": "thẻ phát triển"
+    },
+    {
+        "locale": "vi",
+        "key": "achievement-card",
+        "trans": "thẻ thành tích"
+    }
+]

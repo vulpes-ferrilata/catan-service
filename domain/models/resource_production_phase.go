@@ -35,13 +35,13 @@ func (r resourceProductionPhase) rollDices(userID primitive.ObjectID) error {
 		r.game.phase = Robbing
 
 		for _, player := range r.game.getAllPlayers() {
-			if len(player.resourceCards) > 7 {
-				for i := 1; i <= len(player.resourceCards)/2; i++ {
-					resourceCardIdx := rand.Intn(len(player.resourceCards))
-					resourceCard := player.resourceCards[resourceCardIdx]
-					player.resourceCards = slices.Remove(player.resourceCards, resourceCard)
-					r.game.resourceCards = append(r.game.resourceCards, resourceCard)
-				}
+			playerResourceCardQuantity := len(player.resourceCards)
+
+			for i := 1; i <= playerResourceCardQuantity/2 && playerResourceCardQuantity >= 8; i++ {
+				resourceCardIdx := rand.Intn(len(player.resourceCards))
+				resourceCard := player.resourceCards[resourceCardIdx]
+				player.resourceCards = slices.Remove(player.resourceCards, resourceCard)
+				r.game.resourceCards = append(r.game.resourceCards, resourceCard)
 			}
 		}
 
@@ -138,14 +138,14 @@ func (r resourceProductionPhase) maritimeTrade(userID primitive.ObjectID, demand
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceProductionPhase)
 }
 
-func (r resourceProductionPhase) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (r resourceProductionPhase) sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceProductionPhase)
 }
 
-func (r resourceProductionPhase) confirmTrading(userID primitive.ObjectID) error {
+func (r resourceProductionPhase) confirmTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceProductionPhase)
 }
 
-func (r resourceProductionPhase) cancelTrading(userID primitive.ObjectID) error {
+func (r resourceProductionPhase) cancelTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceProductionPhase)
 }

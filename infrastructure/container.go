@@ -4,9 +4,9 @@ import (
 	command_handlers "github.com/vulpes-ferrilata/catan-service/application/commands/handlers"
 	query_handlers "github.com/vulpes-ferrilata/catan-service/application/queries/handlers"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/repositories"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/grpc"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/grpc/interceptors"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/projectors"
-	"github.com/vulpes-ferrilata/catan-service/presentation"
 	"github.com/vulpes-ferrilata/catan-service/presentation/v1/servers"
 	"go.uber.org/dig"
 )
@@ -20,10 +20,12 @@ func NewContainer() *dig.Container {
 	container.Provide(NewValidator)
 	container.Provide(NewLogrus)
 	container.Provide(NewUniversalTranslator)
+	container.Provide(grpc.NewServer)
 	//--Grpc interceptors
 	container.Provide(interceptors.NewRecoverInterceptor)
 	container.Provide(interceptors.NewErrorHandlerInterceptor)
 	container.Provide(interceptors.NewLocaleInterceptor)
+	container.Provide(interceptors.NewRandomSeedingInterceptor)
 
 	//Domain layer
 	//--Repositories
@@ -51,18 +53,15 @@ func NewContainer() *dig.Container {
 	container.Provide(command_handlers.NewBuyDevelopmentCardCommandHandler)
 	container.Provide(command_handlers.NewToggleResourceCardsCommandHandler)
 	container.Provide(command_handlers.NewMaritimeTradeCommandHandler)
-	container.Provide(command_handlers.NewOfferTradingCommandHandler)
-	container.Provide(command_handlers.NewConfirmTradingCommandHandler)
-	container.Provide(command_handlers.NewCancelTradingCommandHandler)
+	container.Provide(command_handlers.NewSendTradeOfferCommandHandler)
+	container.Provide(command_handlers.NewConfirmTradeOfferCommandHandler)
+	container.Provide(command_handlers.NewCancelTradeOfferCommandHandler)
 	container.Provide(command_handlers.NewPlayKnightCardCommandHandler)
 	container.Provide(command_handlers.NewPlayRoadBuildingCardCommandHandler)
 	container.Provide(command_handlers.NewPlayYearOfPlentyCardCommandHandler)
 	container.Provide(command_handlers.NewPlayMonopolyCardCommandHandler)
 
 	//Presentation layer
-	//--Server
-	container.Provide(presentation.NewServer)
-	//--Controllers
 	container.Provide(servers.NewCatanServer)
 
 	return container

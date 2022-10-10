@@ -13,27 +13,27 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewConfirmTradingCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.ConfirmTrading] {
-	handler := &confirmTradingCommandHandler{
+func NewCancelTradeOfferCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.CancelTradeOffer] {
+	handler := &cancelTradeOfferCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.ConfirmTrading](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.CancelTradeOffer](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }
 
-type confirmTradingCommandHandler struct {
+type cancelTradeOfferCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (c confirmTradingCommandHandler) Handle(ctx context.Context, confirmTradingCommand *commands.ConfirmTrading) error {
-	gameID, err := primitive.ObjectIDFromHex(confirmTradingCommand.GameID)
+func (c cancelTradeOfferCommandHandler) Handle(ctx context.Context, cancelTradeOfferCommand *commands.CancelTradeOffer) error {
+	gameID, err := primitive.ObjectIDFromHex(cancelTradeOfferCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := primitive.ObjectIDFromHex(confirmTradingCommand.UserID)
+	userID, err := primitive.ObjectIDFromHex(cancelTradeOfferCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -43,7 +43,7 @@ func (c confirmTradingCommandHandler) Handle(ctx context.Context, confirmTrading
 		return errors.WithStack(err)
 	}
 
-	if err := game.ConfirmTrading(userID); err != nil {
+	if err := game.CancelTradeOffer(userID); err != nil {
 		return errors.WithStack(err)
 	}
 

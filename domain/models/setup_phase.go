@@ -159,14 +159,14 @@ func (s setupPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCa
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
-func (s setupPhase) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (s setupPhase) sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
-func (s setupPhase) confirmTrading(userID primitive.ObjectID) error {
+func (s setupPhase) confirmTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
-func (s setupPhase) cancelTrading(userID primitive.ObjectID) error {
+func (s setupPhase) cancelTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }

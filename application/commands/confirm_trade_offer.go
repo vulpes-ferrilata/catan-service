@@ -1,6 +1,6 @@
 package commands
 
-type CancelTrading struct {
+type ConfirmTradeOffer struct {
 	GameID string `validate:"required,objectid"`
 	UserID string `validate:"required,objectid"`
 }

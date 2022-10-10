@@ -13,32 +13,32 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewOfferTradingCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.OfferTrading] {
-	handler := &offerTradingCommandHandler{
+func NewSendTradeOfferCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.SendTradeOffer] {
+	handler := &sendTradeOfferCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.OfferTrading](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.SendTradeOffer](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }
 
-type offerTradingCommandHandler struct {
+type sendTradeOfferCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (o offerTradingCommandHandler) Handle(ctx context.Context, offerTradingCommand *commands.OfferTrading) error {
-	gameID, err := primitive.ObjectIDFromHex(offerTradingCommand.GameID)
+func (o sendTradeOfferCommandHandler) Handle(ctx context.Context, sendTradeOfferCommand *commands.SendTradeOffer) error {
+	gameID, err := primitive.ObjectIDFromHex(sendTradeOfferCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := primitive.ObjectIDFromHex(offerTradingCommand.UserID)
+	userID, err := primitive.ObjectIDFromHex(sendTradeOfferCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	playerID, err := primitive.ObjectIDFromHex(offerTradingCommand.PlayerID)
+	playerID, err := primitive.ObjectIDFromHex(sendTradeOfferCommand.PlayerID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -48,7 +48,7 @@ func (o offerTradingCommandHandler) Handle(ctx context.Context, offerTradingComm
 		return errors.WithStack(err)
 	}
 
-	if err := game.OfferTrading(userID, playerID); err != nil {
+	if err := game.SendTradeOffer(userID, playerID); err != nil {
 		return errors.WithStack(err)
 	}
 

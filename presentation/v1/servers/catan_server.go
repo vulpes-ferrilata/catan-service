@@ -32,9 +32,9 @@ func NewCatanServer(findGamesByUserIDQueryHandler query.QueryHandler[*queries.Fi
 	buyDevelopmentCardCommandHandler command.CommandHandler[*commands.BuyDevelopmentCard],
 	toggleResourceCardsCommandHandler command.CommandHandler[*commands.ToggleResourceCards],
 	maritimeTradeCommandHandler command.CommandHandler[*commands.MaritimeTrade],
-	offerTradingCommandHandler command.CommandHandler[*commands.OfferTrading],
-	confirmTradingCommandHandler command.CommandHandler[*commands.ConfirmTrading],
-	cancelTradingCommandHandler command.CommandHandler[*commands.CancelTrading],
+	sendTradeOfferCommandHandler command.CommandHandler[*commands.SendTradeOffer],
+	confirmTradeOfferCommandHandler command.CommandHandler[*commands.ConfirmTradeOffer],
+	cancelTradeOfferCommandHandler command.CommandHandler[*commands.CancelTradeOffer],
 	playKnightCardCommandHandler command.CommandHandler[*commands.PlayKnightCard],
 	playRoadBuildingCardCommandHandler command.CommandHandler[*commands.PlayRoadBuildingCard],
 	playYearOfPlentyCardCommandHandler command.CommandHandler[*commands.PlayYearOfPlentyCard],
@@ -55,9 +55,9 @@ func NewCatanServer(findGamesByUserIDQueryHandler query.QueryHandler[*queries.Fi
 		buyDevelopmentCardCommandHandler:     buyDevelopmentCardCommandHandler,
 		toggleResourceCardsCommandHandler:    toggleResourceCardsCommandHandler,
 		maritimeTradeCommandHandler:          maritimeTradeCommandHandler,
-		offerTradingCommandHandler:           offerTradingCommandHandler,
-		confirmTradingCommandHandler:         confirmTradingCommandHandler,
-		cancelTradingCommandHandler:          cancelTradingCommandHandler,
+		sendTradeOfferCommandHandler:         sendTradeOfferCommandHandler,
+		confirmTradeOfferCommandHandler:      confirmTradeOfferCommandHandler,
+		cancelTradeOfferCommandHandler:       cancelTradeOfferCommandHandler,
 		playKnightCardCommandHandler:         playKnightCardCommandHandler,
 		playRoadBuildingCardCommandHandler:   playRoadBuildingCardCommandHandler,
 		playYearOfPlentyCardCommandHandler:   playYearOfPlentyCardCommandHandler,
@@ -82,9 +82,9 @@ type catanServer struct {
 	buyDevelopmentCardCommandHandler     command.CommandHandler[*commands.BuyDevelopmentCard]
 	toggleResourceCardsCommandHandler    command.CommandHandler[*commands.ToggleResourceCards]
 	maritimeTradeCommandHandler          command.CommandHandler[*commands.MaritimeTrade]
-	offerTradingCommandHandler           command.CommandHandler[*commands.OfferTrading]
-	confirmTradingCommandHandler         command.CommandHandler[*commands.ConfirmTrading]
-	cancelTradingCommandHandler          command.CommandHandler[*commands.CancelTrading]
+	sendTradeOfferCommandHandler         command.CommandHandler[*commands.SendTradeOffer]
+	confirmTradeOfferCommandHandler      command.CommandHandler[*commands.ConfirmTradeOffer]
+	cancelTradeOfferCommandHandler       command.CommandHandler[*commands.CancelTradeOffer]
 	playKnightCardCommandHandler         command.CommandHandler[*commands.PlayKnightCard]
 	playRoadBuildingCardCommandHandler   command.CommandHandler[*commands.PlayRoadBuildingCard]
 	playYearOfPlentyCardCommandHandler   command.CommandHandler[*commands.PlayYearOfPlentyCard]
@@ -306,40 +306,40 @@ func (c catanServer) MaritimeTrade(ctx context.Context, maritimeTradeRequest *re
 	return &emptypb.Empty{}, nil
 }
 
-func (c catanServer) OfferTrading(ctx context.Context, offerTradingRequest *requests.OfferTrading) (*emptypb.Empty, error) {
-	offerTradingCommand := &commands.OfferTrading{
-		GameID:   offerTradingRequest.GetGameID(),
-		UserID:   offerTradingRequest.GetUserID(),
-		PlayerID: offerTradingRequest.GetPlayerID(),
+func (c catanServer) SendTradeOffer(ctx context.Context, sendTradeOfferRequest *requests.SendTradeOffer) (*emptypb.Empty, error) {
+	sendTradeOfferCommand := &commands.SendTradeOffer{
+		GameID:   sendTradeOfferRequest.GetGameID(),
+		UserID:   sendTradeOfferRequest.GetUserID(),
+		PlayerID: sendTradeOfferRequest.GetPlayerID(),
 	}
 
-	if err := c.offerTradingCommandHandler.Handle(ctx, offerTradingCommand); err != nil {
+	if err := c.sendTradeOfferCommandHandler.Handle(ctx, sendTradeOfferCommand); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return &emptypb.Empty{}, nil
 }
 
-func (c catanServer) ConfirmTrading(ctx context.Context, confirmTradingRequest *requests.ConfirmTrading) (*emptypb.Empty, error) {
-	confirmTradingCommand := &commands.ConfirmTrading{
-		GameID: confirmTradingRequest.GetGameID(),
-		UserID: confirmTradingRequest.GetUserID(),
+func (c catanServer) ConfirmTradeOffer(ctx context.Context, confirmTradeOfferRequest *requests.ConfirmTradeOffer) (*emptypb.Empty, error) {
+	confirmTradeOfferCommand := &commands.ConfirmTradeOffer{
+		GameID: confirmTradeOfferRequest.GetGameID(),
+		UserID: confirmTradeOfferRequest.GetUserID(),
 	}
 
-	if err := c.confirmTradingCommandHandler.Handle(ctx, confirmTradingCommand); err != nil {
+	if err := c.confirmTradeOfferCommandHandler.Handle(ctx, confirmTradeOfferCommand); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return &emptypb.Empty{}, nil
 }
 
-func (c catanServer) CancelTrading(ctx context.Context, cancelTradingRequest *requests.CancelTrading) (*emptypb.Empty, error) {
-	cancelTradingCommand := &commands.CancelTrading{
-		GameID: cancelTradingRequest.GetGameID(),
-		UserID: cancelTradingRequest.GetUserID(),
+func (c catanServer) CancelTradeOffer(ctx context.Context, cancelTradeOfferRequest *requests.CancelTradeOffer) (*emptypb.Empty, error) {
+	cancelTradeOfferCommand := &commands.CancelTradeOffer{
+		GameID: cancelTradeOfferRequest.GetGameID(),
+		UserID: cancelTradeOfferRequest.GetUserID(),
 	}
 
-	if err := c.cancelTradingCommandHandler.Handle(ctx, cancelTradingCommand); err != nil {
+	if err := c.cancelTradeOfferCommandHandler.Handle(ctx, cancelTradeOfferCommand); err != nil {
 		return nil, errors.WithStack(err)
 	}
 

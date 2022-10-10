@@ -116,24 +116,24 @@ func (s startedState) maritimeTrade(userID primitive.ObjectID, demandingResource
 	return nil
 }
 
-func (s startedState) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
-	if err := s.getPhase().offerTrading(userID, playerID); err != nil {
+func (s startedState) sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+	if err := s.getPhase().sendTradeOffer(userID, playerID); err != nil {
 		return errors.WithStack(err)
 	}
 
 	return nil
 }
 
-func (s startedState) confirmTrading(userID primitive.ObjectID) error {
-	if err := s.getPhase().confirmTrading(userID); err != nil {
+func (s startedState) confirmTradeOffer(userID primitive.ObjectID) error {
+	if err := s.getPhase().confirmTradeOffer(userID); err != nil {
 		return errors.WithStack(err)
 	}
 
 	return nil
 }
 
-func (s startedState) cancelTrading(userID primitive.ObjectID) error {
-	if err := s.getPhase().cancelTrading(userID); err != nil {
+func (s startedState) cancelTradeOffer(userID primitive.ObjectID) error {
+	if err := s.getPhase().cancelTradeOffer(userID); err != nil {
 		return errors.WithStack(err)
 	}
 

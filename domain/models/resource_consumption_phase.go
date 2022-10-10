@@ -155,7 +155,7 @@ func (r resourceConsumptionPhase) buyDevelopmentCard(userID primitive.ObjectID) 
 	}
 
 	if len(r.game.developmentCards) == 0 {
-		return errors.WithStack(app_errors.ErrGameHasInsufficientDevelopmentCards)
+		return errors.WithStack(app_errors.ErrGameRunOutOfDevelopmentCards)
 	}
 
 	developmentCardIdx := rand.Intn(len(r.game.developmentCards))
@@ -293,7 +293,7 @@ func (r resourceConsumptionPhase) isActivePlayerHasConstructionAdjacentToSpecifi
 	}, r.game.terrains)
 }
 
-func (r resourceConsumptionPhase) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (r resourceConsumptionPhase) sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error {
 	if r.game.activePlayer.userID != userID {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
@@ -328,7 +328,7 @@ func (r resourceConsumptionPhase) offerTrading(userID primitive.ObjectID, player
 	return nil
 }
 
-func (r resourceConsumptionPhase) confirmTrading(userID primitive.ObjectID) error {
+func (r resourceConsumptionPhase) confirmTradeOffer(userID primitive.ObjectID) error {
 	offeringPlayer, isExists := slices.Find(func(player *Player) bool {
 		return player.userID == userID
 	}, r.game.players)
@@ -374,7 +374,7 @@ func (r resourceConsumptionPhase) confirmTrading(userID primitive.ObjectID) erro
 	return nil
 }
 
-func (r resourceConsumptionPhase) cancelTrading(userID primitive.ObjectID) error {
+func (r resourceConsumptionPhase) cancelTradeOffer(userID primitive.ObjectID) error {
 	player, isExists := slices.Find(func(player *Player) bool {
 		return player.userID == userID
 	}, r.game.players)

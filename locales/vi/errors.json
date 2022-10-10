@@ -1,0 +1,162 @@
+[
+    {
+        "locale": "vi",
+        "key": "command-validation-error",
+        "trans": "mệnh lệnh chứa các tham số không hợp lệ, có thể tìm thấy thêm thông tin trong trường thông tin errors"
+    },
+    {
+        "locale": "vi",
+        "key": "not-found-error",
+        "trans": "không tìm thấy {0}"
+    },
+    {
+        "locale": "vi",
+        "key": "stale-object-error",
+        "trans": "đã cố gắng cập nhật hoặc xóa {0} cũ"
+    },
+    {
+        "locale": "vi",
+        "key": "game-has-full-players",
+        "trans": "game mà bạn cố gắng tham gia đã đầy"
+    },
+    {
+        "locale": "vi",
+        "key": "you-already-joined-the-game",
+        "trans": "bạn đã tham gia game rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "you-are-not-in-turn",
+        "trans": "không phải lượt của bạn"
+    },
+    {
+        "locale": "vi",
+        "key": "game-must-have-at-least-two-players",
+        "trans": "trò chơi phải có ít nhất hai người chơi"
+    },
+    {
+        "locale": "vi",
+        "key": "game-has-not-started-yet",
+        "trans": "trò chơi chưa bắt đầu"
+    },
+    {
+        "locale": "vi",
+        "key": "game-already-started",
+        "trans": "trò chơi đã bắt đầu rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "game-already-finished",
+        "trans": "trò chơi đã kết thúc"
+    },
+    {
+        "locale": "vi",
+        "key": "you-are-unable-to-perform-this-action-in-current-phase",
+        "trans": "bạn không thể thực hiện hành động này ở giai đoạn {0}"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-land-must-be-adjacent-to-your-road",
+        "trans": "vùng đất được chọn phải tiếp giáp với đường của bạn"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-path-must-be-adjacent-to-your-construction-or-road",
+        "trans": "đường mòn được chọn phải tiếp giáp với công trình hoặc đường của bạn"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-path-pass-through-construction-of-other-player",
+        "trans": "đường mòn đã chọn đi qua công trình của người chơi khác"
+    },
+    {
+        "locale": "vi",
+        "key": "nearby-lands-must-be-vacant",
+        "trans": "vùng đất bên cạnh phải bị bỏ hoang"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-land-and-path-must-be-adjacent",
+        "trans": "vùng đất và đường mòn được chọn phải tiếp giáp nhau"
+    },
+    {
+        "locale": "vi",
+        "key": "you-run-out-of-roads",
+        "trans": "bạn hết đường rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "you-run-out-of-settlements",
+        "trans": "bạn hết thị trấn rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "you-run-out-of-cities",
+        "trans": "bạn hết thành phố rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "you-have-insufficient-resource-cards",
+        "trans": "bạn không đủ thẻ tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "robber-must-be-moved-to-other-terrain",
+        "trans": "kẻ cướp phải được di chuyển đến địa hình khác"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-player-must-have-construction-next-to-robber",
+        "trans": "người chơi được chọn phải có công trình bên cạnh kẻ cướp"
+    },
+    {
+        "locale": "vi",
+        "key": "you-must-rob-player-who-has-construction-next-to-robber",
+        "trans": "bạn phải cướp người chơi có công trình bên cạnh kẻ cướp"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-construction-already-upgraded",
+        "trans": "công trình được chọn đã được nâng cấp rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-construction-does-not-belong-to-any-land",
+        "trans": "công trình được chọn không thuộc về bất kì vùng đất nào"
+    },
+    {
+        "locale": "vi",
+        "key": "game-run-out-of-development-cards",
+        "trans": "trò chơi hết thẻ phát triển rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "game-has-insufficient-resource-cards",
+        "trans": "trò chơi không đủ thẻ tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "you-already-offered-this-player",
+        "trans": "bạn đã đề nghị trao đổi với người chơi này rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "you-have-not-received-offer",
+        "trans": "bạn chưa nhận được đề nghị trao đổi nào"
+    },
+    {
+        "locale": "vi",
+        "key": "you-must-select-at-least-one-resource-card",
+        "trans": "bạn phải chọn ít nhất một thẻ tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-player-must-select-at-least-one-resource-card",
+        "trans": "người chơi được chọn phải chọn ít nhất một thẻ tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "active-player-must-select-at-least-one-resource-card",
+        "trans": "người chơi trong lượt phải chọn ít nhất một thẻ tài nguyên"
+    }
+]

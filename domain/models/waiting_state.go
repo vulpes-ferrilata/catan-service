@@ -22,7 +22,7 @@ func (w waitingState) newPlayer(userID primitive.ObjectID) error {
 
 	for _, player := range allPlayers {
 		if player.userID == userID {
-			return errors.WithStack(app_errors.ErrYouAlreadyJoined)
+			return errors.WithStack(app_errors.ErrYouAlreadyJoinedTheGame)
 		}
 	}
 
@@ -272,14 +272,17 @@ func (w waitingState) initHarbors() {
 	}
 	rand.Shuffle(len(harborTypes), func(i, j int) { harborTypes[i], harborTypes[j] = harborTypes[j], harborTypes[i] })
 
-	for idx, hex := range oddOrEvenCircleHexes {
-		for _, terrain := range w.game.terrains {
+	for _, terrain := range w.game.terrains {
+		for idx, hex := range oddOrEvenCircleHexes {
 			if terrain.hex.isAdjacentWithHex(hex) {
 				terrain.harbor = HarborBuilder{}.
 					SetID(primitive.NewObjectID()).
 					SetHex(hex).
 					SetType(harborTypes[idx]).
 					Create()
+
+				harborTypes = append(harborTypes[:idx], harborTypes[idx+1:]...)
+				oddOrEvenCircleHexes = append(oddOrEvenCircleHexes[:idx], oddOrEvenCircleHexes[idx+1:]...)
 				break
 			}
 		}
@@ -384,6 +387,10 @@ func (w waitingState) startGame(userID primitive.ObjectID) error {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
+	if len(w.game.getAllPlayers()) < 2 {
+		return errors.WithStack(app_errors.ErrGameMustHaveAtLeastTwoPlayers)
+	}
+
 	w.initDices()
 	w.initAchievements()
 	w.initResourceCards()
@@ -456,15 +463,15 @@ func (w waitingState) maritimeTrade(userID primitive.ObjectID, demandingResource
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
-func (w waitingState) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (w waitingState) sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
-func (w waitingState) confirmTrading(userID primitive.ObjectID) error {
+func (w waitingState) confirmTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
-func (w waitingState) cancelTrading(userID primitive.ObjectID) error {
+func (w waitingState) cancelTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 

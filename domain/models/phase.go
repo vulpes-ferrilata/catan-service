@@ -15,7 +15,7 @@ type phase interface {
 	buyDevelopmentCard(userID primitive.ObjectID) error
 	toggleResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error
 	maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error
-	offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error
-	confirmTrading(userID primitive.ObjectID) error
-	cancelTrading(userID primitive.ObjectID) error
+	sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error
+	confirmTradeOffer(userID primitive.ObjectID) error
+	cancelTradeOffer(userID primitive.ObjectID) error
 }

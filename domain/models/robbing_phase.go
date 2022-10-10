@@ -82,14 +82,14 @@ func (r robbingPhase) maritimeTrade(userID primitive.ObjectID, demandingResource
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInRobbingPhase)
 }
 
-func (r robbingPhase) offerTrading(userID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (r robbingPhase) sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInRobbingPhase)
 }
 
-func (r robbingPhase) confirmTrading(userID primitive.ObjectID) error {
+func (r robbingPhase) confirmTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInRobbingPhase)
 }
 
-func (r robbingPhase) cancelTrading(userID primitive.ObjectID) error {
+func (r robbingPhase) cancelTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInRobbingPhase)
 }
