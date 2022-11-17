@@ -112,6 +112,9 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 		}, s.game.players)
 		if !isExists {
 			s.game.turn++
+
+			s.game.phase = ResourceProduction
+
 			return nil
 		}
 
@@ -124,6 +127,10 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 }
 
 func (s setupPhase) rollDices(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
+}
+
+func (s setupPhase) discardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 

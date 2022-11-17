@@ -5,14 +5,16 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toDevelopmentCardView(developmentCardDocument *documents.DevelopmentCard) *models.DevelopmentCard {
+type developmentCardMapper struct{}
+
+func (d developmentCardMapper) ToView(developmentCardDocument *documents.DevelopmentCard) (*models.DevelopmentCard, error) {
 	if developmentCardDocument == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &models.DevelopmentCard{
 		ID:     developmentCardDocument.ID,
 		Type:   developmentCardDocument.Type,
 		Status: developmentCardDocument.Status,
-	}
+	}, nil
 }

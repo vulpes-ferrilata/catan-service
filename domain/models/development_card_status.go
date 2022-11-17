@@ -18,7 +18,7 @@ func NewDevelopmentCardStatus(value string) (developmentCardStatus, error) {
 type developmentCardStatus string
 
 const (
-	Enable  developmentCardStatus = "ENABLE"
-	Disable developmentCardStatus = "DISABLE"
-	Used    developmentCardStatus = "USED"
+	Enable  developmentCardStatus = "Enable"
+	Disable developmentCardStatus = "Disable"
+	Used    developmentCardStatus = "Used"
 )

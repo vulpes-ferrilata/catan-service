@@ -6,14 +6,22 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 )
 
-func toTerrainDocument(terrain *models.Terrain) *documents.Terrain {
+type terrainMapper struct{}
+
+func (t terrainMapper) ToDocument(terrain *models.Terrain) (*documents.Terrain, error) {
 	if terrain == nil {
-		return nil
+		return nil, nil
 	}
 
-	harborDocument := toHarborDocument(terrain.GetHarbor())
+	harborDocument, err := harborMapper{}.ToDocument(terrain.GetHarbor())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	robberDocument := toRobberDocument(terrain.GetRobber())
+	robberDocument, err := robberMapper{}.ToDocument(terrain.GetRobber())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return &documents.Terrain{
 		Document: documents.Document{
@@ -25,10 +33,10 @@ func toTerrainDocument(terrain *models.Terrain) *documents.Terrain {
 		Type:   string(terrain.GetType()),
 		Harbor: harborDocument,
 		Robber: robberDocument,
-	}
+	}, nil
 }
 
-func toTerrainDomain(terrainDocument *documents.Terrain) (*models.Terrain, error) {
+func (t terrainMapper) ToDomain(terrainDocument *documents.Terrain) (*models.Terrain, error) {
 	if terrainDocument == nil {
 		return nil, nil
 	}
@@ -40,12 +48,12 @@ func toTerrainDomain(terrainDocument *documents.Terrain) (*models.Terrain, error
 		return nil, errors.WithStack(err)
 	}
 
-	harbor, err := toHarborDomain(terrainDocument.Harbor)
+	harbor, err := harborMapper{}.ToDomain(terrainDocument.Harbor)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	robber, err := toRobberDomain(terrainDocument.Robber)
+	robber, err := robberMapper{}.ToDomain(terrainDocument.Robber)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

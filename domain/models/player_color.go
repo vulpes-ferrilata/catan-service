@@ -24,8 +24,8 @@ func (p PlayerColor) String() string {
 }
 
 var (
-	Red    = PlayerColor{"RED"}
-	Blue   = PlayerColor{"BLUE"}
-	Green  = PlayerColor{"GREEN"}
-	Yellow = PlayerColor{"YELLOW"}
+	Red    = PlayerColor{"Red"}
+	Blue   = PlayerColor{"Blue"}
+	Green  = PlayerColor{"Green"}
+	Yellow = PlayerColor{"Yellow"}
 )

@@ -21,6 +21,10 @@ func (r resourceConsumptionPhase) rollDices(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceConsumptionPhase)
 }
 
+func (r resourceConsumptionPhase) discardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceConsumptionPhase)
+}
+
 func (r resourceConsumptionPhase) moveRobber(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceConsumptionPhase)
 }
@@ -33,8 +37,10 @@ func (r resourceConsumptionPhase) endTurn(userID primitive.ObjectID) error {
 	r.game.phase = ResourceProduction
 
 	for _, player := range r.game.getAllPlayers() {
+		player.discardedResources = false
+
 		for _, resourceCard := range player.resourceCards {
-			resourceCard.isSelected = false
+			resourceCard.offering = false
 		}
 
 		for _, developmentCard := range player.developmentCards {
@@ -176,12 +182,13 @@ func (r resourceConsumptionPhase) toggleResourceCards(userID primitive.ObjectID,
 		return errors.WithStack(app_errors.ErrPlayerNotFound)
 	}
 
-	player.isOffered = false
 	//cancel offer of all players
 	if player == r.game.activePlayer {
 		for _, player := range r.game.players {
-			player.isOffered = false
+			player.receivedOffer = false
 		}
+	} else {
+		player.receivedOffer = false
 	}
 
 	for _, resourceCardID := range resourceCardIDs {
@@ -192,7 +199,7 @@ func (r resourceConsumptionPhase) toggleResourceCards(userID primitive.ObjectID,
 			return errors.WithStack(app_errors.ErrResourceCardNotFound)
 		}
 
-		resourceCard.isSelected = !resourceCard.isSelected
+		resourceCard.offering = !resourceCard.offering
 	}
 
 	return nil
@@ -240,7 +247,7 @@ func (r resourceConsumptionPhase) maritimeTrade(userID primitive.ObjectID, deman
 		}
 
 		requiringResourceCards := slices.Filter(func(resourceCard *ResourceCard) bool {
-			return resourceCard.resourceCardType == requiringResourceCardType && resourceCard.isSelected
+			return resourceCard.resourceCardType == requiringResourceCardType && resourceCard.offering
 		}, r.game.activePlayer.resourceCards)
 
 		demandingResourceCardQuantity := len(requiringResourceCards) / requiringResourceCardQuantity
@@ -248,7 +255,7 @@ func (r resourceConsumptionPhase) maritimeTrade(userID primitive.ObjectID, deman
 		requiringResourceCards = requiringResourceCards[:demandingResourceCardQuantity*requiringResourceCardQuantity]
 
 		for _, requiringResourceCard := range requiringResourceCards {
-			requiringResourceCard.isSelected = false
+			requiringResourceCard.offering = false
 		}
 		//substract requiring resource cards
 		r.game.activePlayer.resourceCards = slices.Remove(r.game.activePlayer.resourceCards, requiringResourceCards...)
@@ -305,25 +312,25 @@ func (r resourceConsumptionPhase) sendTradeOffer(userID primitive.ObjectID, play
 		return errors.WithStack(app_errors.ErrPlayerNotFound)
 	}
 
-	if offeringPlayer.isOffered {
+	if offeringPlayer.receivedOffer {
 		return errors.WithStack(app_errors.ErrYouAlreadyOfferedThisPlayer)
 	}
 
 	isActivePlayerSelectedAnyResourceCard := slices.Any(func(resourceCard *ResourceCard) bool {
-		return resourceCard.isSelected
+		return resourceCard.offering
 	}, r.game.activePlayer.resourceCards)
 	if !isActivePlayerSelectedAnyResourceCard {
-		return errors.WithStack(app_errors.ErrYouMustSelectAtLeastOneResourceCard)
+		return errors.WithStack(app_errors.ErrYouMustOfferAtLeastOneResourceCard)
 	}
 
 	isOfferingPlayerSelectedAnyResourceCard := slices.Any(func(resourceCard *ResourceCard) bool {
-		return resourceCard.isSelected
+		return resourceCard.offering
 	}, offeringPlayer.resourceCards)
 	if !isOfferingPlayerSelectedAnyResourceCard {
-		return errors.WithStack(app_errors.ErrSelectedPlayerMustSelectAtLeastOneResourceCard)
+		return errors.WithStack(app_errors.ErrSelectedPlayerMustOfferAtLeastOneResourceCard)
 	}
 
-	offeringPlayer.isOffered = true
+	offeringPlayer.receivedOffer = true
 
 	return nil
 }
@@ -336,33 +343,33 @@ func (r resourceConsumptionPhase) confirmTradeOffer(userID primitive.ObjectID) e
 		return errors.WithStack(app_errors.ErrPlayerNotFound)
 	}
 
-	if !offeringPlayer.isOffered {
-		return errors.WithStack(app_errors.ErrYouHaveNotReceivedOffer)
+	if !offeringPlayer.receivedOffer {
+		return errors.WithStack(app_errors.ErrYouHaveNotReceivedAnyOffer)
 	}
 
-	r.game.activePlayer.isOffered = false
-	offeringPlayer.isOffered = false
+	r.game.activePlayer.receivedOffer = false
+	offeringPlayer.receivedOffer = false
 
 	selectedResourceCardsOfActivePlayer := slices.Filter(func(resourceCard *ResourceCard) bool {
-		return resourceCard.isSelected
+		return resourceCard.offering
 	}, r.game.activePlayer.resourceCards)
 	if len(selectedResourceCardsOfActivePlayer) == 0 {
-		return errors.WithStack(app_errors.ErrActivePlayerMustSelectAtLeastOneResourceCard)
+		return errors.WithStack(app_errors.ErrActivePlayerMustOfferAtLeastOneResourceCard)
 	}
 
 	for _, selectedResourceCardOfActivePlayer := range selectedResourceCardsOfActivePlayer {
-		selectedResourceCardOfActivePlayer.isSelected = false
+		selectedResourceCardOfActivePlayer.offering = false
 	}
 
 	selectedResourceCardsOfOferringPlayer := slices.Filter(func(resourceCard *ResourceCard) bool {
-		return resourceCard.isSelected
+		return resourceCard.offering
 	}, offeringPlayer.resourceCards)
 	if len(selectedResourceCardsOfOferringPlayer) == 0 {
-		return errors.WithStack(app_errors.ErrYouMustSelectAtLeastOneResourceCard)
+		return errors.WithStack(app_errors.ErrYouMustOfferAtLeastOneResourceCard)
 	}
 
 	for _, selectedResourceCardOfOferringPlayer := range selectedResourceCardsOfOferringPlayer {
-		selectedResourceCardOfOferringPlayer.isSelected = false
+		selectedResourceCardOfOferringPlayer.offering = false
 	}
 	//swap resource cards
 	r.game.activePlayer.resourceCards = slices.Remove(r.game.activePlayer.resourceCards, selectedResourceCardsOfActivePlayer...)
@@ -382,11 +389,11 @@ func (r resourceConsumptionPhase) cancelTradeOffer(userID primitive.ObjectID) er
 		return errors.WithStack(app_errors.ErrPlayerNotFound)
 	}
 
-	if !player.isOffered {
-		return errors.WithStack(app_errors.ErrYouHaveNotReceivedOffer)
+	if !player.receivedOffer {
+		return errors.WithStack(app_errors.ErrYouHaveNotReceivedAnyOffer)
 	}
 
-	player.isOffered = false
+	player.receivedOffer = false
 
 	return nil
 }

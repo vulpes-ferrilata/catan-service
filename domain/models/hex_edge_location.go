@@ -23,7 +23,7 @@ func (h HexEdgeLocation) String() string {
 }
 
 var (
-	TopLeft    = HexEdgeLocation{"TOP_LEFT"}
-	MiddleLeft = HexEdgeLocation{"MIDDLE_LEFT"}
-	BottomLeft = HexEdgeLocation{"BOTTOM_LEFT"}
+	TopLeft    = HexEdgeLocation{"TopLeft"}
+	MiddleLeft = HexEdgeLocation{"MiddleLeft"}
+	BottomLeft = HexEdgeLocation{"BottomLeft"}
 )

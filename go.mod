@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
-	github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221004143213-d0b634cf63cb
+	github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221012113322-ba667349687c
 	go.mongodb.org/mongo-driver v1.10.1
 	go.uber.org/dig v1.15.0
 	google.golang.org/genproto v0.0.0-20220803205849-8f55acc8769f

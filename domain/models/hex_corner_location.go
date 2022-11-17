@@ -23,6 +23,6 @@ func (h HexCornerLocation) String() string {
 }
 
 var (
-	Top    = HexCornerLocation{"TOP"}
-	Bottom = HexCornerLocation{"BOTTOM"}
+	Top    = HexCornerLocation{"Top"}
+	Bottom = HexCornerLocation{"Bottom"}
 )

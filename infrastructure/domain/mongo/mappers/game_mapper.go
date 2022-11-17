@@ -7,40 +7,69 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
 )
 
-func ToGameDocument(game *models.Game) *documents.Game {
-	activePlayerDocument := toPlayerDocument(game.GetActivePlayer())
+type GameMapper struct{}
 
-	playerDocuments, _ := slices.Map(func(player *models.Player) (*documents.Player, error) {
-		return toPlayerDocument(player), nil
+func (g GameMapper) ToDocument(game *models.Game) (*documents.Game, error) {
+	activePlayerDocument, err := playerMapper{}.ToDocument(game.GetActivePlayer())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	playerDocuments, err := slices.Map(func(player *models.Player) (*documents.Player, error) {
+		return playerMapper{}.ToDocument(player)
 	}, game.GetPlayers())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	diceDocuments, _ := slices.Map(func(dice *models.Dice) (*documents.Dice, error) {
-		return toDiceDocument(dice), nil
+	diceDocuments, err := slices.Map(func(dice *models.Dice) (*documents.Dice, error) {
+		return diceMapper{}.ToDocument(dice)
 	}, game.GetDices())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	achievementDocuments, _ := slices.Map(func(achievement *models.Achievement) (*documents.Achievement, error) {
-		return toAchievementDocument(achievement), nil
+	achievementDocuments, err := slices.Map(func(achievement *models.Achievement) (*documents.Achievement, error) {
+		return achievementMapper{}.ToDocument(achievement)
 	}, game.GetAchievements())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	resourceCardDocuments, _ := slices.Map(func(resourceCard *models.ResourceCard) (*documents.ResourceCard, error) {
-		return toResourceCardDocument(resourceCard), nil
+	resourceCardDocuments, err := slices.Map(func(resourceCard *models.ResourceCard) (*documents.ResourceCard, error) {
+		return resourceCardMapper{}.ToDocument(resourceCard)
 	}, game.GetResourceCards())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	developmentCardDocuments, _ := slices.Map(func(developmentCard *models.DevelopmentCard) (*documents.DevelopmentCard, error) {
-		return toDevelopmentCardDocument(developmentCard), nil
+	developmentCardDocuments, err := slices.Map(func(developmentCard *models.DevelopmentCard) (*documents.DevelopmentCard, error) {
+		return developmentCardMapper{}.ToDocument(developmentCard)
 	}, game.GetDevelopmentCards())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	terrainDocuments, _ := slices.Map(func(terrain *models.Terrain) (*documents.Terrain, error) {
-		return toTerrainDocument(terrain), nil
+	terrainDocuments, err := slices.Map(func(terrain *models.Terrain) (*documents.Terrain, error) {
+		return terrainMapper{}.ToDocument(terrain)
 	}, game.GetTerrains())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	landDocuments, _ := slices.Map(func(land *models.Land) (*documents.Land, error) {
-		return toLandDocument(land), nil
+	landDocuments, err := slices.Map(func(land *models.Land) (*documents.Land, error) {
+		return landMapper{}.ToDocument(land)
 	}, game.GetLands())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	pathDocuments, _ := slices.Map(func(path *models.Path) (*documents.Path, error) {
-		return toPathDocument(path), nil
+	pathDocuments, err := slices.Map(func(path *models.Path) (*documents.Path, error) {
+		return pathMapper{}.ToDocument(path)
 	}, game.GetPaths())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return &documents.Game{
 		DocumentRoot: documents.DocumentRoot{
@@ -61,10 +90,10 @@ func ToGameDocument(game *models.Game) *documents.Game {
 		Terrains:         terrainDocuments,
 		Lands:            landDocuments,
 		Paths:            pathDocuments,
-	}
+	}, nil
 }
 
-func ToGameDomain(gameDocument *documents.Game) (*models.Game, error) {
+func (g GameMapper) ToDomain(gameDocument *documents.Game) (*models.Game, error) {
 	if gameDocument == nil {
 		return nil, nil
 	}
@@ -79,59 +108,59 @@ func ToGameDomain(gameDocument *documents.Game) (*models.Game, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	activePlayer, err := toPlayerDomain(gameDocument.ActivePlayer)
+	activePlayer, err := playerMapper{}.ToDomain(gameDocument.ActivePlayer)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	players, err := slices.Map(func(playerDocument *documents.Player) (*models.Player, error) {
-		return toPlayerDomain(playerDocument)
+		return playerMapper{}.ToDomain(playerDocument)
 	}, gameDocument.Players)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	dices, _ := slices.Map(func(diceDocument *documents.Dice) (*models.Dice, error) {
-		return toDiceDomain(diceDocument), nil
+		return diceMapper{}.ToDomain(diceDocument)
 	}, gameDocument.Dices)
 
 	achievements, err := slices.Map(func(achievementDocument *documents.Achievement) (*models.Achievement, error) {
-		return toAchievementDomain(achievementDocument)
+		return achievementMapper{}.ToDomain(achievementDocument)
 	}, gameDocument.Achievements)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	resourceCards, err := slices.Map(func(resourceCardDocument *documents.ResourceCard) (*models.ResourceCard, error) {
-		return toResourceCardDomain(resourceCardDocument)
+		return resourceCardMapper{}.ToDomain(resourceCardDocument)
 	}, gameDocument.ResourceCards)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	developmentCards, err := slices.Map(func(developmentCardDocument *documents.DevelopmentCard) (*models.DevelopmentCard, error) {
-		return toDevelopmentCardDomain(developmentCardDocument)
+		return developmentCardMapper{}.ToDomain(developmentCardDocument)
 	}, gameDocument.DevelopmentCards)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	terrains, err := slices.Map(func(terrainDocument *documents.Terrain) (*models.Terrain, error) {
-		return toTerrainDomain(terrainDocument)
+		return terrainMapper{}.ToDomain(terrainDocument)
 	}, gameDocument.Terrains)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	lands, err := slices.Map(func(landDocument *documents.Land) (*models.Land, error) {
-		return toLandDomain(landDocument)
+		return landMapper{}.ToDomain(landDocument)
 	}, gameDocument.Lands)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	paths, err := slices.Map(func(pathDocument *documents.Path) (*models.Path, error) {
-		return toPathDomain(pathDocument)
+		return pathMapper{}.ToDomain(pathDocument)
 	}, gameDocument.Paths)
 	if err != nil {
 		return nil, errors.WithStack(err)

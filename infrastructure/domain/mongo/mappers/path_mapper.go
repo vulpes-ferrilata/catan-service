@@ -6,9 +6,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 )
 
-func toPathDocument(path *models.Path) *documents.Path {
+type pathMapper struct{}
+
+func (p pathMapper) ToDocument(path *models.Path) (*documents.Path, error) {
 	if path == nil {
-		return nil
+		return nil, nil
 	}
 
 	pathDocument := &documents.Path{
@@ -20,10 +22,10 @@ func toPathDocument(path *models.Path) *documents.Path {
 		Location: path.GetHexEdge().GetLocation().String(),
 	}
 
-	return pathDocument
+	return pathDocument, nil
 }
 
-func toPathDomain(pathDocument *documents.Path) (*models.Path, error) {
+func (p pathMapper) ToDomain(pathDocument *documents.Path) (*models.Path, error) {
 	if pathDocument == nil {
 		return nil, nil
 	}

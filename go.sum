@@ -224,6 +224,10 @@ github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221004142923-78c0a18716
 github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221004142923-78c0a1871612/go.mod h1:6wx5oaoT2RDFiCtCvVyrYWMImYpRknJVmFgK/h7WKGo=
 github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221004143213-d0b634cf63cb h1:ntUj9CJZtmBxa6CWbnAF8480QPJNXGBjQLbJZNLHfQg=
 github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221004143213-d0b634cf63cb/go.mod h1:6wx5oaoT2RDFiCtCvVyrYWMImYpRknJVmFgK/h7WKGo=
+github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221010080630-4d43b0b981aa h1:2wsTJRL9Uk8SBOBSFAiHeMK45YISwIMpQIFr6UbP7Pc=
+github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221010080630-4d43b0b981aa/go.mod h1:6wx5oaoT2RDFiCtCvVyrYWMImYpRknJVmFgK/h7WKGo=
+github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221012113322-ba667349687c h1:WnpQW/ipOUE3VWU4I+c/Jcu5SJXuxnBsuTU7rzU6lGQ=
+github.com/vulpes-ferrilata/catan-service-proto v0.0.0-20221012113322-ba667349687c/go.mod h1:6wx5oaoT2RDFiCtCvVyrYWMImYpRknJVmFgK/h7WKGo=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.1.1 h1:VOMT+81stJgXW3CpHyqHN3AXDYIMsx56mEFrB37Mb/E=

@@ -11,6 +11,11 @@
     },
     {
         "locale": "en",
+        "key": "resource-discard-phase",
+        "trans": "resource discard"
+    },
+    {
+        "locale": "en",
         "key": "robbing-phase",
         "trans": "robbing"
     },

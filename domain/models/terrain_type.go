@@ -17,10 +17,10 @@ func NewTerrainType(value string) (terrainType, error) {
 type terrainType string
 
 const (
-	Forest   terrainType = "FOREST"
-	Hill     terrainType = "HILL"
-	Field    terrainType = "FIELD"
-	Pasture  terrainType = "PASTURE"
-	Mountain terrainType = "MOUNTAIN"
-	Desert   terrainType = "DESERT"
+	Forest   terrainType = "Forest"
+	Hill     terrainType = "Hill"
+	Field    terrainType = "Field"
+	Pasture  terrainType = "Pasture"
+	Mountain terrainType = "Mountain"
+	Desert   terrainType = "Desert"
 )

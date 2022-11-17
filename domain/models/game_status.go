@@ -24,7 +24,7 @@ func (g GameStatus) String() string {
 }
 
 var (
-	Waiting  = GameStatus{"WAITING"}
-	Started  = GameStatus{"STARTED"}
-	Finished = GameStatus{"FINISHED"}
+	Waiting  = GameStatus{"Waiting"}
+	Started  = GameStatus{"Started"}
+	Finished = GameStatus{"Finished"}
 )

@@ -24,9 +24,9 @@ func (r ResourceCardType) String() string {
 }
 
 var (
-	Lumber = ResourceCardType{"LUMBER"}
-	Brick  = ResourceCardType{"BRICK"}
-	Wool   = ResourceCardType{"WOOL"}
-	Grain  = ResourceCardType{"GRAIN"}
-	Ore    = ResourceCardType{"ORE"}
+	Lumber = ResourceCardType{"Lumber"}
+	Brick  = ResourceCardType{"Brick"}
+	Wool   = ResourceCardType{"Wool"}
+	Grain  = ResourceCardType{"Grain"}
+	Ore    = ResourceCardType{"Ore"}
 )

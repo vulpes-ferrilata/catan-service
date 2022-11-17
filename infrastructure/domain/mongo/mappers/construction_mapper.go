@@ -6,12 +6,17 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 )
 
-func toConstructionDocument(construction *models.Construction) *documents.Construction {
+type constructionMapper struct{}
+
+func (c constructionMapper) ToDocument(construction *models.Construction) (*documents.Construction, error) {
 	if construction == nil {
-		return nil
+		return nil, nil
 	}
 
-	landDocument := toLandDocument(construction.GetLand())
+	landDocument, err := landMapper{}.ToDocument(construction.GetLand())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return &documents.Construction{
 		Document: documents.Document{
@@ -19,10 +24,10 @@ func toConstructionDocument(construction *models.Construction) *documents.Constr
 		},
 		Type: construction.GetType().String(),
 		Land: landDocument,
-	}
+	}, nil
 }
 
-func toConstructionDomain(constructionDocument *documents.Construction) (*models.Construction, error) {
+func (c constructionMapper) ToDomain(constructionDocument *documents.Construction) (*models.Construction, error) {
 	if constructionDocument == nil {
 		return nil, nil
 	}
@@ -32,7 +37,7 @@ func toConstructionDomain(constructionDocument *documents.Construction) (*models
 		return nil, errors.WithStack(err)
 	}
 
-	land, err := toLandDomain(constructionDocument.Land)
+	land, err := landMapper{}.ToDomain(constructionDocument.Land)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

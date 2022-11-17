@@ -5,9 +5,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toHarborView(harborDocument *documents.Harbor) *models.Harbor {
+type harborMapper struct{}
+
+func (h harborMapper) ToView(harborDocument *documents.Harbor) (*models.Harbor, error) {
 	if harborDocument == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &models.Harbor{
@@ -15,5 +17,5 @@ func toHarborView(harborDocument *documents.Harbor) *models.Harbor {
 		Q:    harborDocument.Q,
 		R:    harborDocument.R,
 		Type: harborDocument.Type,
-	}
+	}, nil
 }

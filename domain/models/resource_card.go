@@ -3,13 +3,13 @@ package models
 type ResourceCard struct {
 	aggregate
 	resourceCardType ResourceCardType
-	isSelected       bool
+	offering         bool
 }
 
 func (r ResourceCard) GetType() ResourceCardType {
 	return r.resourceCardType
 }
 
-func (r ResourceCard) IsSelected() bool {
-	return r.isSelected
+func (r ResourceCard) IsOffering() bool {
+	return r.offering
 }

@@ -6,27 +6,32 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 )
 
-func toRoadDocument(road *models.Road) *documents.Road {
+type roadMapper struct{}
+
+func (r roadMapper) ToDocument(road *models.Road) (*documents.Road, error) {
 	if road == nil {
-		return nil
+		return nil, nil
 	}
 
-	pathDocument := toPathDocument(road.GetPath())
+	pathDocument, err := pathMapper{}.ToDocument(road.GetPath())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return &documents.Road{
 		Document: documents.Document{
 			ID: road.GetID(),
 		},
 		Path: pathDocument,
-	}
+	}, nil
 }
 
-func toRoadDomain(roadDocument *documents.Road) (*models.Road, error) {
+func (r roadMapper) ToDomain(roadDocument *documents.Road) (*models.Road, error) {
 	if roadDocument == nil {
 		return nil, nil
 	}
 
-	path, err := toPathDomain(roadDocument.Path)
+	path, err := pathMapper{}.ToDomain(roadDocument.Path)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

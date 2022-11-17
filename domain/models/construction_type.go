@@ -24,6 +24,6 @@ func (c ConstructionType) String() string {
 }
 
 var (
-	Settlement = ConstructionType{"SETTLEMENT"}
-	City       = ConstructionType{"CITY"}
+	Settlement = ConstructionType{"Settlement"}
+	City       = ConstructionType{"City"}
 )

@@ -33,18 +33,20 @@ func NewContainer() *dig.Container {
 
 	//View layer
 	//--Projectors
-	container.Provide(projectors.NewGameProjector)
+	container.Provide(projectors.NewGamePaginationProjector)
+	container.Provide(projectors.NewGameDetailProjector)
 
 	//Application layer
 	//--Queries
-	container.Provide(query_handlers.NewFindGamesByUserIDQueryHandler)
-	container.Provide(query_handlers.NewGetGameByIDByUserIDQueryHandler)
+	container.Provide(query_handlers.NewFindGamePaginationByLimitByOffsetQueryHandler)
+	container.Provide(query_handlers.NewGetGameDetailByIDByUserIDQueryHandler)
 	//--Commands
 	container.Provide(command_handlers.NewCreateGameCommandHandler)
 	container.Provide(command_handlers.NewJoinGameCommandHandler)
 	container.Provide(command_handlers.NewStartGameCommandHandler)
 	container.Provide(command_handlers.NewBuildSettlementAndRoadCommandHandler)
 	container.Provide(command_handlers.NewRollDicesCommandHandler)
+	container.Provide(command_handlers.NewDiscardResourceCardsCommandHandler)
 	container.Provide(command_handlers.NewMoveRobberCommandHandler)
 	container.Provide(command_handlers.NewEndTurnCommandHandler)
 	container.Provide(command_handlers.NewBuildSettlementCommandHandler)

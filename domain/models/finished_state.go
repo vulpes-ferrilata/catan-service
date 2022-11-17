@@ -26,6 +26,10 @@ func (f finishedState) rollDices(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
+func (f finishedState) discardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
+}
+
 func (f finishedState) moveRobber(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }

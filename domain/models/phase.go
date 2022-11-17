@@ -7,6 +7,7 @@ import (
 type phase interface {
 	buildSettlementAndRoad(userID primitive.ObjectID, landID primitive.ObjectID, pathID primitive.ObjectID) error
 	rollDices(userID primitive.ObjectID) error
+	discardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error
 	moveRobber(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error
 	endTurn(userID primitive.ObjectID) error
 	buildSettlement(userID primitive.ObjectID, landID primitive.ObjectID) error

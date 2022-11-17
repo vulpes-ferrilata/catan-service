@@ -7,49 +7,67 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
 )
 
-func toPlayerDocument(player *models.Player) *documents.Player {
+type playerMapper struct{}
+
+func (p playerMapper) ToDocument(player *models.Player) (*documents.Player, error) {
 	if player == nil {
-		return nil
+		return nil, nil
 	}
 
-	achievementDocuments, _ := slices.Map(func(achievement *models.Achievement) (*documents.Achievement, error) {
-		return toAchievementDocument(achievement), nil
+	achievementDocuments, err := slices.Map(func(achievement *models.Achievement) (*documents.Achievement, error) {
+		return achievementMapper{}.ToDocument(achievement)
 	}, player.GetAchievements())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	resourceCardDocuments, _ := slices.Map(func(resourceCard *models.ResourceCard) (*documents.ResourceCard, error) {
-		return toResourceCardDocument(resourceCard), nil
+	resourceCardDocuments, err := slices.Map(func(resourceCard *models.ResourceCard) (*documents.ResourceCard, error) {
+		return resourceCardMapper{}.ToDocument(resourceCard)
 	}, player.GetResourceCards())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	developmentCardDocuments, _ := slices.Map(func(developmentCard *models.DevelopmentCard) (*documents.DevelopmentCard, error) {
-		return toDevelopmentCardDocument(developmentCard), nil
+	developmentCardDocuments, err := slices.Map(func(developmentCard *models.DevelopmentCard) (*documents.DevelopmentCard, error) {
+		return developmentCardMapper{}.ToDocument(developmentCard)
 	}, player.GetDevelopmentCards())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	constructionDocuments, _ := slices.Map(func(construction *models.Construction) (*documents.Construction, error) {
-		return toConstructionDocument(construction), nil
+	constructionDocuments, err := slices.Map(func(construction *models.Construction) (*documents.Construction, error) {
+		return constructionMapper{}.ToDocument(construction)
 	}, player.GetConstructions())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	roadDocuments, _ := slices.Map(func(road *models.Road) (*documents.Road, error) {
-		return toRoadDocument(road), nil
+	roadDocuments, err := slices.Map(func(road *models.Road) (*documents.Road, error) {
+		return roadMapper{}.ToDocument(road)
 	}, player.GetRoads())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return &documents.Player{
 		Document: documents.Document{
 			ID: player.GetID(),
 		},
-		UserID:           player.GetUserID(),
-		TurnOrder:        player.GetTurnOrder(),
-		Color:            player.GetColor().String(),
-		IsOffered:        player.IsOffered(),
-		Score:            player.GetScore(),
-		Achievements:     achievementDocuments,
-		ResourceCards:    resourceCardDocuments,
-		DevelopmentCards: developmentCardDocuments,
-		Constructions:    constructionDocuments,
-		Roads:            roadDocuments,
-	}
+		UserID:             player.GetUserID(),
+		TurnOrder:          player.GetTurnOrder(),
+		Color:              player.GetColor().String(),
+		ReceivedOffer:      player.IsReceivedOffer(),
+		DiscardedResources: player.IsDiscardedResources(),
+		Score:              player.GetScore(),
+		Achievements:       achievementDocuments,
+		ResourceCards:      resourceCardDocuments,
+		DevelopmentCards:   developmentCardDocuments,
+		Constructions:      constructionDocuments,
+		Roads:              roadDocuments,
+	}, nil
 }
 
-func toPlayerDomain(playerDocument *documents.Player) (*models.Player, error) {
+func (p playerMapper) ToDomain(playerDocument *documents.Player) (*models.Player, error) {
 	if playerDocument == nil {
 		return nil, nil
 	}
@@ -60,35 +78,35 @@ func toPlayerDomain(playerDocument *documents.Player) (*models.Player, error) {
 	}
 
 	achievements, err := slices.Map(func(achievementDocument *documents.Achievement) (*models.Achievement, error) {
-		return toAchievementDomain(achievementDocument)
+		return achievementMapper{}.ToDomain(achievementDocument)
 	}, playerDocument.Achievements)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	resourceCards, err := slices.Map(func(resourceCardDocument *documents.ResourceCard) (*models.ResourceCard, error) {
-		return toResourceCardDomain(resourceCardDocument)
+		return resourceCardMapper{}.ToDomain(resourceCardDocument)
 	}, playerDocument.ResourceCards)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	developmentCards, err := slices.Map(func(developmentCardDocument *documents.DevelopmentCard) (*models.DevelopmentCard, error) {
-		return toDevelopmentCardDomain(developmentCardDocument)
+		return developmentCardMapper{}.ToDomain(developmentCardDocument)
 	}, playerDocument.DevelopmentCards)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	constructions, err := slices.Map(func(constructionDocument *documents.Construction) (*models.Construction, error) {
-		return toConstructionDomain(constructionDocument)
+		return constructionMapper{}.ToDomain(constructionDocument)
 	}, playerDocument.Constructions)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	roads, err := slices.Map(func(roadDocument *documents.Road) (*models.Road, error) {
-		return toRoadDomain(roadDocument)
+		return roadMapper{}.ToDomain(roadDocument)
 	}, playerDocument.Roads)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -99,7 +117,8 @@ func toPlayerDomain(playerDocument *documents.Player) (*models.Player, error) {
 		SetUserID(playerDocument.UserID).
 		SetColor(color).
 		SetTurnOrder(playerDocument.TurnOrder).
-		SetIsOffered(playerDocument.IsOffered).
+		SetReceivedOffer(playerDocument.ReceivedOffer).
+		SetDiscardedResources(playerDocument.DiscardedResources).
 		SetScore(playerDocument.Score).
 		SetAchievements(achievements...).
 		SetResourceCards(resourceCards...).

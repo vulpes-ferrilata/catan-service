@@ -1,18 +1,27 @@
 package mappers
 
 import (
+	"github.com/pkg/errors"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/documents"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toTerrainView(terrainDocument *documents.Terrain) *models.Terrain {
+type terrainMapper struct{}
+
+func (t terrainMapper) ToView(terrainDocument *documents.Terrain) (*models.Terrain, error) {
 	if terrainDocument == nil {
-		return nil
+		return nil, nil
 	}
 
-	harbor := toHarborView(terrainDocument.Harbor)
+	harbor, err := harborMapper{}.ToView(terrainDocument.Harbor)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	robber := toRobberView(terrainDocument.Robber)
+	robber, err := robberMapper{}.ToView(terrainDocument.Robber)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return &models.Terrain{
 		ID:     terrainDocument.ID,
@@ -22,5 +31,5 @@ func toTerrainView(terrainDocument *documents.Terrain) *models.Terrain {
 		Type:   terrainDocument.Type,
 		Harbor: harbor,
 		Robber: robber,
-	}
+	}, nil
 }

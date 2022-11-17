@@ -32,17 +32,13 @@ func (r resourceProductionPhase) rollDices(userID primitive.ObjectID) error {
 	}
 
 	if total == 7 {
-		r.game.phase = Robbing
-
-		for _, player := range r.game.getAllPlayers() {
-			playerResourceCardQuantity := len(player.resourceCards)
-
-			for i := 1; i <= playerResourceCardQuantity/2 && playerResourceCardQuantity >= 8; i++ {
-				resourceCardIdx := rand.Intn(len(player.resourceCards))
-				resourceCard := player.resourceCards[resourceCardIdx]
-				player.resourceCards = slices.Remove(player.resourceCards, resourceCard)
-				r.game.resourceCards = append(r.game.resourceCards, resourceCard)
-			}
+		isAnyPlayerHasResourcesExceedLimit := slices.Any(func(player *Player) bool {
+			return len(player.resourceCards) >= 8
+		}, r.game.getAllPlayers())
+		if isAnyPlayerHasResourcesExceedLimit {
+			r.game.phase = ResourceDiscard
+		} else {
+			r.game.phase = Robbing
 		}
 
 		return nil
@@ -104,6 +100,10 @@ Rollback:
 	r.game.resourceCards = append(r.game.resourceCards, dispatchedResourceCards...)
 
 	return nil
+}
+
+func (r resourceProductionPhase) discardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceProductionPhase)
 }
 
 func (r resourceProductionPhase) moveRobber(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {

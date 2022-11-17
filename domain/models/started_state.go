@@ -12,13 +12,13 @@ type startedState struct {
 }
 
 func (s startedState) getPhase() phase {
-	if s.game.turn == 1 || s.game.turn == 2 {
-		return &setupPhase{s.game}
-	}
-
 	switch s.game.phase {
+	case Setup:
+		return &setupPhase{s.game}
 	case ResourceProduction:
 		return &resourceProductionPhase{s.game}
+	case ResourceDiscard:
+		return &resourceDiscardPhase{s.game}
 	case Robbing:
 		return &robbingPhase{s.game}
 	case ResourceConsumption:
@@ -46,6 +46,14 @@ func (s startedState) buildSettlementAndRoad(userID primitive.ObjectID, landID p
 
 func (s startedState) rollDices(userID primitive.ObjectID) error {
 	if err := s.getPhase().rollDices(userID); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (s startedState) discardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
+	if err := s.getPhase().discardResourceCards(userID, resourceCardIDs); err != nil {
 		return errors.WithStack(err)
 	}
 

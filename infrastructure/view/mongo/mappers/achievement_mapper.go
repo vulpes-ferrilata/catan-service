@@ -5,13 +5,15 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toAchievementView(achievementDocument *documents.Achievement) *models.Achievement {
+type achievementMapper struct{}
+
+func (a achievementMapper) ToView(achievementDocument *documents.Achievement) (*models.Achievement, error) {
 	if achievementDocument == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &models.Achievement{
 		ID:   achievementDocument.ID,
 		Type: achievementDocument.Type,
-	}
+	}, nil
 }

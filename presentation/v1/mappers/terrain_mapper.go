@@ -1,18 +1,27 @@
 package mappers
 
 import (
+	"github.com/pkg/errors"
 	"github.com/vulpes-ferrilata/catan-service-proto/pb/responses"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toTerrainResponse(terrain *models.Terrain) *responses.Terrain {
+type terrainMapper struct{}
+
+func (t terrainMapper) ToResponse(terrain *models.Terrain) (*responses.Terrain, error) {
 	if terrain == nil {
-		return nil
+		return nil, nil
 	}
 
-	harborResponse := toHarborResponse(terrain.Harbor)
+	terrainResponse, err := harborMapper{}.ToResponse(terrain.Harbor)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	robberResponse := toRobberResponse(terrain.Robber)
+	robberResponse, err := robberMapper{}.ToResponse(terrain.Robber)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	return &responses.Terrain{
 		ID:     terrain.ID.Hex(),
@@ -20,7 +29,7 @@ func toTerrainResponse(terrain *models.Terrain) *responses.Terrain {
 		R:      int32(terrain.R),
 		Number: int32(terrain.Number),
 		Type:   terrain.Type,
-		Harbor: harborResponse,
+		Harbor: terrainResponse,
 		Robber: robberResponse,
-	}
+	}, nil
 }

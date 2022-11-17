@@ -6,9 +6,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 )
 
-func toAchievementDocument(achievement *models.Achievement) *documents.Achievement {
+type achievementMapper struct{}
+
+func (a achievementMapper) ToDocument(achievement *models.Achievement) (*documents.Achievement, error) {
 	if achievement == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &documents.Achievement{
@@ -16,10 +18,10 @@ func toAchievementDocument(achievement *models.Achievement) *documents.Achieveme
 			ID: achievement.GetID(),
 		},
 		Type: achievement.GetType().String(),
-	}
+	}, nil
 }
 
-func toAchievementDomain(achievementDocument *documents.Achievement) (*models.Achievement, error) {
+func (a achievementMapper) ToDomain(achievementDocument *documents.Achievement) (*models.Achievement, error) {
 	if achievementDocument == nil {
 		return nil, nil
 	}

@@ -5,7 +5,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 type ResourceCardBuilder struct {
 	id               primitive.ObjectID
 	resourceCardType ResourceCardType
-	isSelected       bool
+	offering         bool
 }
 
 func (r ResourceCardBuilder) SetID(id primitive.ObjectID) ResourceCardBuilder {
@@ -20,8 +20,8 @@ func (r ResourceCardBuilder) SetType(resourceCardType ResourceCardType) Resource
 	return r
 }
 
-func (r ResourceCardBuilder) SetIsSelected(isSelected bool) ResourceCardBuilder {
-	r.isSelected = isSelected
+func (r ResourceCardBuilder) SetOffering(offering bool) ResourceCardBuilder {
+	r.offering = offering
 
 	return r
 }
@@ -32,6 +32,6 @@ func (r ResourceCardBuilder) Create() *ResourceCard {
 			id: r.id,
 		},
 		resourceCardType: r.resourceCardType,
-		isSelected:       r.isSelected,
+		offering:         r.offering,
 	}
 }

@@ -24,10 +24,10 @@ func (h HarborType) String() string {
 }
 
 var (
-	LumberHarbor  = HarborType{"LUMBER"}
-	BrickHarbor   = HarborType{"BRICK"}
-	WoolHarbor    = HarborType{"WOOL"}
-	GrainHarbor   = HarborType{"GRAIN"}
-	OreHarbor     = HarborType{"ORE"}
-	GeneralHarbor = HarborType{"GENERAL"}
+	LumberHarbor  = HarborType{"Lumber"}
+	BrickHarbor   = HarborType{"Brick"}
+	WoolHarbor    = HarborType{"Wool"}
+	GrainHarbor   = HarborType{"Grain"}
+	OreHarbor     = HarborType{"Ore"}
+	GeneralHarbor = HarborType{"General"}
 )

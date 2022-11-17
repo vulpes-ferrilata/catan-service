@@ -5,17 +5,17 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toLandView(landDocument *documents.Land) *models.Land {
+type landMapper struct{}
+
+func (l landMapper) ToView(landDocument *documents.Land) (*models.Land, error) {
 	if landDocument == nil {
-		return nil
+		return nil, nil
 	}
 
-	land := &models.Land{
+	return &models.Land{
 		ID:       landDocument.ID,
 		Q:        landDocument.Q,
 		R:        landDocument.R,
 		Location: landDocument.Location,
-	}
-
-	return land
+	}, nil
 }

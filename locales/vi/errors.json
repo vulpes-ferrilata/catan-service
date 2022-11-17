@@ -141,22 +141,32 @@
     },
     {
         "locale": "vi",
-        "key": "you-have-not-received-offer",
+        "key": "you-have-not-received-any-offer",
         "trans": "bạn chưa nhận được đề nghị trao đổi nào"
     },
     {
         "locale": "vi",
-        "key": "you-must-select-at-least-one-resource-card",
-        "trans": "bạn phải chọn ít nhất một thẻ tài nguyên"
+        "key": "you-must-offer-at-least-one-resource-card",
+        "trans": "bạn phải đề xuất ít nhất một thẻ tài nguyên"
     },
     {
         "locale": "vi",
-        "key": "selected-player-must-select-at-least-one-resource-card",
-        "trans": "người chơi được chọn phải chọn ít nhất một thẻ tài nguyên"
+        "key": "selected-player-must-offer-at-least-one-resource-card",
+        "trans": "người chơi được chọn phải đề xuất ít nhất một thẻ tài nguyên"
     },
     {
         "locale": "vi",
-        "key": "active-player-must-select-at-least-one-resource-card",
-        "trans": "người chơi trong lượt phải chọn ít nhất một thẻ tài nguyên"
+        "key": "active-player-must-offer-at-least-one-resource-card",
+        "trans": "người chơi trong lượt phải đề xuất ít nhất một thẻ tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "you-already-discarded-resource-cards",
+        "trans": "bạn đã bỏ thẻ tài nguyên rồi"
+    },
+    {
+        "locale": "vi",
+        "key": "you-have-no-need-to-discard-resource-cards",
+        "trans": "bạn không cần bỏ thẻ tài nguyên"
     }
 ]

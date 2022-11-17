@@ -5,9 +5,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toHarborResponse(harbor *models.Harbor) *responses.Harbor {
+type harborMapper struct{}
+
+func (h harborMapper) ToResponse(harbor *models.Harbor) (*responses.Harbor, error) {
 	if harbor == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &responses.Harbor{
@@ -15,5 +17,5 @@ func toHarborResponse(harbor *models.Harbor) *responses.Harbor {
 		Q:    int32(harbor.Q),
 		R:    int32(harbor.R),
 		Type: harbor.Type,
-	}
+	}, nil
 }

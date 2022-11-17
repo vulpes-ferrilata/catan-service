@@ -5,9 +5,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toPathResponse(path *models.Path) *responses.Path {
+type pathMapper struct{}
+
+func (l pathMapper) ToResponse(path *models.Path) (*responses.Path, error) {
 	if path == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &responses.Path{
@@ -15,5 +17,5 @@ func toPathResponse(path *models.Path) *responses.Path {
 		Q:        int32(path.Q),
 		R:        int32(path.R),
 		Location: path.Location,
-	}
+	}, nil
 }

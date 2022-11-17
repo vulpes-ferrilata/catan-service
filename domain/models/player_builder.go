@@ -3,17 +3,18 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type PlayerBuilder struct {
-	id               primitive.ObjectID
-	userID           primitive.ObjectID
-	color            PlayerColor
-	turnOrder        int
-	isOffered        bool
-	score            int
-	achievements     []*Achievement
-	resourceCards    []*ResourceCard
-	developmentCards []*DevelopmentCard
-	constructions    []*Construction
-	roads            []*Road
+	id                 primitive.ObjectID
+	userID             primitive.ObjectID
+	color              PlayerColor
+	turnOrder          int
+	receivedOffer      bool
+	discardedResources bool
+	score              int
+	achievements       []*Achievement
+	resourceCards      []*ResourceCard
+	developmentCards   []*DevelopmentCard
+	constructions      []*Construction
+	roads              []*Road
 }
 
 func (p PlayerBuilder) SetID(id primitive.ObjectID) PlayerBuilder {
@@ -40,8 +41,14 @@ func (p PlayerBuilder) SetTurnOrder(turnOrder int) PlayerBuilder {
 	return p
 }
 
-func (p PlayerBuilder) SetIsOffered(isOffered bool) PlayerBuilder {
-	p.isOffered = isOffered
+func (p PlayerBuilder) SetReceivedOffer(receivedOffer bool) PlayerBuilder {
+	p.receivedOffer = receivedOffer
+
+	return p
+}
+
+func (p PlayerBuilder) SetDiscardedResources(discardedResources bool) PlayerBuilder {
+	p.discardedResources = discardedResources
 
 	return p
 }
@@ -87,15 +94,15 @@ func (p PlayerBuilder) Create() *Player {
 		aggregate: aggregate{
 			id: p.id,
 		},
-		userID:    p.userID,
-		color:     p.color,
-		turnOrder: p.turnOrder,
-		isOffered: p.isOffered,
-		// isActive:         p.isActive,
-		achievements:     p.achievements,
-		resourceCards:    p.resourceCards,
-		developmentCards: p.developmentCards,
-		constructions:    p.constructions,
-		roads:            p.roads,
+		userID:             p.userID,
+		color:              p.color,
+		turnOrder:          p.turnOrder,
+		receivedOffer:      p.receivedOffer,
+		discardedResources: p.discardedResources,
+		achievements:       p.achievements,
+		resourceCards:      p.resourceCards,
+		developmentCards:   p.developmentCards,
+		constructions:      p.constructions,
+		roads:              p.roads,
 	}
 }

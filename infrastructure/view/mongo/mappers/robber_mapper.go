@@ -5,12 +5,14 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toRobberView(robberDocument *documents.Robber) *models.Robber {
+type robberMapper struct{}
+
+func (r robberMapper) ToView(robberDocument *documents.Robber) (*models.Robber, error) {
 	if robberDocument == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &models.Robber{
 		ID: robberDocument.ID,
-	}
+	}, nil
 }

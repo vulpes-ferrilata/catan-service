@@ -5,14 +5,16 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toResourceCardResponse(resourceCard *models.ResourceCard) *responses.ResourceCard {
+type resourceCardMapper struct{}
+
+func (r resourceCardMapper) ToResponse(resourceCard *models.ResourceCard) (*responses.ResourceCard, error) {
 	if resourceCard == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &responses.ResourceCard{
-		ID:         resourceCard.ID.Hex(),
-		Type:       resourceCard.Type,
-		IsSelected: resourceCard.IsSelected,
-	}
+		ID:       resourceCard.ID.Hex(),
+		Type:     resourceCard.Type,
+		Offering: resourceCard.Offering,
+	}, nil
 }

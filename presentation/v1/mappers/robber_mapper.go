@@ -5,12 +5,14 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toRobberResponse(robber *models.Robber) *responses.Robber {
+type robberMapper struct{}
+
+func (r robberMapper) ToResponse(robber *models.Robber) (*responses.Robber, error) {
 	if robber == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &responses.Robber{
 		ID: robber.ID.Hex(),
-	}
+	}, nil
 }

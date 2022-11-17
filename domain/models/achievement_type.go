@@ -24,6 +24,6 @@ func (a AchievementType) String() string {
 }
 
 var (
-	LongestRoad = AchievementType{"LONGEST_ROAD"}
-	LargestArmy = AchievementType{"LARGEST_ARMY"}
+	LongestRoad = AchievementType{"LongestRoad"}
+	LargestArmy = AchievementType{"LargestArmy"}
 )

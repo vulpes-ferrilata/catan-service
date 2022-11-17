@@ -5,9 +5,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 )
 
-func toDiceDocument(dice *models.Dice) *documents.Dice {
+type diceMapper struct{}
+
+func (d diceMapper) ToDocument(dice *models.Dice) (*documents.Dice, error) {
 	if dice == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &documents.Dice{
@@ -15,12 +17,12 @@ func toDiceDocument(dice *models.Dice) *documents.Dice {
 			ID: dice.GetID(),
 		},
 		Number: dice.GetNumber(),
-	}
+	}, nil
 }
 
-func toDiceDomain(diceDocument *documents.Dice) *models.Dice {
+func (d diceMapper) ToDomain(diceDocument *documents.Dice) (*models.Dice, error) {
 	if diceDocument == nil {
-		return nil
+		return nil, nil
 	}
 
 	dice := models.DiceBuilder{}.
@@ -28,5 +30,5 @@ func toDiceDomain(diceDocument *documents.Dice) *models.Dice {
 		SetNumber(diceDocument.Number).
 		Create()
 
-	return dice
+	return dice, nil
 }

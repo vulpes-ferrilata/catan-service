@@ -8,7 +8,7 @@ func NewDevelopmentCardType(enum string) (DevelopmentCardType, error) {
 	developmentCardType := DevelopmentCardType{enum}
 
 	switch developmentCardType {
-	case Knight, Monopoly, RoadBuilding, YearOfPlenty, VictoryPoints:
+	case Knight, Monopoly, RoadBuilding, YearOfPlenty, VictoryPoint:
 		return developmentCardType, nil
 	default:
 		return developmentCardType, errors.New("development type is invalid")
@@ -24,9 +24,9 @@ func (d DevelopmentCardType) String() string {
 }
 
 var (
-	Knight        = DevelopmentCardType{"KNIGHT"}
-	Monopoly      = DevelopmentCardType{"MONOPOLY"}
-	RoadBuilding  = DevelopmentCardType{"ROAD_BUILDING"}
-	YearOfPlenty  = DevelopmentCardType{"YEAR_OF_PLENTY"}
-	VictoryPoints = DevelopmentCardType{"VICTORY_POINTS"}
+	Knight       = DevelopmentCardType{"Knight"}
+	Monopoly     = DevelopmentCardType{"Monopoly"}
+	RoadBuilding = DevelopmentCardType{"RoadBuilding"}
+	YearOfPlenty = DevelopmentCardType{"YearOfPlenty"}
+	VictoryPoint = DevelopmentCardType{"VictoryPoint"}
 )

@@ -7,16 +7,17 @@ import (
 
 type Player struct {
 	aggregate
-	userID           primitive.ObjectID
-	color            PlayerColor
-	turnOrder        int
-	isOffered        bool
-	score            int
-	achievements     []*Achievement
-	resourceCards    []*ResourceCard
-	developmentCards []*DevelopmentCard
-	constructions    []*Construction
-	roads            []*Road
+	userID             primitive.ObjectID
+	color              PlayerColor
+	turnOrder          int
+	receivedOffer      bool
+	discardedResources bool
+	score              int
+	achievements       []*Achievement
+	resourceCards      []*ResourceCard
+	developmentCards   []*DevelopmentCard
+	constructions      []*Construction
+	roads              []*Road
 }
 
 func (p Player) GetUserID() primitive.ObjectID {
@@ -31,8 +32,12 @@ func (p Player) GetTurnOrder() int {
 	return p.turnOrder
 }
 
-func (p Player) IsOffered() bool {
-	return p.isOffered
+func (p Player) IsReceivedOffer() bool {
+	return p.receivedOffer
+}
+
+func (p Player) IsDiscardedResources() bool {
+	return p.discardedResources
 }
 
 func (p Player) GetScore() int {

@@ -5,9 +5,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toLandResponse(land *models.Land) *responses.Land {
+type landMapper struct{}
+
+func (l landMapper) ToResponse(land *models.Land) (*responses.Land, error) {
 	if land == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &responses.Land{
@@ -15,5 +17,5 @@ func toLandResponse(land *models.Land) *responses.Land {
 		Q:        int32(land.Q),
 		R:        int32(land.R),
 		Location: land.Location,
-	}
+	}, nil
 }

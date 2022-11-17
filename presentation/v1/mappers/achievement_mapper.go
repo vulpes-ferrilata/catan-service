@@ -5,13 +5,15 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toAchievementResponse(achievement *models.Achievement) *responses.Achievement {
+type achievementMapper struct{}
+
+func (a achievementMapper) ToResponse(achievement *models.Achievement) (*responses.Achievement, error) {
 	if achievement == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &responses.Achievement{
 		ID:   achievement.ID.Hex(),
 		Type: achievement.Type,
-	}
+	}, nil
 }

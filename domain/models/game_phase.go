@@ -8,7 +8,7 @@ func NewGamePhase(enum string) (GamePhase, error) {
 	gamePhase := GamePhase{enum}
 
 	switch gamePhase {
-	case ResourceProduction, Robbing, ResourceConsumption:
+	case Setup, ResourceProduction, ResourceDiscard, Robbing, ResourceConsumption:
 		return gamePhase, nil
 	default:
 		return gamePhase, errors.Errorf("game phase is invalid")
@@ -24,7 +24,9 @@ func (g GamePhase) String() string {
 }
 
 var (
-	ResourceProduction  = GamePhase{"RESOURCE_PRODUCTION"}
-	Robbing             = GamePhase{"ROBBING"}
-	ResourceConsumption = GamePhase{"RESOURCE_CONSUMPTION"}
+	Setup               = GamePhase{"Setup"}
+	ResourceProduction  = GamePhase{"ResourceProduction"}
+	ResourceDiscard     = GamePhase{"ResourceDiscard"}
+	Robbing             = GamePhase{"Robbing"}
+	ResourceConsumption = GamePhase{"ResourceConsumption"}
 )

@@ -141,22 +141,32 @@
     },
     {
         "locale": "en",
-        "key": "you-have-not-received-offer",
-        "trans": "you have not received offer"
+        "key": "you-have-not-received-any-offer",
+        "trans": "you have not received any offer"
     },
     {
         "locale": "en",
-        "key": "you-must-select-at-least-one-resource-card",
-        "trans": "you must select at least one resource card"
+        "key": "you-must-offer-at-least-one-resource-card",
+        "trans": "you must offer at least one resource card"
     },
     {
         "locale": "en",
-        "key": "selected-player-must-select-at-least-one-resource-card",
-        "trans": "selected player must select at least one resource card"
+        "key": "selected-player-must-offer-at-least-one-resource-card",
+        "trans": "selected player must offer at least one resource card"
     },
     {
         "locale": "en",
-        "key": "active-player-must-select-at-least-one-resource-card",
-        "trans": "active player must select at least one resource card"
+        "key": "active-player-must-offer-at-least-one-resource-card",
+        "trans": "active player must offer at least one resource card"
+    },
+    {
+        "locale": "en",
+        "key": "you-already-discarded-resource-cards",
+        "trans": "you already discarded resource cards"
+    },
+    {
+        "locale": "en",
+        "key": "you-have-no-need-to-discard-resource-cards",
+        "trans": "you have no need to discard resource cards"
     }
 ]

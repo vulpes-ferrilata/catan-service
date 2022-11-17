@@ -128,6 +128,14 @@ func (g *Game) RollDices(userID primitive.ObjectID) error {
 	return nil
 }
 
+func (g *Game) DiscardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
+	if err := g.getState().discardResourceCards(userID, resourceCardIDs); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
 func (g *Game) MoveRobber(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
 	if err := g.getState().moveRobber(userID, terrainID, playerID); err != nil {
 		return errors.WithStack(err)
@@ -611,7 +619,7 @@ func (g *Game) calculateScore() {
 
 		for _, developmentCard := range player.developmentCards {
 			switch developmentCard.developmentCardType {
-			case VictoryPoints:
+			case VictoryPoint:
 				score += 1
 			}
 		}

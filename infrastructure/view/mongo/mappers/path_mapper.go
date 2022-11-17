@@ -5,9 +5,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
-func toPathView(pathDocument *documents.Path) *models.Path {
+type pathMapper struct{}
+
+func (p pathMapper) ToView(pathDocument *documents.Path) (*models.Path, error) {
 	if pathDocument == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &models.Path{
@@ -15,5 +17,5 @@ func toPathView(pathDocument *documents.Path) *models.Path {
 		Q:        pathDocument.Q,
 		R:        pathDocument.R,
 		Location: pathDocument.Location,
-	}
+	}, nil
 }

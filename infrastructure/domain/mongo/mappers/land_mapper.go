@@ -6,9 +6,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 )
 
-func toLandDocument(land *models.Land) *documents.Land {
+type landMapper struct{}
+
+func (l landMapper) ToDocument(land *models.Land) (*documents.Land, error) {
 	if land == nil {
-		return nil
+		return nil, nil
 	}
 
 	landDocument := &documents.Land{
@@ -20,10 +22,10 @@ func toLandDocument(land *models.Land) *documents.Land {
 		Location: land.GetHexCorner().GetLocation().String(),
 	}
 
-	return landDocument
+	return landDocument, nil
 }
 
-func toLandDomain(landDocument *documents.Land) (*models.Land, error) {
+func (l landMapper) ToDomain(landDocument *documents.Land) (*models.Land, error) {
 	if landDocument == nil {
 		return nil, nil
 	}

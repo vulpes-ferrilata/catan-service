@@ -16,7 +16,7 @@ import (
 
 func NewGameRepository(db *mongo.Database) repositories.GameRepository {
 	return &gameRepository{
-		gameCollection: db.Collection("game"),
+		gameCollection: db.Collection("games"),
 	}
 }
 
@@ -39,7 +39,7 @@ func (g gameRepository) GetByID(ctx context.Context, id primitive.ObjectID) (*mo
 		return nil, errors.WithStack(err)
 	}
 
-	game, err := mappers.ToGameDomain(gameDocument)
+	game, err := mappers.GameMapper{}.ToDomain(gameDocument)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -48,7 +48,10 @@ func (g gameRepository) GetByID(ctx context.Context, id primitive.ObjectID) (*mo
 }
 
 func (g gameRepository) Insert(ctx context.Context, game *models.Game) error {
-	gameDocument := mappers.ToGameDocument(game)
+	gameDocument, err := mappers.GameMapper{}.ToDocument(game)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
 	gameDocument.Version = 1
 
@@ -60,7 +63,10 @@ func (g gameRepository) Insert(ctx context.Context, game *models.Game) error {
 }
 
 func (g gameRepository) Update(ctx context.Context, game *models.Game) error {
-	gameDocument := mappers.ToGameDocument(game)
+	gameDocument, err := mappers.GameMapper{}.ToDocument(game)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
 	filter := bson.M{
 		"_id":     gameDocument.ID,

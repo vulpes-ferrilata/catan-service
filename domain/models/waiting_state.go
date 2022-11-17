@@ -94,7 +94,7 @@ func (w waitingState) initResourceCards() {
 			resourceCard := ResourceCardBuilder{}.
 				SetID(primitive.NewObjectID()).
 				SetType(resourceCardType).
-				SetIsSelected(false).
+				SetOffering(false).
 				Create()
 
 			w.game.resourceCards = append(w.game.resourceCards, resourceCard)
@@ -133,7 +133,7 @@ func (w waitingState) initDevelopmentCards() {
 	for i := 1; i <= 5; i++ {
 		developmentCard := DevelopmentCardBuilder{}.
 			SetID(primitive.NewObjectID()).
-			SetType(VictoryPoints).
+			SetType(VictoryPoint).
 			SetStatus(Disable).
 			Create()
 
@@ -418,7 +418,7 @@ func (w waitingState) startGame(userID primitive.ObjectID) error {
 	}
 
 	w.game.status = Started
-	w.game.phase = ResourceProduction
+	w.game.phase = Setup
 
 	return nil
 }
@@ -428,6 +428,10 @@ func (w waitingState) buildSettlementAndRoad(userID primitive.ObjectID, landID p
 }
 
 func (w waitingState) rollDices(userID primitive.ObjectID) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) discardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 

@@ -11,19 +11,19 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/application/queries"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/query"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
 	"github.com/vulpes-ferrilata/catan-service/presentation/v1/mappers"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func NewCatanServer(findGamesByUserIDQueryHandler query.QueryHandler[*queries.FindGamesByUserID, []*models.Game],
-	getGameByIDByUserIDQueryHandler query.QueryHandler[*queries.GetGameByIDByUserID, *models.Game],
+func NewCatanServer(findGamePaginationByLimitByOffsetQueryHandler query.QueryHandler[*queries.FindGamePaginationByLimitByOffset, *models.Pagination[*models.Game]],
+	getGameDetailByIDByUserIDQueryHandler query.QueryHandler[*queries.GetGameDetailByIDByUserID, *models.GameDetail],
 	createGameCommandHandler command.CommandHandler[*commands.CreateGame],
 	joinGameCommandHandler command.CommandHandler[*commands.JoinGame],
 	startGameCommandHandler command.CommandHandler[*commands.StartGame],
 	buildSettlementAndRoadCommandHandler command.CommandHandler[*commands.BuildSettlementAndRoad],
 	rollDicesCommandHandler command.CommandHandler[*commands.RollDices],
+	discardResourceCardsCommandHandler command.CommandHandler[*commands.DiscardResourceCards],
 	moveRobberCommandHandler command.CommandHandler[*commands.MoveRobber],
 	endTurnCommandHandler command.CommandHandler[*commands.EndTurn],
 	buildSettlementCommandHandler command.CommandHandler[*commands.BuildSettlement],
@@ -40,92 +40,95 @@ func NewCatanServer(findGamesByUserIDQueryHandler query.QueryHandler[*queries.Fi
 	playYearOfPlentyCardCommandHandler command.CommandHandler[*commands.PlayYearOfPlentyCard],
 	playMonopolyCardCommandHandler command.CommandHandler[*commands.PlayMonopolyCard]) pb.CatanServer {
 	return &catanServer{
-		findGamesByUserIDQueryHandler:        findGamesByUserIDQueryHandler,
-		getGameByIDByUserIDQueryHandler:      getGameByIDByUserIDQueryHandler,
-		createGameCommandHandler:             createGameCommandHandler,
-		joinGameCommandHandler:               joinGameCommandHandler,
-		startGameCommandHandler:              startGameCommandHandler,
-		buildSettlementAndRoadCommandHandler: buildSettlementAndRoadCommandHandler,
-		rollDicesCommandHandler:              rollDicesCommandHandler,
-		moveRobberCommandHandler:             moveRobberCommandHandler,
-		endTurnCommandHandler:                endTurnCommandHandler,
-		buildSettlementCommandHandler:        buildSettlementCommandHandler,
-		buildRoadCommandHandler:              buildRoadCommand,
-		upgradeCityCommandHandler:            upgradeCityCommandHandler,
-		buyDevelopmentCardCommandHandler:     buyDevelopmentCardCommandHandler,
-		toggleResourceCardsCommandHandler:    toggleResourceCardsCommandHandler,
-		maritimeTradeCommandHandler:          maritimeTradeCommandHandler,
-		sendTradeOfferCommandHandler:         sendTradeOfferCommandHandler,
-		confirmTradeOfferCommandHandler:      confirmTradeOfferCommandHandler,
-		cancelTradeOfferCommandHandler:       cancelTradeOfferCommandHandler,
-		playKnightCardCommandHandler:         playKnightCardCommandHandler,
-		playRoadBuildingCardCommandHandler:   playRoadBuildingCardCommandHandler,
-		playYearOfPlentyCardCommandHandler:   playYearOfPlentyCardCommandHandler,
-		playMonopolyCardCommandHandler:       playMonopolyCardCommandHandler,
+		findGamePaginationByLimitByOffsetQueryHandler: findGamePaginationByLimitByOffsetQueryHandler,
+		getGameDetailByIDByUserIDQueryHandler:         getGameDetailByIDByUserIDQueryHandler,
+		createGameCommandHandler:                      createGameCommandHandler,
+		joinGameCommandHandler:                        joinGameCommandHandler,
+		startGameCommandHandler:                       startGameCommandHandler,
+		buildSettlementAndRoadCommandHandler:          buildSettlementAndRoadCommandHandler,
+		rollDicesCommandHandler:                       rollDicesCommandHandler,
+		discardResourceCardsCommandHandler:            discardResourceCardsCommandHandler,
+		moveRobberCommandHandler:                      moveRobberCommandHandler,
+		endTurnCommandHandler:                         endTurnCommandHandler,
+		buildSettlementCommandHandler:                 buildSettlementCommandHandler,
+		buildRoadCommandHandler:                       buildRoadCommand,
+		upgradeCityCommandHandler:                     upgradeCityCommandHandler,
+		buyDevelopmentCardCommandHandler:              buyDevelopmentCardCommandHandler,
+		toggleResourceCardsCommandHandler:             toggleResourceCardsCommandHandler,
+		maritimeTradeCommandHandler:                   maritimeTradeCommandHandler,
+		sendTradeOfferCommandHandler:                  sendTradeOfferCommandHandler,
+		confirmTradeOfferCommandHandler:               confirmTradeOfferCommandHandler,
+		cancelTradeOfferCommandHandler:                cancelTradeOfferCommandHandler,
+		playKnightCardCommandHandler:                  playKnightCardCommandHandler,
+		playRoadBuildingCardCommandHandler:            playRoadBuildingCardCommandHandler,
+		playYearOfPlentyCardCommandHandler:            playYearOfPlentyCardCommandHandler,
+		playMonopolyCardCommandHandler:                playMonopolyCardCommandHandler,
 	}
 }
 
 type catanServer struct {
 	pb.UnimplementedCatanServer
-	findGamesByUserIDQueryHandler        query.QueryHandler[*queries.FindGamesByUserID, []*models.Game]
-	getGameByIDByUserIDQueryHandler      query.QueryHandler[*queries.GetGameByIDByUserID, *models.Game]
-	createGameCommandHandler             command.CommandHandler[*commands.CreateGame]
-	joinGameCommandHandler               command.CommandHandler[*commands.JoinGame]
-	startGameCommandHandler              command.CommandHandler[*commands.StartGame]
-	buildSettlementAndRoadCommandHandler command.CommandHandler[*commands.BuildSettlementAndRoad]
-	rollDicesCommandHandler              command.CommandHandler[*commands.RollDices]
-	moveRobberCommandHandler             command.CommandHandler[*commands.MoveRobber]
-	endTurnCommandHandler                command.CommandHandler[*commands.EndTurn]
-	buildSettlementCommandHandler        command.CommandHandler[*commands.BuildSettlement]
-	buildRoadCommandHandler              command.CommandHandler[*commands.BuildRoad]
-	upgradeCityCommandHandler            command.CommandHandler[*commands.UpgradeCity]
-	buyDevelopmentCardCommandHandler     command.CommandHandler[*commands.BuyDevelopmentCard]
-	toggleResourceCardsCommandHandler    command.CommandHandler[*commands.ToggleResourceCards]
-	maritimeTradeCommandHandler          command.CommandHandler[*commands.MaritimeTrade]
-	sendTradeOfferCommandHandler         command.CommandHandler[*commands.SendTradeOffer]
-	confirmTradeOfferCommandHandler      command.CommandHandler[*commands.ConfirmTradeOffer]
-	cancelTradeOfferCommandHandler       command.CommandHandler[*commands.CancelTradeOffer]
-	playKnightCardCommandHandler         command.CommandHandler[*commands.PlayKnightCard]
-	playRoadBuildingCardCommandHandler   command.CommandHandler[*commands.PlayRoadBuildingCard]
-	playYearOfPlentyCardCommandHandler   command.CommandHandler[*commands.PlayYearOfPlentyCard]
-	playMonopolyCardCommandHandler       command.CommandHandler[*commands.PlayMonopolyCard]
+	findGamePaginationByLimitByOffsetQueryHandler query.QueryHandler[*queries.FindGamePaginationByLimitByOffset, *models.Pagination[*models.Game]]
+	getGameDetailByIDByUserIDQueryHandler         query.QueryHandler[*queries.GetGameDetailByIDByUserID, *models.GameDetail]
+	createGameCommandHandler                      command.CommandHandler[*commands.CreateGame]
+	joinGameCommandHandler                        command.CommandHandler[*commands.JoinGame]
+	startGameCommandHandler                       command.CommandHandler[*commands.StartGame]
+	buildSettlementAndRoadCommandHandler          command.CommandHandler[*commands.BuildSettlementAndRoad]
+	rollDicesCommandHandler                       command.CommandHandler[*commands.RollDices]
+	discardResourceCardsCommandHandler            command.CommandHandler[*commands.DiscardResourceCards]
+	moveRobberCommandHandler                      command.CommandHandler[*commands.MoveRobber]
+	endTurnCommandHandler                         command.CommandHandler[*commands.EndTurn]
+	buildSettlementCommandHandler                 command.CommandHandler[*commands.BuildSettlement]
+	buildRoadCommandHandler                       command.CommandHandler[*commands.BuildRoad]
+	upgradeCityCommandHandler                     command.CommandHandler[*commands.UpgradeCity]
+	buyDevelopmentCardCommandHandler              command.CommandHandler[*commands.BuyDevelopmentCard]
+	toggleResourceCardsCommandHandler             command.CommandHandler[*commands.ToggleResourceCards]
+	maritimeTradeCommandHandler                   command.CommandHandler[*commands.MaritimeTrade]
+	sendTradeOfferCommandHandler                  command.CommandHandler[*commands.SendTradeOffer]
+	confirmTradeOfferCommandHandler               command.CommandHandler[*commands.ConfirmTradeOffer]
+	cancelTradeOfferCommandHandler                command.CommandHandler[*commands.CancelTradeOffer]
+	playKnightCardCommandHandler                  command.CommandHandler[*commands.PlayKnightCard]
+	playRoadBuildingCardCommandHandler            command.CommandHandler[*commands.PlayRoadBuildingCard]
+	playYearOfPlentyCardCommandHandler            command.CommandHandler[*commands.PlayYearOfPlentyCard]
+	playMonopolyCardCommandHandler                command.CommandHandler[*commands.PlayMonopolyCard]
 }
 
-func (c catanServer) FindGamesByUserID(ctx context.Context, findGamesByUserIDRequest *requests.FindGamesByUserID) (*responses.GameList, error) {
-	findGamesByUserIDQuery := &queries.FindGamesByUserID{
-		UserID: findGamesByUserIDRequest.GetUserID(),
+func (c catanServer) FindGamePaginationByLimitByOffset(ctx context.Context, findGamePaginationByLimitByOffsetRequest *requests.FindGamePaginationByLimitByOffset) (*responses.GamePagination, error) {
+	findGamePaginationByLimitByOffsetQuery := &queries.FindGamePaginationByLimitByOffset{
+		Limit:  int(findGamePaginationByLimitByOffsetRequest.GetLimit()),
+		Offset: int(findGamePaginationByLimitByOffsetRequest.GetOffset()),
 	}
 
-	games, err := c.findGamesByUserIDQueryHandler.Handle(ctx, findGamesByUserIDQuery)
+	gamePagination, err := c.findGamePaginationByLimitByOffsetQueryHandler.Handle(ctx, findGamePaginationByLimitByOffsetQuery)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	gameResponses, _ := slices.Map(func(game *models.Game) (*responses.Game, error) {
-		return mappers.ToGameResponse(game), nil
-	}, games)
-
-	gameListResponse := &responses.GameList{
-		Games: gameResponses,
-	}
-
-	return gameListResponse, nil
-}
-
-func (c catanServer) GetGameByIDByUserID(ctx context.Context, getGameByIDByUserIDRequest *requests.GetGameByIDByUserID) (*responses.Game, error) {
-	getGameByIDByUserIDQuery := &queries.GetGameByIDByUserID{
-		GameID: getGameByIDByUserIDRequest.GetGameID(),
-		UserID: getGameByIDByUserIDRequest.GetUserID(),
-	}
-
-	game, err := c.getGameByIDByUserIDQueryHandler.Handle(ctx, getGameByIDByUserIDQuery)
+	gamePaginationResponse, err := mappers.GamePaginationMapper{}.ToResponse(gamePagination)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	gameResponse := mappers.ToGameResponse(game)
+	return gamePaginationResponse, nil
+}
 
-	return gameResponse, nil
+func (c catanServer) GetGameDetailByIDByUserID(ctx context.Context, getGameDetailByIDByUserIDRequest *requests.GetGameDetailByIDByUserID) (*responses.GameDetail, error) {
+	getGameDetailByIDByUserIDQuery := &queries.GetGameDetailByIDByUserID{
+		GameID: getGameDetailByIDByUserIDRequest.GetGameID(),
+		UserID: getGameDetailByIDByUserIDRequest.GetUserID(),
+	}
+
+	gameDetail, err := c.getGameDetailByIDByUserIDQueryHandler.Handle(ctx, getGameDetailByIDByUserIDQuery)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	gameDetailResponse, err := mappers.GameDetailMapper{}.ToResponse(gameDetail)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return gameDetailResponse, nil
 }
 
 func (c catanServer) CreateGame(ctx context.Context, createGameRequest *requests.CreateGame) (*emptypb.Empty, error) {
@@ -189,6 +192,20 @@ func (c catanServer) RollDices(ctx context.Context, rollDicesRequest *requests.R
 	}
 
 	if err := c.rollDicesCommandHandler.Handle(ctx, rollDicesCommand); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c catanServer) DiscardResourceCards(ctx context.Context, discardResourceCardsRequest *requests.DiscardResourceCards) (*emptypb.Empty, error) {
+	discardResourceCardsCommand := &commands.DiscardResourceCards{
+		GameID:          discardResourceCardsRequest.GetGameID(),
+		UserID:          discardResourceCardsRequest.GetUserID(),
+		ResourceCardIDs: discardResourceCardsRequest.GetResourceCardIDs(),
+	}
+
+	if err := c.discardResourceCardsCommandHandler.Handle(ctx, discardResourceCardsCommand); err != nil {
 		return nil, errors.WithStack(err)
 	}
 

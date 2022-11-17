@@ -6,9 +6,11 @@ import (
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 )
 
-func toHarborDocument(harbor *models.Harbor) *documents.Harbor {
+type harborMapper struct{}
+
+func (h harborMapper) ToDocument(harbor *models.Harbor) (*documents.Harbor, error) {
 	if harbor == nil {
-		return nil
+		return nil, nil
 	}
 
 	return &documents.Harbor{
@@ -18,10 +20,10 @@ func toHarborDocument(harbor *models.Harbor) *documents.Harbor {
 		Q:    harbor.GetHex().GetQ(),
 		R:    harbor.GetHex().GetR(),
 		Type: harbor.GetType().String(),
-	}
+	}, nil
 }
 
-func toHarborDomain(harborDocument *documents.Harbor) (*models.Harbor, error) {
+func (h harborMapper) ToDomain(harborDocument *documents.Harbor) (*models.Harbor, error) {
 	if harborDocument == nil {
 		return nil, nil
 	}
