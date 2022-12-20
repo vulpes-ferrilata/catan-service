@@ -82,7 +82,7 @@ func (r robbingPhase) toggleResourceCards(userID primitive.ObjectID, resourceCar
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInRobbingPhase)
 }
 
-func (r robbingPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+func (r robbingPhase) maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInRobbingPhase)
 }
 

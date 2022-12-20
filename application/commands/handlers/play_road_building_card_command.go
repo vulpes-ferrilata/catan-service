@@ -28,20 +28,25 @@ type playRoadBuildingCardCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (p playRoadBuildingCardCommandHandler) Handle(ctx context.Context, playRoadBuildingCard *commands.PlayRoadBuildingCard) error {
-	gameID, err := primitive.ObjectIDFromHex(playRoadBuildingCard.GameID)
+func (p playRoadBuildingCardCommandHandler) Handle(ctx context.Context, playRoadBuildingCardCommand *commands.PlayRoadBuildingCard) error {
+	gameID, err := primitive.ObjectIDFromHex(playRoadBuildingCardCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := primitive.ObjectIDFromHex(playRoadBuildingCard.UserID)
+	userID, err := primitive.ObjectIDFromHex(playRoadBuildingCardCommand.UserID)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	developmentCardID, err := primitive.ObjectIDFromHex(playRoadBuildingCardCommand.DevelopmentCardID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
 	pathIDs, err := slices.Map(func(pathID string) (primitive.ObjectID, error) {
 		return primitive.ObjectIDFromHex(pathID)
-	}, playRoadBuildingCard.PathIDs)
+	}, playRoadBuildingCardCommand.PathIDs)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -51,7 +56,7 @@ func (p playRoadBuildingCardCommandHandler) Handle(ctx context.Context, playRoad
 		return errors.WithStack(err)
 	}
 
-	if err := game.PlayRoadBuildingCard(userID, pathIDs); err != nil {
+	if err := game.PlayRoadBuildingCard(userID, developmentCardID, pathIDs); err != nil {
 		return errors.WithStack(err)
 	}
 

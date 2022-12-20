@@ -51,8 +51,28 @@
     },
     {
         "locale": "vi",
-        "key": "you-are-unable-to-perform-this-action-in-current-phase",
-        "trans": "bạn không thể thực hiện hành động này ở giai đoạn {0}"
+        "key": "you-are-unable-to-perform-this-action-in-setup-phase",
+        "trans": "bạn không thể thực hiện hành động này ở giai đoạn thiết lập"
+    },
+    {
+        "locale": "vi",
+        "key": "you-are-unable-to-perform-this-action-in-resource-production-phase",
+        "trans": "bạn không thể thực hiện hành động này ở giai đoạn sản xuất tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "you-are-unable-to-perform-this-action-in-resource-discard-phase",
+        "trans": "bạn không thể thực hiện hành động này ở giai đoạn hủy bỏ tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "you-are-unable-to-perform-this-action-in-robbing-phase",
+        "trans": "bạn không thể thực hiện hành động này ở giai đoạn cướp"
+    },
+    {
+        "locale": "vi",
+        "key": "you-are-unable-to-perform-this-action-in-resource-consumption-phase",
+        "trans": "bạn không thể thực hiện hành động này ở giai đoạn tiêu thụ tài nguyên"
     },
     {
         "locale": "vi",
@@ -161,6 +181,11 @@
     },
     {
         "locale": "vi",
+        "key": "selected-resource-cards-must-be-equals-to-half-of-your-currently-resource-cards",
+        "trans": "thẻ tài nguyên được chọn phải bằng một nửa tài nguyên bạn sở hữu"
+    },
+    {
+        "locale": "vi",
         "key": "you-already-discarded-resource-cards",
         "trans": "bạn đã bỏ thẻ tài nguyên rồi"
     },
@@ -168,5 +193,35 @@
         "locale": "vi",
         "key": "you-have-no-need-to-discard-resource-cards",
         "trans": "bạn không cần bỏ thẻ tài nguyên"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-development-card-is-unavailable-to-use",
+        "trans": "thẻ phát triển được chọn không thể sử dụng"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-development-card-must-be-knight-card",
+        "trans": "thẻ phát triển được chọn phải là thẻ hiệp sĩ"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-development-card-must-be-road-building-card",
+        "trans": "thẻ phát triển được chọn phải là thẻ xây đường"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-development-card-must-be-year-of-plenty-card",
+        "trans": "thẻ phát triển được chọn phải là thẻ năm sung túc"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-development-card-must-be-monopoly-card",
+        "trans": "thẻ phát triển được chọn phải là thẻ độc quyền"
+    },
+    {
+        "locale": "vi",
+        "key": "selected-development-card-must-be-victory-point-card",
+        "trans": "thẻ phát triển được chọn phải là thẻ điểm"
     }
 ]

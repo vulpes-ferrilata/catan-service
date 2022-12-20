@@ -116,8 +116,8 @@ func (s startedState) toggleResourceCards(userID primitive.ObjectID, resourceCar
 	return nil
 }
 
-func (s startedState) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
-	if err := s.getPhase().maritimeTrade(userID, demandingResourceCardType); err != nil {
+func (s startedState) maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
+	if err := s.getPhase().maritimeTrade(userID, resourceCardType, demandingResourceCardType); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -148,13 +148,32 @@ func (s startedState) cancelTradeOffer(userID primitive.ObjectID) error {
 	return nil
 }
 
-func (s startedState) playKnightCard(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (s startedState) playKnightCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
 	if s.game.activePlayer.userID != userID {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	if err := s.game.useDevelopmentCard(Knight); err != nil {
-		return errors.WithStack(err)
+	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
+		return developmentCard.id == developmentCardID
+	}, s.game.activePlayer.developmentCards)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
+	}
+
+	if developmentCard.developmentCardType != Knight {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardMustBeKnightCard)
+	}
+
+	if developmentCard.status != Enable {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardIsUnavailableToUse)
+	}
+
+	developmentCard.status = Used
+
+	for _, developmentCard := range s.game.activePlayer.developmentCards {
+		if developmentCard.status == Enable && !developmentCard.isVictoryPointCard() {
+			developmentCard.status = Disable
+		}
 	}
 
 	terrain, isExists := slices.Find(func(terrain *Terrain) bool {
@@ -191,9 +210,32 @@ func (s startedState) playKnightCard(userID primitive.ObjectID, terrainID primit
 	return nil
 }
 
-func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
+func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
 	if s.game.activePlayer.userID != userID {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
+	}
+
+	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
+		return developmentCard.id == developmentCardID
+	}, s.game.activePlayer.developmentCards)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
+	}
+
+	if developmentCard.developmentCardType != RoadBuilding {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardMustBeRoadBuildingCard)
+	}
+
+	if developmentCard.status != Enable {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardIsUnavailableToUse)
+	}
+
+	developmentCard.status = Used
+
+	for _, developmentCard := range s.game.activePlayer.developmentCards {
+		if developmentCard.status == Enable && !developmentCard.isVictoryPointCard() {
+			developmentCard.status = Disable
+		}
 	}
 
 	paths, err := slices.Map(func(pathID primitive.ObjectID) (*Path, error) {
@@ -207,10 +249,6 @@ func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []
 		return path, nil
 	}, pathIDs)
 	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	if err := s.game.useDevelopmentCard(RoadBuilding); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -229,21 +267,44 @@ func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []
 	return nil
 }
 
-func (s startedState) playYearOfPlentyCard(userID primitive.ObjectID, resourceCardTypes []ResourceCardType) error {
+func (s startedState) playYearOfPlentyCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, demandingResourceCardTypes []ResourceCardType) error {
 	if s.game.activePlayer.userID != userID {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	if err := s.game.useDevelopmentCard(YearOfPlenty); err != nil {
-		return errors.WithStack(err)
+	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
+		return developmentCard.id == developmentCardID
+	}, s.game.activePlayer.developmentCards)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
 	}
 
-	for _, resourceCardType := range resourceCardTypes {
+	if developmentCard.developmentCardType != YearOfPlenty {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardMustBeYearOfPlentyCard)
+	}
+
+	if developmentCard.status != Enable {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardIsUnavailableToUse)
+	}
+
+	developmentCard.status = Used
+
+	for _, developmentCard := range s.game.activePlayer.developmentCards {
+		if developmentCard.status == Enable && !developmentCard.isVictoryPointCard() {
+			developmentCard.status = Disable
+		}
+	}
+
+	if len(demandingResourceCardTypes) == 1 {
+		demandingResourceCardTypes = append(demandingResourceCardTypes, demandingResourceCardTypes...)
+	}
+
+	for _, resourceCardType := range demandingResourceCardTypes {
 		resourceCard, isExists := slices.Find(func(resourceCard *ResourceCard) bool {
 			return resourceCard.resourceCardType == resourceCardType
 		}, s.game.resourceCards)
 		if !isExists {
-			return errors.WithStack(app_errors.ErrGameHasInsufficientResourceCards)
+			continue
 		}
 
 		s.game.resourceCards = slices.Remove(s.game.resourceCards, resourceCard)
@@ -253,27 +314,73 @@ func (s startedState) playYearOfPlentyCard(userID primitive.ObjectID, resourceCa
 	return nil
 }
 
-func (s startedState) playMonopolyCard(userID primitive.ObjectID, resourceCardType ResourceCardType) error {
+func (s startedState) playMonopolyCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
 	if s.game.activePlayer.userID != userID {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	if err := s.game.useDevelopmentCard(Monopoly); err != nil {
-		return errors.WithStack(err)
+	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
+		return developmentCard.id == developmentCardID
+	}, s.game.activePlayer.developmentCards)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
 	}
 
-	resourceCards := make([]*ResourceCard, 0)
+	if developmentCard.developmentCardType != Monopoly {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardMustBeMonopolyCard)
+	}
+
+	if developmentCard.status != Enable {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardIsUnavailableToUse)
+	}
+
+	developmentCard.status = Used
+
+	for _, developmentCard := range s.game.activePlayer.developmentCards {
+		if developmentCard.status == Enable && !developmentCard.isVictoryPointCard() {
+			developmentCard.status = Disable
+		}
+	}
+
+	demandingResourceCards := make([]*ResourceCard, 0)
 
 	for _, player := range s.game.players {
 		for _, resourceCard := range player.resourceCards {
-			if resourceCard.resourceCardType == resourceCardType {
+			if resourceCard.resourceCardType == demandingResourceCardType {
 				player.resourceCards = slices.Remove(player.resourceCards, resourceCard)
-				resourceCards = append(resourceCards, resourceCard)
+				demandingResourceCards = append(demandingResourceCards, resourceCard)
 			}
 		}
 	}
 
-	s.game.activePlayer.resourceCards = append(s.game.activePlayer.resourceCards, resourceCards...)
+	s.game.activePlayer.resourceCards = append(s.game.activePlayer.resourceCards, demandingResourceCards...)
+
+	return nil
+}
+
+func (s startedState) playVictoryPointCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID) error {
+	if s.game.activePlayer.userID != userID {
+		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
+	}
+
+	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
+		return developmentCard.id == developmentCardID
+	}, s.game.activePlayer.developmentCards)
+	if !isExists {
+		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
+	}
+
+	if !developmentCard.isVictoryPointCard() {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardMustBeVictoryPointCard)
+	}
+
+	if developmentCard.status != Enable {
+		return errors.WithStack(app_errors.ErrSelectedDevelopmentCardIsUnavailableToUse)
+	}
+
+	developmentCard.status = Used
+
+	s.game.calculateScore()
 
 	return nil
 }

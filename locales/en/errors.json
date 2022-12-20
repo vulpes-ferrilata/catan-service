@@ -51,8 +51,28 @@
     },
     {
         "locale": "en",
-        "key": "you-are-unable-to-perform-this-action-in-current-phase",
-        "trans": "you are unable to perform this action in {0} phase"
+        "key": "you-are-unable-to-perform-this-action-in-setup-phase",
+        "trans": "you are unable to perform this action in setup phase"
+    },
+    {
+        "locale": "en",
+        "key": "you-are-unable-to-perform-this-action-in-resource-production-phase",
+        "trans": "you are unable to perform this action in resource production phase"
+    },
+    {
+        "locale": "en",
+        "key": "you-are-unable-to-perform-this-action-in-resource-discard-phase",
+        "trans": "you are unable to perform this action in resource discard phase"
+    },
+    {
+        "locale": "en",
+        "key": "you-are-unable-to-perform-this-action-in-robbing-phase",
+        "trans": "you are unable to perform this action in robbing phase"
+    },
+    {
+        "locale": "en",
+        "key": "you-are-unable-to-perform-this-action-in-resource-consumption-phase",
+        "trans": "you are unable to perform this action in resource consumption phase"
     },
     {
         "locale": "en",
@@ -161,6 +181,11 @@
     },
     {
         "locale": "en",
+        "key": "selected-resource-cards-must-be-equals-to-half-of-your-currently-resource-cards",
+        "trans": "selected resource cards must be equals to half of your currently resource cards"
+    },
+    {
+        "locale": "en",
         "key": "you-already-discarded-resource-cards",
         "trans": "you already discarded resource cards"
     },
@@ -168,5 +193,35 @@
         "locale": "en",
         "key": "you-have-no-need-to-discard-resource-cards",
         "trans": "you have no need to discard resource cards"
+    },
+    {
+        "locale": "en",
+        "key": "selected-development-card-is-unavailable-to-use",
+        "trans": "selected development card is unavailable to use"
+    },
+    {
+        "locale": "en",
+        "key": "selected-development-card-must-be-knight-card",
+        "trans": "selected development card must be knight card"
+    },
+    {
+        "locale": "en",
+        "key": "selected-development-card-must-be-road-building-card",
+        "trans": "selected development card must be road building card"
+    },
+    {
+        "locale": "en",
+        "key": "selected-development-card-must-be-year-of-plenty-card",
+        "trans": "selected development card must be year of plenty card"
+    },
+    {
+        "locale": "en",
+        "key": "selected-development-card-must-be-monopoly-card",
+        "trans": "selected development card must be monopoly card"
+    },
+    {
+        "locale": "en",
+        "key": "selected-development-card-must-be-victory-point-card",
+        "trans": "selected development card must be victory point card"
     }
 ]

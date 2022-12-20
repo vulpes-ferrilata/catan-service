@@ -95,6 +95,8 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 		}
 	}
 
+	s.game.calculateScore()
+
 	switch s.game.turn {
 	case 1:
 		nextPlayer, isExists := slices.Find(func(p *Player) bool {
@@ -120,8 +122,6 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 
 		*s.game.activePlayer, *nextPlayer = *nextPlayer, *s.game.activePlayer //swap pointer
 	}
-
-	s.game.calculateScore()
 
 	return nil
 }
@@ -162,7 +162,7 @@ func (s setupPhase) toggleResourceCards(userID primitive.ObjectID, resourceCardI
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 
-func (s setupPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+func (s setupPhase) maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInSetupPhase)
 }
 

@@ -58,7 +58,7 @@ func (f finishedState) toggleResourceCards(userID primitive.ObjectID, resourceCa
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
-func (f finishedState) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+func (f finishedState) maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
@@ -74,18 +74,22 @@ func (f finishedState) cancelTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
-func (f finishedState) playKnightCard(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (f finishedState) playKnightCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
-func (f finishedState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
+func (f finishedState) playRoadBuildingCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
-func (f finishedState) playYearOfPlentyCard(userID primitive.ObjectID, resourceCardTypes []ResourceCardType) error {
+func (f finishedState) playYearOfPlentyCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, demandingResourceCardTypes []ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }
 
-func (f finishedState) playMonopolyCard(userID primitive.ObjectID, resourceCardType ResourceCardType) error {
+func (f finishedState) playMonopolyCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
+}
+
+func (f finishedState) playVictoryPointCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameAlreadyFinished)
 }

@@ -166,10 +166,13 @@ func (r resourceConsumptionPhase) buyDevelopmentCard(userID primitive.ObjectID) 
 
 	developmentCardIdx := rand.Intn(len(r.game.developmentCards))
 	developmentCard := r.game.developmentCards[developmentCardIdx]
+
+	if developmentCard.isVictoryPointCard() {
+		developmentCard.status = Enable
+	}
+
 	r.game.developmentCards = slices.Remove(r.game.developmentCards, developmentCard)
 	r.game.activePlayer.developmentCards = append(r.game.activePlayer.developmentCards, developmentCard)
-
-	r.game.calculateScore()
 
 	return nil
 }
@@ -205,77 +208,64 @@ func (r resourceConsumptionPhase) toggleResourceCards(userID primitive.ObjectID,
 	return nil
 }
 
-func (r resourceConsumptionPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+func (r resourceConsumptionPhase) maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
 	if r.game.activePlayer.userID != userID {
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	totalDemandingResourceCardQuantity := 0
+	var requiringResourceCardQuantity int
 
-	requiringResourceCardTypes := []ResourceCardType{
-		Lumber,
-		Brick,
-		Wool,
-		Grain,
-		Ore,
+	var specificHarborType HarborType
+
+	switch resourceCardType {
+	case Lumber:
+		specificHarborType = LumberHarbor
+	case Brick:
+		specificHarborType = BrickHarbor
+	case Wool:
+		specificHarborType = WoolHarbor
+	case Grain:
+		specificHarborType = GrainHarbor
+	case Ore:
+		specificHarborType = OreHarbor
 	}
 
-	for _, requiringResourceCardType := range requiringResourceCardTypes {
-		var requiringResourceCardQuantity int
-
-		var specificHarborType HarborType
-
-		switch requiringResourceCardType {
-		case Lumber:
-			specificHarborType = LumberHarbor
-		case Brick:
-			specificHarborType = BrickHarbor
-		case Wool:
-			specificHarborType = WoolHarbor
-		case Grain:
-			specificHarborType = GrainHarbor
-		case Ore:
-			specificHarborType = OreHarbor
-		}
-
-		if r.isActivePlayerHasConstructionAdjacentToSpecificHarborType(specificHarborType) {
-			requiringResourceCardQuantity = 2
-		} else if r.isActivePlayerHasConstructionAdjacentToSpecificHarborType(GeneralHarbor) {
-			requiringResourceCardQuantity = 3
-		} else {
-			requiringResourceCardQuantity = 4
-		}
-
-		requiringResourceCards := slices.Filter(func(resourceCard *ResourceCard) bool {
-			return resourceCard.resourceCardType == requiringResourceCardType && resourceCard.offering
-		}, r.game.activePlayer.resourceCards)
-
-		demandingResourceCardQuantity := len(requiringResourceCards) / requiringResourceCardQuantity
-
-		requiringResourceCards = requiringResourceCards[:demandingResourceCardQuantity*requiringResourceCardQuantity]
-
-		for _, requiringResourceCard := range requiringResourceCards {
-			requiringResourceCard.offering = false
-		}
-		//substract requiring resource cards
-		r.game.activePlayer.resourceCards = slices.Remove(r.game.activePlayer.resourceCards, requiringResourceCards...)
-		r.game.resourceCards = append(r.game.resourceCards, requiringResourceCards...)
-
-		totalDemandingResourceCardQuantity += demandingResourceCardQuantity
+	if r.isActivePlayerHasConstructionAdjacentToSpecificHarborType(specificHarborType) {
+		requiringResourceCardQuantity = 2
+	} else if r.isActivePlayerHasConstructionAdjacentToSpecificHarborType(GeneralHarbor) {
+		requiringResourceCardQuantity = 3
+	} else {
+		requiringResourceCardQuantity = 4
 	}
 
-	demandingResourceCards := slices.Filter(func(resourceCard *ResourceCard) bool {
+	requiringResourceCards := slices.Filter(func(resourceCard *ResourceCard) bool {
+		return resourceCard.resourceCardType == resourceCardType
+	}, r.game.activePlayer.resourceCards)
+
+	if len(requiringResourceCards) < requiringResourceCardQuantity {
+		return errors.WithStack(app_errors.ErrYouHaveInsufficientResourceCards)
+	}
+
+	requiringResourceCards = requiringResourceCards[:requiringResourceCardQuantity]
+
+	for _, requiringResourceCard := range requiringResourceCards {
+		requiringResourceCard.offering = false
+	}
+
+	//substract requiring resource cards
+	r.game.activePlayer.resourceCards = slices.Remove(r.game.activePlayer.resourceCards, requiringResourceCards...)
+	r.game.resourceCards = append(r.game.resourceCards, requiringResourceCards...)
+
+	demandingResourceCard, isExists := slices.Find(func(resourceCard *ResourceCard) bool {
 		return resourceCard.resourceCardType == demandingResourceCardType
 	}, r.game.resourceCards)
-
-	if len(demandingResourceCards) < totalDemandingResourceCardQuantity {
+	if !isExists {
 		return errors.WithStack(app_errors.ErrGameHasInsufficientResourceCards)
 	}
 
-	demandingResourceCards = demandingResourceCards[:totalDemandingResourceCardQuantity]
 	//add demanding resource cards
-	r.game.resourceCards = slices.Remove(r.game.resourceCards, demandingResourceCards...)
-	r.game.activePlayer.resourceCards = append(r.game.activePlayer.resourceCards, demandingResourceCards...)
+	r.game.resourceCards = slices.Remove(r.game.resourceCards, demandingResourceCard)
+	r.game.activePlayer.resourceCards = append(r.game.activePlayer.resourceCards, demandingResourceCard)
 
 	return nil
 }

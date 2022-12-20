@@ -96,7 +96,7 @@ func (r resourceDiscardPhase) toggleResourceCards(userID primitive.ObjectID, res
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceDiscardPhase)
 }
 
-func (r resourceDiscardPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+func (r resourceDiscardPhase) maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceDiscardPhase)
 }
 

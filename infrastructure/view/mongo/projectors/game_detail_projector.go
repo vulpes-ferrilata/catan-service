@@ -53,8 +53,6 @@ func (g gameDetailProjector) GetByIDByUserID(ctx context.Context, id primitive.O
 						developmentCard.Type = "Hidden"
 					}
 				}
-
-				playerDocument.Score = 0
 			}
 		}
 	}

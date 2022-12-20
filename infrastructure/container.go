@@ -62,6 +62,7 @@ func NewContainer() *dig.Container {
 	container.Provide(command_handlers.NewPlayRoadBuildingCardCommandHandler)
 	container.Provide(command_handlers.NewPlayYearOfPlentyCardCommandHandler)
 	container.Provide(command_handlers.NewPlayMonopolyCardCommandHandler)
+	container.Provide(command_handlers.NewPlayVictoryPointCardCommandHandler)
 
 	//Presentation layer
 	container.Provide(servers.NewCatanServer)

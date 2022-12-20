@@ -38,6 +38,11 @@ func (p playKnightCardCommandHandler) Handle(ctx context.Context, playKnightCard
 		return errors.WithStack(err)
 	}
 
+	developmentCardID, err := primitive.ObjectIDFromHex(playKnightCardCommand.DevelopmentCardID)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
 	terrainID, err := primitive.ObjectIDFromHex(playKnightCardCommand.TerrainID)
 	if err != nil {
 		return errors.WithStack(err)
@@ -56,7 +61,7 @@ func (p playKnightCardCommandHandler) Handle(ctx context.Context, playKnightCard
 		return errors.WithStack(err)
 	}
 
-	if err := game.PlayKnightCard(userID, terrainID, playerID); err != nil {
+	if err := game.PlayKnightCard(userID, developmentCardID, terrainID, playerID); err != nil {
 		return errors.WithStack(err)
 	}
 

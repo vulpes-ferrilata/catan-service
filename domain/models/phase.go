@@ -15,7 +15,7 @@ type phase interface {
 	upgradeCity(userID primitive.ObjectID, constructionID primitive.ObjectID) error
 	buyDevelopmentCard(userID primitive.ObjectID) error
 	toggleResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error
-	maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error
+	maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error
 	sendTradeOffer(userID primitive.ObjectID, playerID primitive.ObjectID) error
 	confirmTradeOffer(userID primitive.ObjectID) error
 	cancelTradeOffer(userID primitive.ObjectID) error

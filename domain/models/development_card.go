@@ -13,3 +13,12 @@ func (r DevelopmentCard) GetType() DevelopmentCardType {
 func (r DevelopmentCard) GetStatus() developmentCardStatus {
 	return r.status
 }
+
+func (r DevelopmentCard) isVictoryPointCard() bool {
+	switch r.developmentCardType {
+	case Chapel, GreatHall, Library, Market, University:
+		return true
+	default:
+		return false
+	}
+}

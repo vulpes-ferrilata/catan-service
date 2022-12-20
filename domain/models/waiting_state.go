@@ -130,10 +130,17 @@ func (w waitingState) initDevelopmentCards() {
 		}
 	}
 
-	for i := 1; i <= 5; i++ {
+	victoryPointDevelopmentCardTypes := []DevelopmentCardType{
+		Chapel,
+		GreatHall,
+		Library,
+		Market,
+		University,
+	}
+	for _, victovictoryPointDevelopmentCardType := range victoryPointDevelopmentCardTypes {
 		developmentCard := DevelopmentCardBuilder{}.
 			SetID(primitive.NewObjectID()).
-			SetType(VictoryPoint).
+			SetType(victovictoryPointDevelopmentCardType).
 			SetStatus(Disable).
 			Create()
 
@@ -463,7 +470,7 @@ func (w waitingState) toggleResourceCards(userID primitive.ObjectID, resourceCar
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
-func (w waitingState) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+func (w waitingState) maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
@@ -479,18 +486,22 @@ func (w waitingState) cancelTradeOffer(userID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
-func (w waitingState) playKnightCard(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
+func (w waitingState) playKnightCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
-func (w waitingState) playRoadBuildingCard(userID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
+func (w waitingState) playRoadBuildingCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
-func (w waitingState) playYearOfPlentyCard(userID primitive.ObjectID, resourceCardTypes []ResourceCardType) error {
+func (w waitingState) playYearOfPlentyCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, demandingResourceCardTypes []ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }
 
-func (w waitingState) playMonopolyCard(userID primitive.ObjectID, resourceCardType ResourceCardType) error {
+func (w waitingState) playMonopolyCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
+}
+
+func (w waitingState) playVictoryPointCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID) error {
 	return errors.WithStack(app_errors.ErrGameHasNotStartedYet)
 }

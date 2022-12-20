@@ -99,6 +99,7 @@ func (p PlayerBuilder) Create() *Player {
 		turnOrder:          p.turnOrder,
 		receivedOffer:      p.receivedOffer,
 		discardedResources: p.discardedResources,
+		score:              p.score,
 		achievements:       p.achievements,
 		resourceCards:      p.resourceCards,
 		developmentCards:   p.developmentCards,

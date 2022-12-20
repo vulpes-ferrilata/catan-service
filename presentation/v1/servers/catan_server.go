@@ -38,7 +38,8 @@ func NewCatanServer(findGamePaginationByLimitByOffsetQueryHandler query.QueryHan
 	playKnightCardCommandHandler command.CommandHandler[*commands.PlayKnightCard],
 	playRoadBuildingCardCommandHandler command.CommandHandler[*commands.PlayRoadBuildingCard],
 	playYearOfPlentyCardCommandHandler command.CommandHandler[*commands.PlayYearOfPlentyCard],
-	playMonopolyCardCommandHandler command.CommandHandler[*commands.PlayMonopolyCard]) pb.CatanServer {
+	playMonopolyCardCommandHandler command.CommandHandler[*commands.PlayMonopolyCard],
+	playVictoryPointCardCommandHandler command.CommandHandler[*commands.PlayVictoryPointCard]) pb.CatanServer {
 	return &catanServer{
 		findGamePaginationByLimitByOffsetQueryHandler: findGamePaginationByLimitByOffsetQueryHandler,
 		getGameDetailByIDByUserIDQueryHandler:         getGameDetailByIDByUserIDQueryHandler,
@@ -63,6 +64,7 @@ func NewCatanServer(findGamePaginationByLimitByOffsetQueryHandler query.QueryHan
 		playRoadBuildingCardCommandHandler:            playRoadBuildingCardCommandHandler,
 		playYearOfPlentyCardCommandHandler:            playYearOfPlentyCardCommandHandler,
 		playMonopolyCardCommandHandler:                playMonopolyCardCommandHandler,
+		playVictoryPointCardCommandHandler:            playVictoryPointCardCommandHandler,
 	}
 }
 
@@ -91,6 +93,7 @@ type catanServer struct {
 	playRoadBuildingCardCommandHandler            command.CommandHandler[*commands.PlayRoadBuildingCard]
 	playYearOfPlentyCardCommandHandler            command.CommandHandler[*commands.PlayYearOfPlentyCard]
 	playMonopolyCardCommandHandler                command.CommandHandler[*commands.PlayMonopolyCard]
+	playVictoryPointCardCommandHandler            command.CommandHandler[*commands.PlayVictoryPointCard]
 }
 
 func (c catanServer) FindGamePaginationByLimitByOffset(ctx context.Context, findGamePaginationByLimitByOffsetRequest *requests.FindGamePaginationByLimitByOffset) (*responses.GamePagination, error) {
@@ -311,9 +314,10 @@ func (c catanServer) ToggleResourceCards(ctx context.Context, toggleResourceCard
 
 func (c catanServer) MaritimeTrade(ctx context.Context, maritimeTradeRequest *requests.MaritimeTrade) (*emptypb.Empty, error) {
 	maritimeTradeCommand := &commands.MaritimeTrade{
-		GameID:           maritimeTradeRequest.GetGameID(),
-		UserID:           maritimeTradeRequest.GetUserID(),
-		ResourceCardType: maritimeTradeRequest.GetResourceCardType(),
+		GameID:                    maritimeTradeRequest.GetGameID(),
+		UserID:                    maritimeTradeRequest.GetUserID(),
+		ResourceCardType:          maritimeTradeRequest.GetResourceCardType(),
+		DemandingResourceCardType: maritimeTradeRequest.GetDemandingResourceCardType(),
 	}
 
 	if err := c.maritimeTradeCommandHandler.Handle(ctx, maritimeTradeCommand); err != nil {
@@ -365,10 +369,11 @@ func (c catanServer) CancelTradeOffer(ctx context.Context, cancelTradeOfferReque
 
 func (c catanServer) PlayKnightCard(ctx context.Context, playKnightCardRequest *requests.PlayKnightCard) (*emptypb.Empty, error) {
 	playKnightCardCommand := &commands.PlayKnightCard{
-		GameID:    playKnightCardRequest.GetGameID(),
-		UserID:    playKnightCardRequest.GetUserID(),
-		TerrainID: playKnightCardRequest.GetTerrainID(),
-		PlayerID:  playKnightCardRequest.GetPlayerID(),
+		GameID:            playKnightCardRequest.GetGameID(),
+		UserID:            playKnightCardRequest.GetUserID(),
+		DevelopmentCardID: playKnightCardRequest.GetDevelopmentCardID(),
+		TerrainID:         playKnightCardRequest.GetTerrainID(),
+		PlayerID:          playKnightCardRequest.GetPlayerID(),
 	}
 
 	if err := c.playKnightCardCommandHandler.Handle(ctx, playKnightCardCommand); err != nil {
@@ -380,9 +385,10 @@ func (c catanServer) PlayKnightCard(ctx context.Context, playKnightCardRequest *
 
 func (c catanServer) PlayRoadBuildingCard(ctx context.Context, playRoadBuildingCardRequest *requests.PlayRoadBuildingCard) (*emptypb.Empty, error) {
 	playRoadBuildingCardCommand := &commands.PlayRoadBuildingCard{
-		GameID:  playRoadBuildingCardRequest.GetGameID(),
-		UserID:  playRoadBuildingCardRequest.GetUserID(),
-		PathIDs: playRoadBuildingCardRequest.GetPathIDs(),
+		GameID:            playRoadBuildingCardRequest.GetGameID(),
+		UserID:            playRoadBuildingCardRequest.GetUserID(),
+		DevelopmentCardID: playRoadBuildingCardRequest.GetDevelopmentCardID(),
+		PathIDs:           playRoadBuildingCardRequest.GetPathIDs(),
 	}
 
 	if err := c.playRoadBuildingCardCommandHandler.Handle(ctx, playRoadBuildingCardCommand); err != nil {
@@ -394,9 +400,10 @@ func (c catanServer) PlayRoadBuildingCard(ctx context.Context, playRoadBuildingC
 
 func (c catanServer) PlayYearOfPlentyCard(ctx context.Context, playYearOfPlentyCardRequest *requests.PlayYearOfPlentyCard) (*emptypb.Empty, error) {
 	playYearOfPlentyCardCommand := &commands.PlayYearOfPlentyCard{
-		GameID:            playYearOfPlentyCardRequest.GetGameID(),
-		UserID:            playYearOfPlentyCardRequest.GetUserID(),
-		ResourceCardTypes: playYearOfPlentyCardRequest.GetResourceCardTypes(),
+		GameID:                     playYearOfPlentyCardRequest.GetGameID(),
+		UserID:                     playYearOfPlentyCardRequest.GetUserID(),
+		DevelopmentCardID:          playYearOfPlentyCardRequest.GetDevelopmentCardID(),
+		DemandingResourceCardTypes: playYearOfPlentyCardRequest.GetDemandingResourceCardTypes(),
 	}
 
 	if err := c.playYearOfPlentyCardCommandHandler.Handle(ctx, playYearOfPlentyCardCommand); err != nil {
@@ -408,12 +415,27 @@ func (c catanServer) PlayYearOfPlentyCard(ctx context.Context, playYearOfPlentyC
 
 func (c catanServer) PlayMonopolyCard(ctx context.Context, playMonopolyCardRequest *requests.PlayMonopolyCard) (*emptypb.Empty, error) {
 	playMonopolyCardCommand := &commands.PlayMonopolyCard{
-		GameID:           playMonopolyCardRequest.GetGameID(),
-		UserID:           playMonopolyCardRequest.GetUserID(),
-		ResourceCardType: playMonopolyCardRequest.GetResourceCardType(),
+		GameID:                    playMonopolyCardRequest.GetGameID(),
+		UserID:                    playMonopolyCardRequest.GetUserID(),
+		DevelopmentCardID:         playMonopolyCardRequest.GetDevelopmentCardID(),
+		DemandingResourceCardType: playMonopolyCardRequest.GetDemandingResourceCardType(),
 	}
 
 	if err := c.playMonopolyCardCommandHandler.Handle(ctx, playMonopolyCardCommand); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c catanServer) PlayVictoryPointCard(ctx context.Context, playVictoryPointCardRequest *requests.PlayVictoryPointCard) (*emptypb.Empty, error) {
+	playVictoryPointCardCommand := &commands.PlayVictoryPointCard{
+		GameID:            playVictoryPointCardRequest.GetGameID(),
+		UserID:            playVictoryPointCardRequest.GetUserID(),
+		DevelopmentCardID: playVictoryPointCardRequest.GetDevelopmentCardID(),
+	}
+
+	if err := c.playVictoryPointCardCommandHandler.Handle(ctx, playVictoryPointCardCommand); err != nil {
 		return nil, errors.WithStack(err)
 	}
 

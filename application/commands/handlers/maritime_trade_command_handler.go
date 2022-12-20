@@ -39,7 +39,12 @@ func (m maritimeTradeCommandHandler) Handle(ctx context.Context, maritimeTradeCo
 		return errors.WithStack(err)
 	}
 
-	demandingResourceCardType, err := models.NewResourceCardType(maritimeTradeCommand.ResourceCardType)
+	resourceCardType, err := models.NewResourceCardType(maritimeTradeCommand.ResourceCardType)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	demandingResourceCardType, err := models.NewResourceCardType(maritimeTradeCommand.DemandingResourceCardType)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -49,7 +54,7 @@ func (m maritimeTradeCommandHandler) Handle(ctx context.Context, maritimeTradeCo
 		return errors.WithStack(err)
 	}
 
-	if err := game.MaritimeTrade(userID, demandingResourceCardType); err != nil {
+	if err := game.MaritimeTrade(userID, resourceCardType, demandingResourceCardType); err != nil {
 		return errors.WithStack(err)
 	}
 

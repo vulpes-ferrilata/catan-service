@@ -6,7 +6,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"github.com/vulpes-ferrilata/catan-service/application/commands"
-	"github.com/vulpes-ferrilata/catan-service/domain/models"
 	"github.com/vulpes-ferrilata/catan-service/domain/repositories"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/command/wrappers"
@@ -14,37 +13,32 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func NewPlayMonopolyCardCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.PlayMonopolyCard] {
-	handler := &playMonopolyCardCommandHandler{
+func NewPlayVictoryPointCardCommandHandler(validate *validator.Validate, db *mongo.Database, gameRepository repositories.GameRepository) command.CommandHandler[*commands.PlayVictoryPointCard] {
+	handler := &playVictoryPointCardCommandHandler{
 		gameRepository: gameRepository,
 	}
-	transactionWrapper := wrappers.NewTransactionWrapper[*commands.PlayMonopolyCard](db, handler)
+	transactionWrapper := wrappers.NewTransactionWrapper[*commands.PlayVictoryPointCard](db, handler)
 	validationWrapper := wrappers.NewValidationWrapper(validate, transactionWrapper)
 
 	return validationWrapper
 }
 
-type playMonopolyCardCommandHandler struct {
+type playVictoryPointCardCommandHandler struct {
 	gameRepository repositories.GameRepository
 }
 
-func (p playMonopolyCardCommandHandler) Handle(ctx context.Context, playMonopolyCardCommand *commands.PlayMonopolyCard) error {
-	gameID, err := primitive.ObjectIDFromHex(playMonopolyCardCommand.GameID)
+func (p playVictoryPointCardCommandHandler) Handle(ctx context.Context, playVictoryPointCardCommand *commands.PlayVictoryPointCard) error {
+	gameID, err := primitive.ObjectIDFromHex(playVictoryPointCardCommand.GameID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	userID, err := primitive.ObjectIDFromHex(playMonopolyCardCommand.UserID)
+	userID, err := primitive.ObjectIDFromHex(playVictoryPointCardCommand.UserID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	developmentCardID, err := primitive.ObjectIDFromHex(playMonopolyCardCommand.DevelopmentCardID)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	demandingResourceCardType, err := models.NewResourceCardType(playMonopolyCardCommand.DemandingResourceCardType)
+	developmentCardID, err := primitive.ObjectIDFromHex(playVictoryPointCardCommand.DevelopmentCardID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -54,7 +48,7 @@ func (p playMonopolyCardCommandHandler) Handle(ctx context.Context, playMonopoly
 		return errors.WithStack(err)
 	}
 
-	if err := game.PlayMonopolyCard(userID, developmentCardID, demandingResourceCardType); err != nil {
+	if err := game.PlayVictoryPointCard(userID, developmentCardID); err != nil {
 		return errors.WithStack(err)
 	}
 

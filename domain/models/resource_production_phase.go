@@ -134,7 +134,7 @@ func (r resourceProductionPhase) toggleResourceCards(userID primitive.ObjectID, 
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceProductionPhase)
 }
 
-func (r resourceProductionPhase) maritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+func (r resourceProductionPhase) maritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
 	return errors.WithStack(app_errors.ErrYouAreUnableToPerformThisActionInResourceProductionPhase)
 }
 

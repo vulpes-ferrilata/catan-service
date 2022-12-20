@@ -40,9 +40,14 @@ func (p playYearOfPlentyCardCommandHandler) Handle(ctx context.Context, playYear
 		return errors.WithStack(err)
 	}
 
-	resourceCardTypes, err := slices.Map(func(resourceCardType string) (models.ResourceCardType, error) {
+	developmentCardID, err := primitive.ObjectIDFromHex(playYearOfPlentyCardCommand.DevelopmentCardID)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	demandingResourceCardTypes, err := slices.Map(func(resourceCardType string) (models.ResourceCardType, error) {
 		return models.NewResourceCardType(resourceCardType)
-	}, playYearOfPlentyCardCommand.ResourceCardTypes)
+	}, playYearOfPlentyCardCommand.DemandingResourceCardTypes)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -52,7 +57,7 @@ func (p playYearOfPlentyCardCommandHandler) Handle(ctx context.Context, playYear
 		return errors.WithStack(err)
 	}
 
-	if err := game.PlayYearOfPlentyCard(userID, resourceCardTypes); err != nil {
+	if err := game.PlayYearOfPlentyCard(userID, developmentCardID, demandingResourceCardTypes); err != nil {
 		return errors.WithStack(err)
 	}
 

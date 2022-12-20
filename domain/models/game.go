@@ -192,8 +192,8 @@ func (g *Game) ToggleResourceCards(userID primitive.ObjectID, resourceCardIDs []
 	return nil
 }
 
-func (g *Game) MaritimeTrade(userID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
-	if err := g.getState().maritimeTrade(userID, demandingResourceCardType); err != nil {
+func (g *Game) MaritimeTrade(userID primitive.ObjectID, resourceCardType ResourceCardType, demandingResourceCardType ResourceCardType) error {
+	if err := g.getState().maritimeTrade(userID, resourceCardType, demandingResourceCardType); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -224,32 +224,40 @@ func (g *Game) CancelTradeOffer(userID primitive.ObjectID) error {
 	return nil
 }
 
-func (g *Game) PlayKnightCard(userID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
-	if err := g.getState().playKnightCard(userID, terrainID, playerID); err != nil {
+func (g *Game) PlayKnightCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, terrainID primitive.ObjectID, playerID primitive.ObjectID) error {
+	if err := g.getState().playKnightCard(userID, developmentCardID, terrainID, playerID); err != nil {
 		return errors.WithStack(err)
 	}
 
 	return nil
 }
 
-func (g *Game) PlayRoadBuildingCard(userID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
-	if err := g.getState().playRoadBuildingCard(userID, pathIDs); err != nil {
+func (g *Game) PlayRoadBuildingCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, pathIDs []primitive.ObjectID) error {
+	if err := g.getState().playRoadBuildingCard(userID, developmentCardID, pathIDs); err != nil {
 		return errors.WithStack(err)
 	}
 
 	return nil
 }
 
-func (g *Game) PlayYearOfPlentyCard(userID primitive.ObjectID, resourceCardTypes []ResourceCardType) error {
-	if err := g.getState().playYearOfPlentyCard(userID, resourceCardTypes); err != nil {
+func (g *Game) PlayYearOfPlentyCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, demandingResourceCardTypes []ResourceCardType) error {
+	if err := g.getState().playYearOfPlentyCard(userID, developmentCardID, demandingResourceCardTypes); err != nil {
 		return errors.WithStack(err)
 	}
 
 	return nil
 }
 
-func (g *Game) PlayMonopolyCard(userID primitive.ObjectID, resourceCardType ResourceCardType) error {
-	if err := g.getState().playMonopolyCard(userID, resourceCardType); err != nil {
+func (g *Game) PlayMonopolyCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID, demandingResourceCardType ResourceCardType) error {
+	if err := g.getState().playMonopolyCard(userID, developmentCardID, demandingResourceCardType); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func (g *Game) PlayVictoryPointCard(userID primitive.ObjectID, developmentCardID primitive.ObjectID) error {
+	if err := g.getState().playVictoryPointCard(userID, developmentCardID); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -428,25 +436,6 @@ func (g *Game) robPlayer(player *Player) error {
 	return nil
 }
 
-func (g *Game) useDevelopmentCard(developmentCardType DevelopmentCardType) error {
-	knightDevelopmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
-		return developmentCard.developmentCardType == developmentCardType && developmentCard.status == Enable
-	}, g.activePlayer.developmentCards)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
-	}
-
-	knightDevelopmentCard.status = Used
-
-	for _, developmentCard := range g.activePlayer.developmentCards {
-		if developmentCard.status == Enable {
-			developmentCard.status = Disable
-		}
-	}
-
-	return nil
-}
-
 func (g *Game) dispatchLongestRoadAchievement() error {
 	var longestRoadAchievement *Achievement
 
@@ -599,8 +588,6 @@ func (g *Game) dispatchLargestArmyDevelopment() error {
 }
 
 func (g *Game) calculateScore() {
-	maxScore := 0
-
 	for _, player := range g.getAllPlayers() {
 		score := 0
 
@@ -610,7 +597,7 @@ func (g *Game) calculateScore() {
 			if construction.land != nil {
 				switch construction.constructionType {
 				case Settlement:
-					score += 1
+					score++
 				case City:
 					score += 2
 				}
@@ -618,20 +605,15 @@ func (g *Game) calculateScore() {
 		}
 
 		for _, developmentCard := range player.developmentCards {
-			switch developmentCard.developmentCardType {
-			case VictoryPoint:
-				score += 1
+			if developmentCard.isVictoryPointCard() && developmentCard.status == Used {
+				score++
 			}
 		}
 
 		player.score = score
 
-		if score > maxScore {
-			maxScore = score
+		if score >= 10 {
+			g.status = Finished
 		}
-	}
-
-	if maxScore >= 10 {
-		g.status = Finished
 	}
 }
