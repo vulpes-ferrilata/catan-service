@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	"github.com/vulpes-ferrilata/slices"
 )
 
 func NewHexCorner(q int, r int, location HexCornerLocation) HexCorner {
@@ -83,12 +83,12 @@ func findAdjacentHexCornersFromHexCorner(hexCorner HexCorner) []HexCorner {
 	return hexCorners
 }
 
-func findIntersectionHexCornerBetweenTwoHexEdges(hexEdge1 HexEdge, hexEdge2 HexEdge) (HexCorner, bool) {
+func findIntersectionHexCornerBetweenTwoHexEdges(hexEdge1 HexEdge, hexEdge2 HexEdge) (HexCorner, error) {
 	adjacentHexCorners := findAdjacentHexCornersFromHexEdge(hexEdge1)
 
-	return slices.Find(func(adjacentHexCorner HexCorner) bool {
+	return slices.Find(func(adjacentHexCorner HexCorner) (bool, error) {
 		return adjacentHexCorner.isAdjacentWithHexEdge(hexEdge2)
-	}, adjacentHexCorners)
+	}, adjacentHexCorners...)
 }
 
 type HexCorner struct {
@@ -109,20 +109,26 @@ func (h HexCorner) GetLocation() HexCornerLocation {
 	return h.location
 }
 
-func (h HexCorner) isAdjacentWithHex(hex Hex) bool {
+func (h HexCorner) isAdjacentWithHex(hex Hex) (bool, error) {
 	adjacentHexes := findAdjacentHexesFromHexCorner(h)
 
-	return slices.Contains(adjacentHexes, hex)
+	return slices.Any(func(adjacentHex Hex) (bool, error) {
+		return adjacentHex == hex, nil
+	}, adjacentHexes...)
 }
 
-func (h HexCorner) isAdjacentWithHexEdge(hexEdge HexEdge) bool {
+func (h HexCorner) isAdjacentWithHexEdge(hexEdge HexEdge) (bool, error) {
 	adjacentHexEdges := findAdjacentHexEdgesFromHexCorner(h)
 
-	return slices.Contains(adjacentHexEdges, hexEdge)
+	return slices.Any(func(adjacentHexEdge HexEdge) (bool, error) {
+		return adjacentHexEdge == hexEdge, nil
+	}, adjacentHexEdges...)
 }
 
-func (h HexCorner) isAdjacentWithHexCorner(hexCorner HexCorner) bool {
+func (h HexCorner) isAdjacentWithHexCorner(hexCorner HexCorner) (bool, error) {
 	adjacentHexCorners := findAdjacentHexCornersFromHexCorner(h)
 
-	return slices.Contains(adjacentHexCorners, hexCorner)
+	return slices.Any(func(adjacentHexCorner HexCorner) (bool, error) {
+		return adjacentHexCorner == hexCorner, nil
+	}, adjacentHexCorners...)
 }

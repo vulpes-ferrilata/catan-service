@@ -1,13 +1,14 @@
 package infrastructure
 
 import (
-	command_handlers "github.com/vulpes-ferrilata/catan-service/application/commands/handlers"
-	query_handlers "github.com/vulpes-ferrilata/catan-service/application/queries/handlers"
+	"github.com/vulpes-ferrilata/catan-service/application/commands"
+	"github.com/vulpes-ferrilata/catan-service/application/queries"
+	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/middlewares"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/repositories"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/grpc"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/grpc/interceptors"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/projectors"
-	"github.com/vulpes-ferrilata/catan-service/presentation/v1/servers"
+	"github.com/vulpes-ferrilata/catan-service/presentation"
+	v1 "github.com/vulpes-ferrilata/catan-service/presentation/v1"
 	"go.uber.org/dig"
 )
 
@@ -20,12 +21,16 @@ func NewContainer() *dig.Container {
 	container.Provide(NewValidator)
 	container.Provide(NewLogrus)
 	container.Provide(NewUniversalTranslator)
-	container.Provide(grpc.NewServer)
+	container.Provide(NewQueryBus)
+	container.Provide(NewCommandBus)
 	//--Grpc interceptors
 	container.Provide(interceptors.NewRecoverInterceptor)
 	container.Provide(interceptors.NewErrorHandlerInterceptor)
 	container.Provide(interceptors.NewLocaleInterceptor)
 	container.Provide(interceptors.NewRandomSeedingInterceptor)
+	//--Cqrs middlewares
+	container.Provide(middlewares.NewValidationMiddleware)
+	container.Provide(middlewares.NewTransactionMiddleware)
 
 	//Domain layer
 	//--Repositories
@@ -38,34 +43,35 @@ func NewContainer() *dig.Container {
 
 	//Application layer
 	//--Queries
-	container.Provide(query_handlers.NewFindGamePaginationByLimitByOffsetQueryHandler)
-	container.Provide(query_handlers.NewGetGameDetailByIDByUserIDQueryHandler)
+	container.Provide(queries.NewFindGamePaginationByLimitByOffsetQueryHandler)
+	container.Provide(queries.NewGetGameDetailByIDByUserIDQueryHandler)
 	//--Commands
-	container.Provide(command_handlers.NewCreateGameCommandHandler)
-	container.Provide(command_handlers.NewJoinGameCommandHandler)
-	container.Provide(command_handlers.NewStartGameCommandHandler)
-	container.Provide(command_handlers.NewBuildSettlementAndRoadCommandHandler)
-	container.Provide(command_handlers.NewRollDicesCommandHandler)
-	container.Provide(command_handlers.NewDiscardResourceCardsCommandHandler)
-	container.Provide(command_handlers.NewMoveRobberCommandHandler)
-	container.Provide(command_handlers.NewEndTurnCommandHandler)
-	container.Provide(command_handlers.NewBuildSettlementCommandHandler)
-	container.Provide(command_handlers.NewBuildRoadCommandHandler)
-	container.Provide(command_handlers.NewUpgradeCityCommandHandler)
-	container.Provide(command_handlers.NewBuyDevelopmentCardCommandHandler)
-	container.Provide(command_handlers.NewToggleResourceCardsCommandHandler)
-	container.Provide(command_handlers.NewMaritimeTradeCommandHandler)
-	container.Provide(command_handlers.NewSendTradeOfferCommandHandler)
-	container.Provide(command_handlers.NewConfirmTradeOfferCommandHandler)
-	container.Provide(command_handlers.NewCancelTradeOfferCommandHandler)
-	container.Provide(command_handlers.NewPlayKnightCardCommandHandler)
-	container.Provide(command_handlers.NewPlayRoadBuildingCardCommandHandler)
-	container.Provide(command_handlers.NewPlayYearOfPlentyCardCommandHandler)
-	container.Provide(command_handlers.NewPlayMonopolyCardCommandHandler)
-	container.Provide(command_handlers.NewPlayVictoryPointCardCommandHandler)
+	container.Provide(commands.NewCreateGameCommandHandler)
+	container.Provide(commands.NewJoinGameCommandHandler)
+	container.Provide(commands.NewStartGameCommandHandler)
+	container.Provide(commands.NewBuildSettlementAndRoadCommandHandler)
+	container.Provide(commands.NewRollDicesCommandHandler)
+	container.Provide(commands.NewDiscardResourceCardsCommandHandler)
+	container.Provide(commands.NewMoveRobberCommandHandler)
+	container.Provide(commands.NewEndTurnCommandHandler)
+	container.Provide(commands.NewBuildSettlementCommandHandler)
+	container.Provide(commands.NewBuildRoadCommandHandler)
+	container.Provide(commands.NewUpgradeCityCommandHandler)
+	container.Provide(commands.NewBuyDevelopmentCardCommandHandler)
+	container.Provide(commands.NewToggleResourceCardsCommandHandler)
+	container.Provide(commands.NewMaritimeTradeCommandHandler)
+	container.Provide(commands.NewSendTradeOfferCommandHandler)
+	container.Provide(commands.NewConfirmTradeOfferCommandHandler)
+	container.Provide(commands.NewCancelTradeOfferCommandHandler)
+	container.Provide(commands.NewPlayKnightCardCommandHandler)
+	container.Provide(commands.NewPlayRoadBuildingCardCommandHandler)
+	container.Provide(commands.NewPlayYearOfPlentyCardCommandHandler)
+	container.Provide(commands.NewPlayMonopolyCardCommandHandler)
+	container.Provide(commands.NewPlayVictoryPointCardCommandHandler)
 
 	//Presentation layer
-	container.Provide(servers.NewCatanServer)
+	container.Provide(presentation.NewServer)
+	container.Provide(v1.NewCatanServer)
 
 	return container
 }

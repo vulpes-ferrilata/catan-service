@@ -2,8 +2,8 @@ package models
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
+	"github.com/vulpes-ferrilata/slices"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -28,20 +28,26 @@ func (r robbingPhase) moveRobber(userID primitive.ObjectID, terrainID primitive.
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	terrain, isExists := slices.Find(func(terrain *Terrain) bool {
-		return terrain.id == terrainID
-	}, r.game.terrains)
-	if !isExists {
+	terrain, err := slices.Find(func(terrain *Terrain) (bool, error) {
+		return terrain.id == terrainID, nil
+	}, r.game.terrains...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrTerrainNotFound)
+	}
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	var player *Player
 	if playerID != primitive.NilObjectID {
-		player, isExists = slices.Find(func(player *Player) bool {
-			return player.id == playerID
-		}, r.game.players)
-		if !isExists {
+		player, err = slices.Find(func(player *Player) (bool, error) {
+			return player.id == playerID, nil
+		}, r.game.players...)
+		if errors.Is(err, slices.ErrNoMatchFound) {
 			return errors.WithStack(app_errors.ErrPlayerNotFound)
+		}
+		if err != nil {
+			return errors.WithStack(err)
 		}
 	}
 

@@ -2,9 +2,9 @@ package mappers
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/documents"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
+	"github.com/vulpes-ferrilata/slices"
 )
 
 type playerMapper struct{}
@@ -16,35 +16,35 @@ func (p playerMapper) ToView(playerDocument *documents.Player) (*models.Player, 
 
 	achievements, err := slices.Map(func(achievementDocument *documents.Achievement) (*models.Achievement, error) {
 		return achievementMapper{}.ToView(achievementDocument)
-	}, playerDocument.Achievements)
+	}, playerDocument.Achievements...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	resourceCards, err := slices.Map(func(resourceCardDocument *documents.ResourceCard) (*models.ResourceCard, error) {
 		return resourceCardMapper{}.ToView(resourceCardDocument)
-	}, playerDocument.ResourceCards)
+	}, playerDocument.ResourceCards...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	developmentCards, err := slices.Map(func(developmentCardDocument *documents.DevelopmentCard) (*models.DevelopmentCard, error) {
 		return developmentCardMapper{}.ToView(developmentCardDocument)
-	}, playerDocument.DevelopmentCards)
+	}, playerDocument.DevelopmentCards...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	constructions, err := slices.Map(func(constructionDocument *documents.Construction) (*models.Construction, error) {
 		return constructionMapper{}.ToView(constructionDocument)
-	}, playerDocument.Constructions)
+	}, playerDocument.Constructions...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	roads, err := slices.Map(func(roadDocument *documents.Road) (*models.Road, error) {
 		return roadMapper{}.ToView(roadDocument)
-	}, playerDocument.Roads)
+	}, playerDocument.Roads...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

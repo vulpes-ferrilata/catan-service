@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/documents"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/mappers"
 	"github.com/vulpes-ferrilata/catan-service/view/models"

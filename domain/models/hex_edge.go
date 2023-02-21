@@ -1,6 +1,6 @@
 package models
 
-import "github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+import "github.com/vulpes-ferrilata/slices"
 
 func NewHexEdge(q int, r int, location HexEdgeLocation) HexEdge {
 	return HexEdge{
@@ -109,14 +109,18 @@ func (h HexEdge) GetLocation() HexEdgeLocation {
 	return h.location
 }
 
-func (h HexEdge) isAdjacentWithHexCorner(hexCorner HexCorner) bool {
+func (h HexEdge) isAdjacentWithHexCorner(hexCorner HexCorner) (bool, error) {
 	adjacentHexCorners := findAdjacentHexCornersFromHexEdge(h)
 
-	return slices.Contains(adjacentHexCorners, hexCorner)
+	return slices.Any(func(adjacentHexCorner HexCorner) (bool, error) {
+		return adjacentHexCorner == hexCorner, nil
+	}, adjacentHexCorners...)
 }
 
-func (h HexEdge) isAdjacentWithHexEdge(hexEdge HexEdge) bool {
+func (h HexEdge) isAdjacentWithHexEdge(hexEdge HexEdge) (bool, error) {
 	adjacentHexEdges := findAdjacentHexEdgesFromHexEdge(h)
 
-	return slices.Contains(adjacentHexEdges, hexEdge)
+	return slices.Any(func(adjacentHexEdge HexEdge) (bool, error) {
+		return adjacentHexEdge == hexEdge, nil
+	}, adjacentHexEdges...)
 }

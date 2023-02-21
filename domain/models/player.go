@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -45,21 +44,21 @@ func (p Player) GetScore() int {
 }
 
 func (p Player) GetAchievements() []*Achievement {
-	return slices.Clone(p.achievements)
+	return p.achievements
 }
 
 func (p Player) GetResourceCards() []*ResourceCard {
-	return slices.Clone(p.resourceCards)
+	return p.resourceCards
 }
 
 func (p Player) GetDevelopmentCards() []*DevelopmentCard {
-	return slices.Clone(p.developmentCards)
+	return p.developmentCards
 }
 
 func (p Player) GetConstructions() []*Construction {
-	return slices.Clone(p.constructions)
+	return p.constructions
 }
 
 func (p Player) GetRoads() []*Road {
-	return slices.Clone(p.roads)
+	return p.roads
 }

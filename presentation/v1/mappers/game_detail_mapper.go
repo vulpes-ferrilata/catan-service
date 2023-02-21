@@ -2,14 +2,14 @@ package mappers
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service-proto/pb/responses"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	pb_models "github.com/vulpes-ferrilata/catan-service-proto/pb/models"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
+	"github.com/vulpes-ferrilata/slices"
 )
 
 type GameDetailMapper struct{}
 
-func (g GameDetailMapper) ToResponse(gameDetail *models.GameDetail) (*responses.GameDetail, error) {
+func (g GameDetailMapper) ToResponse(gameDetail *models.GameDetail) (*pb_models.GameDetail, error) {
 	if gameDetail == nil {
 		return nil, nil
 	}
@@ -19,63 +19,63 @@ func (g GameDetailMapper) ToResponse(gameDetail *models.GameDetail) (*responses.
 		return nil, errors.WithStack(err)
 	}
 
-	playerResponses, err := slices.Map(func(player *models.Player) (*responses.Player, error) {
+	playerResponses, err := slices.Map(func(player *models.Player) (*pb_models.Player, error) {
 		return playerMapper{}.ToResponse(player)
-	}, gameDetail.Players)
+	}, gameDetail.Players...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	diceResponses, err := slices.Map(func(dice *models.Dice) (*responses.Dice, error) {
+	diceResponses, err := slices.Map(func(dice *models.Dice) (*pb_models.Dice, error) {
 		return diceMapper{}.ToResponse(dice)
-	}, gameDetail.Dices)
+	}, gameDetail.Dices...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	achievementResponses, err := slices.Map(func(achievement *models.Achievement) (*responses.Achievement, error) {
+	achievementResponses, err := slices.Map(func(achievement *models.Achievement) (*pb_models.Achievement, error) {
 		return achievementMapper{}.ToResponse(achievement)
-	}, gameDetail.Achievements)
+	}, gameDetail.Achievements...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	resourceCardResponses, err := slices.Map(func(resourceCard *models.ResourceCard) (*responses.ResourceCard, error) {
+	resourceCardResponses, err := slices.Map(func(resourceCard *models.ResourceCard) (*pb_models.ResourceCard, error) {
 		return resourceCardMapper{}.ToResponse(resourceCard)
-	}, gameDetail.ResourceCards)
+	}, gameDetail.ResourceCards...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	developmentCardResponses, err := slices.Map(func(developmentCard *models.DevelopmentCard) (*responses.DevelopmentCard, error) {
+	developmentCardResponses, err := slices.Map(func(developmentCard *models.DevelopmentCard) (*pb_models.DevelopmentCard, error) {
 		return developmentCardMapper{}.ToResponse(developmentCard)
-	}, gameDetail.DevelopmentCards)
+	}, gameDetail.DevelopmentCards...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	terrainResponses, err := slices.Map(func(terrain *models.Terrain) (*responses.Terrain, error) {
+	terrainResponses, err := slices.Map(func(terrain *models.Terrain) (*pb_models.Terrain, error) {
 		return terrainMapper{}.ToResponse(terrain)
-	}, gameDetail.Terrains)
+	}, gameDetail.Terrains...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	landResponses, err := slices.Map(func(land *models.Land) (*responses.Land, error) {
+	landResponses, err := slices.Map(func(land *models.Land) (*pb_models.Land, error) {
 		return landMapper{}.ToResponse(land)
-	}, gameDetail.Lands)
+	}, gameDetail.Lands...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	pathResponses, err := slices.Map(func(path *models.Path) (*responses.Path, error) {
+	pathResponses, err := slices.Map(func(path *models.Path) (*pb_models.Path, error) {
 		return pathMapper{}.ToResponse(path)
-	}, gameDetail.Paths)
+	}, gameDetail.Paths...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return &responses.GameDetail{
+	return &pb_models.GameDetail{
 		ID:               gameDetail.ID.Hex(),
 		Status:           gameDetail.Status,
 		Phase:            gameDetail.Phase,

@@ -1,18 +1,18 @@
 package mappers
 
 import (
-	"github.com/vulpes-ferrilata/catan-service-proto/pb/responses"
+	pb_models "github.com/vulpes-ferrilata/catan-service-proto/pb/models"
 	"github.com/vulpes-ferrilata/catan-service/view/models"
 )
 
 type achievementMapper struct{}
 
-func (a achievementMapper) ToResponse(achievement *models.Achievement) (*responses.Achievement, error) {
+func (a achievementMapper) ToResponse(achievement *models.Achievement) (*pb_models.Achievement, error) {
 	if achievement == nil {
 		return nil, nil
 	}
 
-	return &responses.Achievement{
+	return &pb_models.Achievement{
 		ID:   achievement.ID.Hex(),
 		Type: achievement.Type,
 	}, nil

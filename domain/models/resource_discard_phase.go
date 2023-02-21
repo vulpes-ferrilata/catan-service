@@ -2,8 +2,8 @@ package models
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
+	"github.com/vulpes-ferrilata/slices"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -20,11 +20,14 @@ func (r resourceDiscardPhase) rollDices(userID primitive.ObjectID) error {
 }
 
 func (r resourceDiscardPhase) discardResourceCards(userID primitive.ObjectID, resourceCardIDs []primitive.ObjectID) error {
-	player, isExists := slices.Find(func(player *Player) bool {
-		return player.userID == userID
-	}, r.game.getAllPlayers())
-	if !isExists {
+	player, err := slices.Find(func(player *Player) (bool, error) {
+		return player.userID == userID, nil
+	}, r.game.getAllPlayers()...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrPlayerNotFound)
+	}
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	if player.discardedResources {
@@ -42,15 +45,18 @@ func (r resourceDiscardPhase) discardResourceCards(userID primitive.ObjectID, re
 	}
 
 	selectedResourceCards, err := slices.Map(func(resourceCardID primitive.ObjectID) (*ResourceCard, error) {
-		resourceCard, isExists := slices.Find(func(resourceCard *ResourceCard) bool {
-			return resourceCard.id == resourceCardID
-		}, player.resourceCards)
-		if !isExists {
+		resourceCard, err := slices.Find(func(resourceCard *ResourceCard) (bool, error) {
+			return resourceCard.id == resourceCardID, nil
+		}, player.resourceCards...)
+		if errors.Is(err, slices.ErrNoMatchFound) {
 			return nil, errors.WithStack(app_errors.ErrResourceCardNotFound)
+		}
+		if err != nil {
+			return nil, errors.WithStack(err)
 		}
 
 		return resourceCard, nil
-	}, resourceCardIDs)
+	}, resourceCardIDs...)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -58,9 +64,12 @@ func (r resourceDiscardPhase) discardResourceCards(userID primitive.ObjectID, re
 	player.resourceCards = slices.Remove(player.resourceCards, selectedResourceCards...)
 	r.game.resourceCards = append(r.game.resourceCards, selectedResourceCards...)
 
-	isAllPlayerDiscardedResources := slices.All(func(player *Player) bool {
-		return player.discardedResources || len(player.resourceCards) < 8
-	}, r.game.getAllPlayers())
+	isAllPlayerDiscardedResources, err := slices.All(func(player *Player) (bool, error) {
+		return player.discardedResources || len(player.resourceCards) < 8, nil
+	}, r.game.getAllPlayers()...)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 	if isAllPlayerDiscardedResources {
 		r.game.phase = Robbing
 	}

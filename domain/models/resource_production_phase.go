@@ -4,8 +4,8 @@ import (
 	"math/rand"
 
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
+	"github.com/vulpes-ferrilata/slices"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -32,9 +32,12 @@ func (r resourceProductionPhase) rollDices(userID primitive.ObjectID) error {
 	}
 
 	if total == 7 {
-		isAnyPlayerHasResourcesExceedLimit := slices.Any(func(player *Player) bool {
-			return len(player.resourceCards) >= 8
-		}, r.game.getAllPlayers())
+		isAnyPlayerHasResourcesExceedLimit, err := slices.Any(func(player *Player) (bool, error) {
+			return len(player.resourceCards) >= 8, nil
+		}, r.game.getAllPlayers()...)
+		if err != nil {
+			return errors.WithStack(err)
+		}
 		if isAnyPlayerHasResourcesExceedLimit {
 			r.game.phase = ResourceDiscard
 		} else {
@@ -52,9 +55,16 @@ func (r resourceProductionPhase) rollDices(userID primitive.ObjectID) error {
 		}
 
 		for _, player := range r.game.getAllPlayers() {
-			constructions := slices.Filter(func(construction *Construction) bool {
-				return construction.land != nil && construction.land.hexCorner.isAdjacentWithHex(terrain.hex)
-			}, player.constructions)
+			constructions, err := slices.Filter(func(construction *Construction) (bool, error) {
+				isAdjacent, err := construction.land.hexCorner.isAdjacentWithHex(terrain.hex)
+				if err != nil {
+					return false, errors.WithStack(err)
+				}
+				return construction.land != nil && isAdjacent, nil
+			}, player.constructions...)
+			if err != nil {
+				return errors.WithStack(err)
+			}
 
 			for _, construction := range constructions {
 				resourceDemand := 1
@@ -63,23 +73,27 @@ func (r resourceProductionPhase) rollDices(userID primitive.ObjectID) error {
 				}
 
 				for i := 1; i <= resourceDemand; i++ {
-					resourceCard, isExists := slices.Find(func(resourceCard *ResourceCard) bool {
+					resourceCard, err := slices.Find(func(resourceCard *ResourceCard) (bool, error) {
 						switch terrain.terrainType {
 						case Forest:
-							return resourceCard.resourceCardType == Lumber
+							return resourceCard.resourceCardType == Lumber, nil
 						case Hill:
-							return resourceCard.resourceCardType == Brick
+							return resourceCard.resourceCardType == Brick, nil
 						case Pasture:
-							return resourceCard.resourceCardType == Wool
+							return resourceCard.resourceCardType == Wool, nil
 						case Field:
-							return resourceCard.resourceCardType == Grain
+							return resourceCard.resourceCardType == Grain, nil
 						case Mountain:
-							return resourceCard.resourceCardType == Ore
+							return resourceCard.resourceCardType == Ore, nil
+						default:
+							return false, nil
 						}
-						return false
-					}, r.game.resourceCards)
-					if !isExists {
+					}, r.game.resourceCards...)
+					if errors.Is(err, slices.ErrNoMatchFound) {
 						goto Rollback
+					}
+					if err != nil {
+						return errors.WithStack(err)
 					}
 
 					r.game.resourceCards = slices.Remove(r.game.resourceCards, resourceCard)

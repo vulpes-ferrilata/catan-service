@@ -1,6 +1,6 @@
 package models
 
-import "github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+import "github.com/vulpes-ferrilata/slices"
 
 func NewHex(q int, r int) Hex {
 	return Hex{
@@ -48,12 +48,12 @@ func findAdjacentHexesFromHexCorner(hexCorner HexCorner) []Hex {
 	return hexes
 }
 
-func findIntersectionHexCornersBetweenTwoHexes(hex1 Hex, hex2 Hex) []HexCorner {
+func findIntersectionHexCornersBetweenTwoHexes(hex1 Hex, hex2 Hex) ([]HexCorner, error) {
 	adjacentHexCorners := findAdjacentHexCornersFromHex(hex1)
 
-	return slices.Filter(func(adjacentHexCorner HexCorner) bool {
+	return slices.Filter(func(adjacentHexCorner HexCorner) (bool, error) {
 		return adjacentHexCorner.isAdjacentWithHex(hex2)
-	}, adjacentHexCorners)
+	}, adjacentHexCorners...)
 }
 
 type Hex struct {
@@ -69,8 +69,10 @@ func (h Hex) GetR() int {
 	return h.r
 }
 
-func (h Hex) isAdjacentWithHex(hex Hex) bool {
+func (h Hex) isAdjacentWithHex(hex Hex) (bool, error) {
 	adjacentHexes := findAdjacentHexesFromHex(h)
 
-	return slices.Contains(adjacentHexes, hex)
+	return slices.Any(func(adjacentHex Hex) (bool, error) {
+		return adjacentHex == hex, nil
+	}, adjacentHexes...)
 }

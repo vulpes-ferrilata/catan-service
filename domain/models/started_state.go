@@ -2,8 +2,8 @@ package models
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
+	"github.com/vulpes-ferrilata/slices"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -153,11 +153,14 @@ func (s startedState) playKnightCard(userID primitive.ObjectID, developmentCardI
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
-		return developmentCard.id == developmentCardID
-	}, s.game.activePlayer.developmentCards)
-	if !isExists {
+	developmentCard, err := slices.Find(func(developmentCard *DevelopmentCard) (bool, error) {
+		return developmentCard.id == developmentCardID, nil
+	}, s.game.activePlayer.developmentCards...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
+	}
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	if developmentCard.developmentCardType != Knight {
@@ -176,20 +179,26 @@ func (s startedState) playKnightCard(userID primitive.ObjectID, developmentCardI
 		}
 	}
 
-	terrain, isExists := slices.Find(func(terrain *Terrain) bool {
-		return terrain.id == terrainID
-	}, s.game.terrains)
-	if !isExists {
+	terrain, err := slices.Find(func(terrain *Terrain) (bool, error) {
+		return terrain.id == terrainID, nil
+	}, s.game.terrains...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrTerrainNotFound)
+	}
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	var player *Player
 	if playerID != primitive.NilObjectID {
-		player, isExists = slices.Find(func(player *Player) bool {
-			return player.id == playerID
-		}, s.game.players)
-		if !isExists {
+		player, err = slices.Find(func(player *Player) (bool, error) {
+			return player.id == playerID, nil
+		}, s.game.players...)
+		if errors.Is(err, slices.ErrNoMatchFound) {
 			return errors.WithStack(app_errors.ErrPlayerNotFound)
+		}
+		if err != nil {
+			return errors.WithStack(err)
 		}
 	}
 
@@ -201,12 +210,6 @@ func (s startedState) playKnightCard(userID primitive.ObjectID, developmentCardI
 		return errors.WithStack(err)
 	}
 
-	if err := s.game.dispatchLargestArmyDevelopment(); err != nil {
-		return errors.WithStack(err)
-	}
-
-	s.game.calculateScore()
-
 	return nil
 }
 
@@ -215,11 +218,14 @@ func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, developmen
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
-		return developmentCard.id == developmentCardID
-	}, s.game.activePlayer.developmentCards)
-	if !isExists {
+	developmentCard, err := slices.Find(func(developmentCard *DevelopmentCard) (bool, error) {
+		return developmentCard.id == developmentCardID, nil
+	}, s.game.activePlayer.developmentCards...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
+	}
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	if developmentCard.developmentCardType != RoadBuilding {
@@ -239,15 +245,18 @@ func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, developmen
 	}
 
 	paths, err := slices.Map(func(pathID primitive.ObjectID) (*Path, error) {
-		path, isExists := slices.Find(func(path *Path) bool {
-			return path.id == pathID
-		}, s.game.paths)
-		if !isExists {
+		path, err := slices.Find(func(path *Path) (bool, error) {
+			return path.id == pathID, nil
+		}, s.game.paths...)
+		if errors.Is(err, slices.ErrNoMatchFound) {
 			return nil, errors.WithStack(app_errors.ErrPathNotFound)
+		}
+		if err != nil {
+			return nil, errors.WithStack(err)
 		}
 
 		return path, nil
-	}, pathIDs)
+	}, pathIDs...)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -258,12 +267,6 @@ func (s startedState) playRoadBuildingCard(userID primitive.ObjectID, developmen
 		}
 	}
 
-	if err := s.game.dispatchLongestRoadAchievement(); err != nil {
-		return errors.WithStack(err)
-	}
-
-	s.game.calculateScore()
-
 	return nil
 }
 
@@ -272,11 +275,14 @@ func (s startedState) playYearOfPlentyCard(userID primitive.ObjectID, developmen
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
-		return developmentCard.id == developmentCardID
-	}, s.game.activePlayer.developmentCards)
-	if !isExists {
+	developmentCard, err := slices.Find(func(developmentCard *DevelopmentCard) (bool, error) {
+		return developmentCard.id == developmentCardID, nil
+	}, s.game.activePlayer.developmentCards...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
+	}
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	if developmentCard.developmentCardType != YearOfPlenty {
@@ -300,11 +306,14 @@ func (s startedState) playYearOfPlentyCard(userID primitive.ObjectID, developmen
 	}
 
 	for _, resourceCardType := range demandingResourceCardTypes {
-		resourceCard, isExists := slices.Find(func(resourceCard *ResourceCard) bool {
-			return resourceCard.resourceCardType == resourceCardType
-		}, s.game.resourceCards)
-		if !isExists {
+		resourceCard, err := slices.Find(func(resourceCard *ResourceCard) (bool, error) {
+			return resourceCard.resourceCardType == resourceCardType, nil
+		}, s.game.resourceCards...)
+		if errors.Is(err, slices.ErrNoMatchFound) {
 			continue
+		}
+		if err != nil {
+			return errors.WithStack(err)
 		}
 
 		s.game.resourceCards = slices.Remove(s.game.resourceCards, resourceCard)
@@ -319,11 +328,14 @@ func (s startedState) playMonopolyCard(userID primitive.ObjectID, developmentCar
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
-		return developmentCard.id == developmentCardID
-	}, s.game.activePlayer.developmentCards)
-	if !isExists {
+	developmentCard, err := slices.Find(func(developmentCard *DevelopmentCard) (bool, error) {
+		return developmentCard.id == developmentCardID, nil
+	}, s.game.activePlayer.developmentCards...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
+	}
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	if developmentCard.developmentCardType != Monopoly {
@@ -363,10 +375,10 @@ func (s startedState) playVictoryPointCard(userID primitive.ObjectID, developmen
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	developmentCard, isExists := slices.Find(func(developmentCard *DevelopmentCard) bool {
-		return developmentCard.id == developmentCardID
-	}, s.game.activePlayer.developmentCards)
-	if !isExists {
+	developmentCard, err := slices.Find(func(developmentCard *DevelopmentCard) (bool, error) {
+		return developmentCard.id == developmentCardID, nil
+	}, s.game.activePlayer.developmentCards...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrDevelopmentCardNotFound)
 	}
 
@@ -379,8 +391,6 @@ func (s startedState) playVictoryPointCard(userID primitive.ObjectID, developmen
 	}
 
 	developmentCard.status = Used
-
-	s.game.calculateScore()
 
 	return nil
 }

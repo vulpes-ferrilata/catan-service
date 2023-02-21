@@ -2,8 +2,8 @@ package models
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
+	"github.com/vulpes-ferrilata/slices"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -16,45 +16,68 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 		return errors.WithStack(app_errors.ErrYouAreNotInTurn)
 	}
 
-	land, isExists := slices.Find(func(land *Land) bool {
-		return land.id == landID
-	}, s.game.lands)
-	if !isExists {
+	land, err := slices.Find(func(land *Land) (bool, error) {
+		return land.id == landID, nil
+	}, s.game.lands...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrLandNotFound)
 	}
-
-	path, isExists := slices.Find(func(path *Path) bool {
-		return path.id == pathID
-	}, s.game.paths)
-	if !isExists {
-		return errors.WithStack(app_errors.ErrPathNotFound)
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
-	isLandAdjacentToAnyConstruction := slices.Any(func(player *Player) bool {
-		return slices.Any(func(construction *Construction) bool {
-			return construction.land != nil && construction.land.hexCorner.isAdjacentWithHexCorner(land.hexCorner)
-		}, player.constructions)
-	}, s.game.getAllPlayers())
+	path, err := slices.Find(func(path *Path) (bool, error) {
+		return path.id == pathID, nil
+	}, s.game.paths...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
+		return errors.WithStack(app_errors.ErrPathNotFound)
+	}
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	isLandAdjacentToAnyConstruction, err := slices.Any(func(player *Player) (bool, error) {
+		return slices.Any(func(construction *Construction) (bool, error) {
+			isAdjacentWithHexCorner, err := construction.land.hexCorner.isAdjacentWithHexCorner(land.hexCorner)
+			if err != nil {
+				return false, errors.WithStack(err)
+			}
+			return construction.land != nil && isAdjacentWithHexCorner, nil
+		}, player.constructions...)
+	}, s.game.getAllPlayers()...)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 	if isLandAdjacentToAnyConstruction {
 		return errors.WithStack(app_errors.ErrNearbyLandsMustBeVacant)
 	}
 
-	if !path.hexEdge.isAdjacentWithHexCorner(land.hexCorner) {
+	isAdjacentWithHexCorner, err := path.hexEdge.isAdjacentWithHexCorner(land.hexCorner)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if !isAdjacentWithHexCorner {
 		return errors.WithStack(app_errors.ErrSelectedLandAndPathMustBeAdjacent)
 	}
 
-	settlement, isExists := slices.Find(func(construction *Construction) bool {
-		return construction.land == nil && construction.constructionType == Settlement
-	}, s.game.activePlayer.constructions)
-	if !isExists {
+	settlement, err := slices.Find(func(construction *Construction) (bool, error) {
+		return construction.land == nil && construction.constructionType == Settlement, nil
+	}, s.game.activePlayer.constructions...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrYouRunOutOfSettlements)
 	}
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
-	road, isExists := slices.Find(func(road *Road) bool {
-		return road.path == nil
-	}, s.game.activePlayer.roads)
-	if !isExists {
+	road, err := slices.Find(func(road *Road) (bool, error) {
+		return road.path == nil, nil
+	}, s.game.activePlayer.roads...)
+	if errors.Is(err, slices.ErrNoMatchFound) {
 		return errors.WithStack(app_errors.ErrYouRunOutOfRoads)
+	}
+	if err != nil {
+		return errors.WithStack(err)
 	}
 
 	//build settlement and road
@@ -67,54 +90,72 @@ func (s setupPhase) buildSettlementAndRoad(userID primitive.ObjectID, landID pri
 	if s.game.turn == 2 {
 		adjacentHexes := findAdjacentHexesFromHexCorner(land.hexCorner)
 
-		terrains := slices.Filter(func(terrain *Terrain) bool {
-			return slices.Contains(adjacentHexes, terrain.hex) && terrain.terrainType != Desert
-		}, s.game.terrains)
+		terrains, err := slices.Filter(func(terrain *Terrain) (bool, error) {
+			_, err := slices.Find(func(adjacentHex Hex) (bool, error) {
+				return adjacentHex == terrain.hex, nil
+			}, adjacentHexes...)
+			if errors.Is(err, slices.ErrNoMatchFound) {
+				return false, nil
+			}
+			if err != nil {
+				return false, errors.WithStack(err)
+			}
+
+			return terrain.terrainType != Desert, nil
+		}, s.game.terrains...)
+		if err != nil {
+			return errors.WithStack(err)
+		}
 
 		for _, terrain := range terrains {
-			resourceCard, isExists := slices.Find(func(resourceCard *ResourceCard) bool {
+			resourceCard, err := slices.Find(func(resourceCard *ResourceCard) (bool, error) {
 				switch terrain.terrainType {
 				case Forest:
-					return resourceCard.resourceCardType == Lumber
+					return resourceCard.resourceCardType == Lumber, nil
 				case Hill:
-					return resourceCard.resourceCardType == Brick
+					return resourceCard.resourceCardType == Brick, nil
 				case Pasture:
-					return resourceCard.resourceCardType == Wool
+					return resourceCard.resourceCardType == Wool, nil
 				case Field:
-					return resourceCard.resourceCardType == Grain
+					return resourceCard.resourceCardType == Grain, nil
 				case Mountain:
-					return resourceCard.resourceCardType == Ore
+					return resourceCard.resourceCardType == Ore, nil
+				default:
+					return false, nil
 				}
-
-				return false
-			}, s.game.resourceCards)
-			if isExists {
-				s.game.resourceCards = slices.Remove(s.game.resourceCards, resourceCard)
-				s.game.activePlayer.resourceCards = append(s.game.activePlayer.resourceCards, resourceCard)
+			}, s.game.resourceCards...)
+			if errors.Is(err, slices.ErrNoMatchFound) {
+				continue
 			}
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			s.game.resourceCards = slices.Remove(s.game.resourceCards, resourceCard)
+			s.game.activePlayer.resourceCards = append(s.game.activePlayer.resourceCards, resourceCard)
 		}
 	}
 
-	s.game.calculateScore()
-
 	switch s.game.turn {
 	case 1:
-		nextPlayer, isExists := slices.Find(func(p *Player) bool {
-			return p.turnOrder == s.game.activePlayer.turnOrder+1
-		}, s.game.players)
-		if !isExists {
+		nextPlayer, err := slices.Find(func(p *Player) (bool, error) {
+			return p.turnOrder == s.game.activePlayer.turnOrder+1, nil
+		}, s.game.players...)
+		if errors.Is(err, slices.ErrNoMatchFound) {
 			s.game.turn++
 			return nil
+		}
+		if err != nil {
+			return errors.WithStack(err)
 		}
 
 		*s.game.activePlayer, *nextPlayer = *nextPlayer, *s.game.activePlayer //swap pointer
 	case 2:
-		nextPlayer, isExists := slices.Find(func(p *Player) bool {
-			return p.turnOrder == s.game.activePlayer.turnOrder-1
-		}, s.game.players)
-		if !isExists {
+		nextPlayer, err := slices.Find(func(p *Player) (bool, error) {
+			return p.turnOrder == s.game.activePlayer.turnOrder-1, nil
+		}, s.game.players...)
+		if errors.Is(err, slices.ErrNoMatchFound) {
 			s.game.turn++
-
 			s.game.phase = ResourceProduction
 
 			return nil

@@ -4,8 +4,8 @@ import (
 	"math/rand"
 
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/utils/slices"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
+	"github.com/vulpes-ferrilata/slices"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -53,7 +53,7 @@ func (w waitingState) newPlayer(userID primitive.ObjectID) error {
 	return nil
 }
 
-func (w waitingState) initDices() {
+func (w waitingState) initDices() error {
 	for i := 1; i <= 2; i++ {
 		dice := DiceBuilder{}.
 			SetID(primitive.NewObjectID()).
@@ -62,9 +62,11 @@ func (w waitingState) initDices() {
 
 		w.game.dices = append(w.game.dices, dice)
 	}
+
+	return nil
 }
 
-func (w waitingState) initAchievements() {
+func (w waitingState) initAchievements() error {
 	longestRoadAchievement := AchievementBuilder{}.
 		SetID(primitive.NewObjectID()).
 		SetType(LongestRoad).
@@ -78,9 +80,11 @@ func (w waitingState) initAchievements() {
 		Create()
 
 	w.game.achievements = append(w.game.achievements, largestArmyAchievement)
+
+	return nil
 }
 
-func (w waitingState) initResourceCards() {
+func (w waitingState) initResourceCards() error {
 	resourceCardTypes := []ResourceCardType{
 		Lumber,
 		Brick,
@@ -100,9 +104,11 @@ func (w waitingState) initResourceCards() {
 			w.game.resourceCards = append(w.game.resourceCards, resourceCard)
 		}
 	}
+
+	return nil
 }
 
-func (w waitingState) initDevelopmentCards() {
+func (w waitingState) initDevelopmentCards() error {
 	for i := 1; i <= 14; i++ {
 		developmentCard := DevelopmentCardBuilder{}.
 			SetID(primitive.NewObjectID()).
@@ -146,9 +152,11 @@ func (w waitingState) initDevelopmentCards() {
 
 		w.game.developmentCards = append(w.game.developmentCards, developmentCard)
 	}
+
+	return nil
 }
 
-func (w waitingState) initTerrains() {
+func (w waitingState) initTerrains() error {
 	spiralHexes := make([]Hex, 0)
 
 	hexDirections := []hexDirection{
@@ -234,9 +242,11 @@ func (w waitingState) initTerrains() {
 
 		w.game.terrains = append(w.game.terrains, terrain)
 	}
+
+	return nil
 }
 
-func (w waitingState) initHarbors() {
+func (w waitingState) initHarbors() error {
 	circleHexes := make([]Hex, 0)
 
 	hexDirections := []hexDirection{
@@ -281,7 +291,11 @@ func (w waitingState) initHarbors() {
 
 	for _, terrain := range w.game.terrains {
 		for idx, hex := range oddOrEvenCircleHexes {
-			if terrain.hex.isAdjacentWithHex(hex) {
+			isAdjacentWithHex, err := terrain.hex.isAdjacentWithHex(hex)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			if isAdjacentWithHex {
 				terrain.harbor = HarborBuilder{}.
 					SetID(primitive.NewObjectID()).
 					SetHex(hex).
@@ -294,6 +308,8 @@ func (w waitingState) initHarbors() {
 			}
 		}
 	}
+
+	return nil
 }
 
 func (w waitingState) initRobber() {
@@ -398,12 +414,24 @@ func (w waitingState) startGame(userID primitive.ObjectID) error {
 		return errors.WithStack(app_errors.ErrGameMustHaveAtLeastTwoPlayers)
 	}
 
-	w.initDices()
-	w.initAchievements()
-	w.initResourceCards()
-	w.initDevelopmentCards()
-	w.initTerrains()
-	w.initHarbors()
+	if err := w.initDices(); err != nil {
+		return errors.WithStack(err)
+	}
+	if err := w.initAchievements(); err != nil {
+		return errors.WithStack(err)
+	}
+	if err := w.initResourceCards(); err != nil {
+		return errors.WithStack(err)
+	}
+	if err := w.initDevelopmentCards(); err != nil {
+		return errors.WithStack(err)
+	}
+	if err := w.initTerrains(); err != nil {
+		return errors.WithStack(err)
+	}
+	if err := w.initHarbors(); err != nil {
+		return errors.WithStack(err)
+	}
 	w.initRobber()
 	w.initPaths()
 	w.initLands()

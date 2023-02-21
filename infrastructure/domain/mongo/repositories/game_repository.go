@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
 	"github.com/vulpes-ferrilata/catan-service/domain/models"
 	"github.com/vulpes-ferrilata/catan-service/domain/repositories"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/documents"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/mappers"
 	"go.mongodb.org/mongo-driver/bson"

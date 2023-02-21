@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/pkg/errors"
-	"github.com/vulpes-ferrilata/catan-service/infrastructure/app_errors"
+	"github.com/vulpes-ferrilata/catan-service/app_errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
