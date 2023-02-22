@@ -2,11 +2,13 @@ package infrastructure
 
 import (
 	"github.com/vulpes-ferrilata/catan-service/application/commands"
+	"github.com/vulpes-ferrilata/catan-service/application/events"
 	"github.com/vulpes-ferrilata/catan-service/application/queries"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/cqrs/middlewares"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/domain/mongo/repositories"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/grpc/interceptors"
 	"github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/projectors"
+	view_repositories "github.com/vulpes-ferrilata/catan-service/infrastructure/view/mongo/repositories"
 	"github.com/vulpes-ferrilata/catan-service/presentation"
 	v1 "github.com/vulpes-ferrilata/catan-service/presentation/v1"
 	"go.uber.org/dig"
@@ -18,6 +20,7 @@ func NewContainer() *dig.Container {
 	//Infrastructure layer
 	container.Provide(NewConfig)
 	container.Provide(NewMongo)
+	container.Provide(NewKafka)
 	container.Provide(NewValidator)
 	container.Provide(NewLogrus)
 	container.Provide(NewUniversalTranslator)
@@ -37,6 +40,8 @@ func NewContainer() *dig.Container {
 	container.Provide(repositories.NewGameRepository)
 
 	//View layer
+	//--Repositories
+	container.Provide(view_repositories.NewGameOverviewRepository)
 	//--Projectors
 	container.Provide(projectors.NewGamePaginationProjector)
 	container.Provide(projectors.NewGameDetailProjector)
@@ -68,6 +73,9 @@ func NewContainer() *dig.Container {
 	container.Provide(commands.NewPlayYearOfPlentyCardCommandHandler)
 	container.Provide(commands.NewPlayMonopolyCardCommandHandler)
 	container.Provide(commands.NewPlayVictoryPointCardCommandHandler)
+	//--Events
+	container.Provide(events.NewGameOverviewProjector)
+	container.Provide(events.NewGameDetailProjector)
 
 	//Presentation layer
 	container.Provide(presentation.NewServer)

@@ -5,3 +5,5 @@ mongo:
   database_name: catan
   username: app_user
   password: 123456
+kafka:
+  address: 127.0.0.1:9092
